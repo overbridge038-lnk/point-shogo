@@ -2,7 +2,7 @@
 // ・ネットにつながる時は最新版を取りに行き、保存し直す（GitHubを更新すれば次回から新しい版）
 // ・つながらない時は、保存してある版で起動する
 // ※ポイント表や記録はアプリ内（端末）に保存しているので、ここでは扱わない
-const CACHE = 'point-shogo-v1';
+const CACHE = 'point-shogo-v2';
 const FILES = ['./', './index.html', './manifest.webmanifest', './icon-192.png', './icon-512.png', './icon-512-maskable.png'];
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(FILES)).then(() => self.skipWaiting()));

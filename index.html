@@ -1086,7 +1086,7 @@ var I18N = {
     c_other: 'カメラを開けません（{e}）', c_alt: '。写真で読むこともできます',
     p_k: 'かんばんのQRの内容（品番）を入力', p_p: 'ポイント表のQRの内容を入力',
     sc_lbl: 'かんばん読取欄', sc_hint: 'スキャナーで読む／手入力もここ', sc_ph: 'スキャナーで読むと、ここに文字が並びます', sc_man_ph: '品番を入力してEnter', sc_ok: '確定', sc_bad: '正しく読み取れませんでした。もう一度読み取ってください',
-    pl_title: '登録済みのポイント表', pl_search: '品番で探す', pl_none: '合うポイント表はありません', pl_empty: 'まだ登録がありません', pl_cnt: '{n} 件',
+    pl_del: '削除', pl_title: '登録済みのポイント表', pl_search: '品番で探す', pl_none: '合うポイント表はありません', pl_empty: 'まだ登録がありません', pl_cnt: '{n} 件',
     pin_ok: '決定', pin_cancel: 'キャンセル', pin_set: '設定のパスワードを入力', pin_ng: 'NG解除番号を入力',
     t_setpw: 'パスワードが違います'
   },
@@ -1123,7 +1123,7 @@ var I18N = {
     c_other: 'Kamera tidak bisa dibuka ({e})', c_alt: '. Bisa juga baca dengan foto',
     p_k: 'Ketik isi QR kanban (nomor part)', p_p: 'Ketik isi QR tabel poin',
     sc_lbl: 'Kolom scan kanban', sc_hint: 'Scan dengan scanner / ketik juga di sini', sc_ph: 'Scan dengan scanner, huruf akan muncul di sini', sc_man_ph: 'Ketik nomor part lalu Enter', sc_ok: 'OK', sc_bad: 'Tidak terbaca dengan benar. Scan sekali lagi',
-    pl_title: 'Daftar tabel poin', pl_search: 'Cari nomor part', pl_none: 'Tidak ada tabel poin yang cocok', pl_empty: 'Belum ada yang terdaftar', pl_cnt: '{n} buah',
+    pl_del: 'Hapus', pl_title: 'Daftar tabel poin', pl_search: 'Cari nomor part', pl_none: 'Tidak ada tabel poin yang cocok', pl_empty: 'Belum ada yang terdaftar', pl_cnt: '{n} buah',
     pin_ok: 'OK', pin_cancel: 'Batal', pin_set: 'Masukkan kata sandi pengaturan', pin_ng: 'Masukkan kode buka NG',
     t_setpw: 'Kata sandi salah'
   },
@@ -1160,7 +1160,7 @@ var I18N = {
     c_other: 'ကင်မရာ မဖွင့်နိုင်ပါ ({e})', c_alt: '။ ဓာတ်ပုံနဲ့လည်း ဖတ်နိုင်သည်',
     p_k: 'ကန်ဘန် QR (ပါ့နံပါတ်) ကို ရိုက်ထည့်ပါ', p_p: 'ပွိုင့်ဇယား QR ကို ရိုက်ထည့်ပါ',
     sc_lbl: 'ကန်ဘန် ဖတ်ရန်ကွက်', sc_hint: 'စကင်နာနဲ့ဖတ်ပါ / ရိုက်ထည့်ခြင်းလည်း ဒီမှာ', sc_ph: 'စကင်နာနဲ့ ဖတ်လိုက်ရင် စာလုံးတွေ ဒီမှာ ပေါ်လာမည်', sc_man_ph: 'ပါ့နံပါတ် ရိုက်ပြီး Enter', sc_ok: 'အတည်ပြု', sc_bad: 'မှန်ကန်စွာ မဖတ်နိုင်ပါ။ ထပ်ဖတ်ပါ',
-    pl_title: 'မှတ်ပုံတင်ပြီး ပွိုင့်ဇယားများ', pl_search: 'ပါ့နံပါတ်ဖြင့် ရှာပါ', pl_none: 'ကိုက်ညီသော ပွိုင့်ဇယား မရှိပါ', pl_empty: 'မှတ်ပုံမတင်ရသေးပါ', pl_cnt: '{n} ခု',
+    pl_del: 'ဖျက်', pl_title: 'မှတ်ပုံတင်ပြီး ပွိုင့်ဇယားများ', pl_search: 'ပါ့နံပါတ်ဖြင့် ရှာပါ', pl_none: 'ကိုက်ညီသော ပွိုင့်ဇယား မရှိပါ', pl_empty: 'မှတ်ပုံမတင်ရသေးပါ', pl_cnt: '{n} ခု',
     pin_ok: 'အတည်ပြု', pin_cancel: 'မလုပ်တော့ပါ', pin_set: 'ဆက်တင် စကားဝှက် ထည့်ပါ', pin_ng: 'NG ဖွင့်ရန်နံပါတ် ထည့်ပါ',
     t_setpw: 'စကားဝှက် မှားနေသည်'
   }
@@ -1554,7 +1554,7 @@ function showPdfList() {
     var v = PDF_INDEX[k];
     return '<div class="pcard"><button class="pthumb" data-view="' + esc(k) + '" data-thumb="' + esc(k) + '" aria-label="' + esc(v.name) + ' を開く"><span>見本を作成中…</span></button>' +
       '<div class="pinfo"><b class="mono">' + esc(v.name.replace(/\.pdf$/i, '')) + '</b><div class="note">照合キー ' + esc(k) + '</div><div class="note">' + Math.round(v.size / 1024) + ' KB・' + esc(v.at) + '</div></div>' +
-      '<div class="pacts"><button class="btn" data-view="' + esc(k) + '">🔍 見る</button><button class="btn" data-dl="' + esc(k) + '">⬇ 保存</button><button class="btn" data-del="' + esc(k) + '">削除</button></div></div>';
+      '<div class="pacts"><button class="btn" data-view="' + esc(k) + '">🔍 見る</button><button class="btn" data-dl="' + esc(k) + '">⬇ 保存</button><button class="btn dng" data-del="' + esc(k) + '">🗑 削除</button></div></div>';
   }).join('') || '<div class="pempty">' + (keys.length ? '「' + esc($('pdfSearch').value) + '」に合うポイント表はありません。' : 'まだ登録がありません。上の枠にPDFをドラッグ＆ドロップしてください。') + '</div>';
   // 画面に見えた分だけ見本を作る（件数が多くても重くならない）
   if (thumbObs) thumbObs.disconnect();
@@ -1610,7 +1610,7 @@ function renderPlist() {
     var v = PDF_INDEX[k];
     return '<div class="pcard"><button class="pthumb" data-view="' + esc(k) + '" data-thumb="' + esc(k) + '" aria-label="' + esc(v.name) + '"><span>…</span></button>' +
       '<div class="pinfo"><b class="mono">' + esc(v.name.replace(/\.pdf$/i, '')) + '</b><div class="note">' + esc(v.at) + '</div></div>' +
-      '<div class="pacts"><button class="btn" data-view="' + esc(k) + '">🔍</button></div></div>';
+      '<div class="pacts"><button class="btn" data-view="' + esc(k) + '">🔍</button><button class="btn dng" data-pldel="' + esc(k) + '">🗑 ' + esc(t('pl_del')) + '</button></div></div>';
   }).join('') || '<div class="pempty">' + esc(t(keys.length ? 'pl_none' : 'pl_empty')) + '</div>';
   if (plObs) plObs.disconnect();
   var els = $('plGrid').querySelectorAll('[data-thumb]');
@@ -1621,15 +1621,27 @@ function renderPlist() {
 }
 function openPlist() {
   if (S.state === 'ng') return;
+  plUnlocked = false;
   $('plSearch').value = ''; $('plist').classList.add('on'); renderPlist();
 }
 function closePlist() { $('plist').classList.remove('on'); $('plGrid').innerHTML = ''; setTimeout(focusScan, 50); }
 $('pCountBadge').onclick = openPlist;
 $('plClose').onclick = closePlist;
 $('plSearch').oninput = renderPlist;
-$('plist').addEventListener('click', function (e) {
+var plUnlocked = false; // 一覧を開いている間、パスワードは1回だけ
+$('plist').addEventListener('click', async function (e) {
   if (e.target === $('plist')) return closePlist();
-  var vb = e.target.closest('[data-view]'); if (vb) openPreview(vb.getAttribute('data-view'));
+  var vb = e.target.closest('[data-view]'); if (vb) return openPreview(vb.getAttribute('data-view'));
+  var db = e.target.closest('[data-pldel]'); if (!db) return;
+  // 削除は班長・担当者のみ：設定パスワードを確認
+  if (!plUnlocked) {
+    var pw = await askPin(t('pin_set'));
+    if (pw === null) return;
+    if (pw !== pinNorm(CF.setpw)) { toast(t('t_setpw')); soundNg(); return; }
+    plUnlocked = true;
+  }
+  await deletePdf(db.getAttribute('data-pldel'));
+  renderPlist();
 });
 // ---- 登録したポイント表を、元のファイル名（＝品番）のPDFで端末に保存（1件ずつ） ----
 function pdfDataUrl(buf) {
@@ -1653,6 +1665,15 @@ $('dlAll').onclick = async function () {
   btn.disabled = false; btn.textContent = '⬇ すべて保存（1件ずつ）';
   toast(keys.length + ' 件を保存しました', 3000);
 };
+/** ポイント表を1件削除（確認つき） */
+async function deletePdf(k) {
+  var v = PDF_INDEX[k]; if (!v) return false;
+  if (!confirm('ポイント表「' + v.name + '」を削除しますか？\n削除すると、この品番のかんばんはNG（ポイント表なし）になります。\n※必要なら先に「⬇ 保存」しておいてください。')) return false;
+  await tx('pdfs', 'readwrite', function (s) { s.delete(k); });
+  await loadPdfIndex(); updateHeader();
+  toast('削除しました：' + v.name, 3000);
+  return true;
+}
 var PV_KEY = null;
 $('pvSave').onclick = function () { if (PV_KEY) savePdf(PV_KEY); };
 function closePreview() { $('pview').classList.remove('on'); $('pvBody').innerHTML = ''; }
@@ -1666,10 +1687,8 @@ $('pdfList').addEventListener('click', async function (e) {
   var vb = e.target.closest('[data-view]'); if (vb) return openPreview(vb.getAttribute('data-view'));
   var sb = e.target.closest('[data-dl]'); if (sb) { await savePdf(sb.getAttribute('data-dl')); return toast('保存しました：' + PDF_INDEX[sb.getAttribute('data-dl')].name); }
   var db = e.target.closest('[data-del]'); if (!db) return;
-  var k = db.getAttribute('data-del');
-  if (!confirm(PDF_INDEX[k].name + ' を削除しますか？')) return;
-  await tx('pdfs', 'readwrite', function (s) { s.delete(k); });
-  await loadPdfIndex(); showPdfList(); updateHeader();
+  await deletePdf(db.getAttribute('data-del'));
+  showPdfList();
 });
 $('clearPdf').onclick = async function () {
   if (!confirm('登録済みのポイント表をすべて削除しますか？')) return;
@@ -2450,7 +2469,6 @@ $('langSw').onclick = function () {
 setInterval(updateHeader, 60000);
 </script>
 <script>
-// ホーム画面のアプリとして使う時：電波がなくても起動できるようにする（https で開いた時だけ動く）
 if ('serviceWorker' in navigator && location.protocol === 'https:') {
   window.addEventListener('load', function () { navigator.serviceWorker.register('sw.js').catch(function () {}); });
 }
