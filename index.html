@@ -1241,6 +1241,8 @@ function esc(s) { return String(s == null ? '' : s).replace(/[&<>"]/g, function 
 function norm(s) {
   return String(s || '').normalize('NFKC').toUpperCase().replace(/\.PDF$/i, '').replace(/[\s\-‐‑‒–—―ー−_]/g, '');
 }
+/** 登録名を「,」などで区切った項目（品番と背番号を並べて登録した時） */
+function keyParts(k) { return String(k).split(/[,、，\/／+＋&＆]+/).filter(Boolean); }
 /** QRの中身を区切り（カンマ・タブ・空白など）で分けた候補一覧 */
 function fields(raw) {
   var list = String(raw || '').normalize('NFKC').split(/[,\t;|\s]+/).filter(Boolean);
@@ -1369,13 +1371,30 @@ async function startKanban(raw) {
   //    例：…PA0U0P74043-60020Q32P017… → 74043-60020
   var picked = [], re = /(\d{5})-([0-9A-Z]{5})(?:-([0-9A-Z]{2}))?/g, mm, up = String(raw).normalize('NFKC').toUpperCase();
   while ((mm = re.exec(up))) { picked.push(mm[0]); if (mm[3]) picked.push(mm[1] + '-' + mm[2]); }
-  var cand = picked.concat(fields(raw)), key = '', shown = '';
+  var cand = picked.concat(fields(raw)), key = '', shown = '', whole0 = norm(raw);
+  // ⓪' 品番と背番号などを「,」で並べて登録したポイント表（例：74043-60020,A0U0）
+  //     → 並べた項目が「全部」QRの中にあれば一致（品番が同じでも背番号が違えば別のかんばんとして扱う）
+  //     一番くわしい（項目が多い・長い）ものを優先。同じくわしさで2つ以上ならNGで止める
+  var combo = Object.keys(PDF_INDEX).map(function (k) {
+    var parts = keyParts(k); if (parts.length < 2) return null;
+    var len = parts.join('').length;
+    if (len < 5 || !parts.every(function (q) { return whole0.indexOf(q) >= 0; })) return null;
+    return { k: k, n: parts.length, len: len };
+  }).filter(Boolean).sort(function (a, b) { return b.n - a.n || b.len - a.len; });
+  if (combo.length) {
+    var best = combo.filter(function (c) { return c.n === combo[0].n && c.len === combo[0].len; });
+    if (best.length > 1) {
+      CARD.kPn = picked[0] || raw; renderCards(); setSteps(2);
+      return ng('ng_multi', { t: 'multi', k: picked[0] || raw, list: best.map(function (c) { return PDF_INDEX[c.k].name.replace(/\.pdf$/i, ''); }).join('、') }, { kRaw: raw, part: best.map(function (c) { return c.k; }).join('/') });
+    }
+    key = combo[0].k; shown = PDF_INDEX[key].name.replace(/\.pdf$/i, '');
+  }
   // ① 抜き取った品番、または区切り（カンマ・空白など）で分けた項目が、そのまま品番と一致
-  for (var i = 0; i < cand.length; i++) { var k = norm(cand[i]); if (k && PDF_INDEX[k]) { key = k; shown = cand[i]; break; } }
+  if (!key) for (var i = 0; i < cand.length; i++) { var k = norm(cand[i]); if (k && PDF_INDEX[k]) { key = k; shown = cand[i]; break; } }
   // ② 区切りのないQR（固定長など）：QRの中に登録済みの品番が含まれていれば一致とする
   //    短すぎる品番は別の数字に偶然含まれるので5文字以上だけ。複数含まれる時は一番長い品番を採用
   if (!key) {
-    var whole = norm(raw), hits = Object.keys(PDF_INDEX).filter(function (k) { return k.length >= 5 && whole.indexOf(k) >= 0; });
+    var whole = whole0, hits = Object.keys(PDF_INDEX).filter(function (k) { return keyParts(k).length < 2 && k.length >= 5 && whole.indexOf(k) >= 0; });
     if (hits.length) {
       hits.sort(function (a, b) { return b.length - a.length; });
       var top = hits.filter(function (k) { return k.length === hits[0].length; });
