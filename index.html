@@ -196,7 +196,8 @@ label.f{display:flex;flex-direction:column;gap:6px;font-size:14px;font-weight:80
 .pinfo b{font-size:18px;font-weight:900;word-break:break-all}
 .pinfo .pname{font-size:13px;font-weight:700;word-break:break-all}
 .pinfo .note{font-size:12px;line-height:1.4}
-.pacts{display:flex;gap:8px;padding:8px 12px 12px;margin-top:auto}
+.pacts{display:flex;flex-wrap:wrap;gap:8px;padding:8px 12px 12px;margin-top:auto}
+#pdfList .pacts .btn{flex:1 1 calc(50% - 4px)}
 .pacts .btn{flex:1;min-height:40px;padding:4px 6px;font-size:13px;white-space:nowrap}
 .pempty{grid-column:1/-1;padding:24px;text-align:center;color:var(--sub);font-weight:700}
 #plist{position:fixed;inset:0;z-index:63;display:none;background:rgba(36,26,74,.55);padding:16px;align-items:center;justify-content:center}
@@ -210,6 +211,10 @@ label.f{display:flex;flex-direction:column;gap:6px;font-size:14px;font-weight:80
 .pvbody{overflow:auto;padding:14px;text-align:center}
 .pvbody canvas{max-width:100%;border:2px solid var(--ink);border-radius:8px;margin-bottom:12px;background:#fff}
 /* ---- ポイント表をつくる ---- */
+.editBar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:0 0 12px;padding:10px 14px;background:var(--sun);border:var(--line);border-radius:16px;font-weight:800;box-shadow:var(--pop-s)}
+.editBar[hidden]{display:none}
+.editBar span{flex:1;min-width:200px}
+.editBar .btn{min-height:40px;padding:4px 14px;font-size:14px}
 .tplGrid{display:grid;grid-template-columns:minmax(260px,420px) 1fr;gap:18px;align-items:start}
 .tplForm{display:grid;gap:12px}
 .tplLbl{display:flex;align-items:center;gap:6px;font-size:14px;font-weight:900;color:var(--ink)}
@@ -448,6 +453,7 @@ html[lang=my] #ng .why{font-size:22px;line-height:1.6}
   </div>
   <div class="card" id="tplCard">
     <h3>ポイント表をつくる（スマホからもOK）</h3>
+    <div class="editBar" id="editBar" hidden><span>✏ 編集中：<b id="editName"></b>（「上書き保存」で登録済みのポイント表を入れ替えます）</span><button class="btn" id="editCancel">編集をやめる</button></div>
     <p class="note" style="margin:0 0 10px">写真・品番・収容数・ポイントを入れて「登録する」を押すと、ポイント表（PDF・ファイル名＝品番）ができて、すぐ照合に使えます。<br>
       ほかの端末でも使う時は「PDFを保存」して、Googleドライブに置いてください。</p>
     <div class="tplGrid">
@@ -1633,7 +1639,7 @@ function showPdfList() {
     var v = PDF_INDEX[k];
     return '<div class="pcard"><button class="pthumb" data-view="' + esc(k) + '" data-thumb="' + esc(k) + '" aria-label="' + esc(v.name) + ' を開く"><span>見本を作成中…</span></button>' +
       '<div class="pinfo"><b class="mono">' + esc(v.name.replace(/\.pdf$/i, '')) + '</b><div class="note">照合キー ' + esc(k) + '</div><div class="note">' + Math.round(v.size / 1024) + ' KB・' + esc(v.at) + '</div></div>' +
-      '<div class="pacts"><button class="btn" data-view="' + esc(k) + '">🔍 見る</button><button class="btn" data-dl="' + esc(k) + '">⬇ 保存</button><button class="btn dng" data-del="' + esc(k) + '">🗑 削除</button></div></div>';
+      '<div class="pacts"><button class="btn" data-view="' + esc(k) + '">🔍 見る</button><button class="btn" data-dl="' + esc(k) + '">⬇ 保存</button><button class="btn" data-edit="' + esc(k) + '">✏ 編集</button><button class="btn dng" data-del="' + esc(k) + '">🗑 削除</button></div></div>';
   }).join('') || '<div class="pempty">' + (keys.length ? '「' + esc($('pdfSearch').value) + '」に合うポイント表はありません。' : 'まだ登録がありません。上の枠にPDFをドラッグ＆ドロップしてください。') + '</div>';
   // 画面に見えた分だけ見本を作る（件数が多くても重くならない）
   if (thumbObs) thumbObs.disconnect();
@@ -1689,7 +1695,7 @@ function renderPlist() {
     var v = PDF_INDEX[k];
     return '<div class="pcard"><button class="pthumb" data-view="' + esc(k) + '" data-thumb="' + esc(k) + '" aria-label="' + esc(v.name) + '"><span>…</span></button>' +
       '<div class="pinfo"><b class="mono">' + esc(v.name.replace(/\.pdf$/i, '')) + '</b><div class="note">' + esc(v.at) + '</div></div>' +
-      '<div class="pacts"><button class="btn" data-view="' + esc(k) + '">🔍</button><button class="btn dng" data-pldel="' + esc(k) + '">🗑 ' + esc(t('pl_del')) + '</button></div></div>';
+      '<div class="pacts"><button class="btn" data-view="' + esc(k) + '">🔍</button><button class="btn" data-pledit="' + esc(k) + '">✏</button><button class="btn dng" data-pldel="' + esc(k) + '">🗑 ' + esc(t('pl_del')) + '</button></div></div>';
   }).join('') || '<div class="pempty">' + esc(t(keys.length ? 'pl_none' : 'pl_empty')) + '</div>';
   if (plObs) plObs.disconnect();
   var els = $('plGrid').querySelectorAll('[data-thumb]');
@@ -1711,7 +1717,7 @@ var plUnlocked = false; // 一覧を開いている間、パスワードは1回�
 $('plist').addEventListener('click', async function (e) {
   if (e.target === $('plist')) return closePlist();
   var vb = e.target.closest('[data-view]'); if (vb) return openPreview(vb.getAttribute('data-view'));
-  var db = e.target.closest('[data-pldel]'); if (!db) return;
+  var db = e.target.closest('[data-pldel]'), edb = e.target.closest('[data-pledit]'); if (!db && !edb) return;
   // 削除は班長・担当者のみ：設定パスワードを確認
   if (!plUnlocked) {
     var pw = await askPin(t('pin_set'));
@@ -1719,6 +1725,7 @@ $('plist').addEventListener('click', async function (e) {
     if (pw !== pinNorm(CF.setpw)) { toast(t('t_setpw')); soundNg(); return; }
     plUnlocked = true;
   }
+  if (edb) { closePlist(); return editPdf(edb.getAttribute('data-pledit')); }
   await deletePdf(db.getAttribute('data-pldel'));
   renderPlist();
 });
@@ -1764,6 +1771,7 @@ document.addEventListener('keydown', function (e) {
 });
 $('pdfList').addEventListener('click', async function (e) {
   var vb = e.target.closest('[data-view]'); if (vb) return openPreview(vb.getAttribute('data-view'));
+  var eb = e.target.closest('[data-edit]'); if (eb) return editPdf(eb.getAttribute('data-edit'));
   var sb = e.target.closest('[data-dl]'); if (sb) { await savePdf(sb.getAttribute('data-dl')); return toast('保存しました：' + PDF_INDEX[sb.getAttribute('data-dl')].name); }
   var db = e.target.closest('[data-del]'); if (!db) return;
   await deletePdf(db.getAttribute('data-del'));
@@ -2192,7 +2200,7 @@ function pinClose(v) { $('pinDlg').classList.remove('on'); var r = pinResolve; p
 // ---------- ポイント表をつくる（ひな形） ----------
 // 写真・品番・収容数・ポイントから A4横 のポイント表を作り、PDF（ファイル名＝品番）として登録する。
 // 文字は端末のフォントで画像に描くので、日本語もそのまま。外部ライブラリなし・オフラインで動く。
-var TPL = { imgs: [] }, TPL_MAX = 4;
+var TPL = { imgs: [], editKey: null }, TPL_MAX = 4;
 function inTpl() { return $('v-set').classList.contains('on'); }
 function tplVal() {
   return {
@@ -2460,15 +2468,68 @@ async function tplBuild() {
   var name = v.pn.replace(/[\\/:*?"<>|]/g, '_') + '.pdf';
   return { name: name, key: norm(name), pdf: jpegToPdf(jpeg, cv.width, cv.height) };
 }
+/** 後から編集できるよう、入力した内容（写真・品番・収容数・ポイント）もいっしょに保存する */
+function tplSource() {
+  var v = tplVal();
+  return {
+    pn: v.pn, qty: v.qty, pts: $('tplPts').value,
+    photos: TPL.imgs.map(function (p) {
+      var im = p.im, sc = Math.min(1, 1600 / Math.max(im.naturalWidth, im.naturalHeight));
+      var cv = document.createElement('canvas'); cv.width = Math.round(im.naturalWidth * sc); cv.height = Math.round(im.naturalHeight * sc);
+      var cx = cv.getContext('2d'); cx.fillStyle = '#fff'; cx.fillRect(0, 0, cv.width, cv.height); cx.drawImage(im, 0, 0, cv.width, cv.height);
+      return cv.toDataURL('image/jpeg', 0.85);
+    })
+  };
+}
 $('tplSave').onclick = async function () {
   var r = await tplBuild(); if (!r) return;
   if (!r.key) return toast('品番を確かめてください');
-  if (PDF_INDEX[r.key] && !confirm('品番 ' + tplVal().pn + ' のポイント表は登録済みです（' + PDF_INDEX[r.key].name + '）。上書きしますか？')) return;
-  var rec = { key: r.key, name: r.name, size: r.pdf.length, at: today() + ' ' + nowTime(), data: r.pdf.buffer.slice(0) };
-  await tx('pdfs', 'readwrite', function (st) { st.put(rec); });
-  await loadPdfIndex(); updateHeader();
-  $('tplMsg').innerHTML = '<span style="color:var(--ok);font-weight:900">✓ 登録しました：' + esc(r.name) + '（照合に使えます）</span>';
-  toast('ポイント表を登録しました：' + r.name, 3000); soundOk();
+  var ek = TPL.editKey;
+  if (ek && r.key !== ek) {
+    if (!confirm('品番を「' + PDF_INDEX[ek].name.replace(/\.pdf$/i, '') + '」から「' + tplVal().pn + '」に変えました。\n元のポイント表は消して、新しい品番で登録します。よろしいですか？')) return;
+  }
+  if (PDF_INDEX[r.key] && r.key !== ek && !confirm('品番 ' + tplVal().pn + ' のポイント表は登録済みです（' + PDF_INDEX[r.key].name + '）。上書きしますか？')) return;
+  var rec = { key: r.key, name: r.name, size: r.pdf.length, at: today() + ' ' + nowTime(), data: r.pdf.buffer.slice(0), src: tplSource() };
+  await tx('pdfs', 'readwrite', function (st) { if (ek && ek !== r.key) st.delete(ek); st.put(rec); });
+  await loadPdfIndex(); updateHeader(); THUMBS = {};
+  var was = !!ek; tplEditEnd();
+  $('tplMsg').innerHTML = '<span style="color:var(--ok);font-weight:900">✓ ' + (was ? '上書き保存しました：' : '登録しました：') + esc(r.name) + '（照合に使えます）</span>';
+  toast((was ? 'ポイント表を上書き保存しました：' : 'ポイント表を登録しました：') + r.name, 3000); soundOk();
+};
+
+// ---- 登録済みのポイント表を編集する ----
+function tplReset() {
+  TPL.imgs.forEach(function (p) { try { URL.revokeObjectURL(p.url); } catch (x) {} }); TPL.imgs = []; tplRenderPhotos();
+  tplPhotoMsg('');
+  $('tplPn').value = ''; $('tplQty').value = ''; $('tplPts').value = ''; $('tplMsg').textContent = '';
+  document.querySelectorAll('.tplItem.bad').forEach(function (el) { el.classList.remove('bad'); });
+  tplDraw();
+}
+function tplEditEnd() { TPL.editKey = null; $('editBar').hidden = true; $('tplSave').textContent = '登録する'; }
+/** ポイント表を「ポイント表をつくる」に読み込んで編集できる状態にする */
+async function editPdf(k) {
+  var rec = await getPdf(k); if (!rec) return;
+  gotoView('set');
+  tplReset();
+  TPL.editKey = k; $('editName').textContent = rec.name.replace(/\.pdf$/i, ''); $('editBar').hidden = false; $('tplSave').textContent = '上書き保存';
+  if (rec.src) { // このアプリで作ったもの：入力した内容をそのまま戻す
+    $('tplPn').value = rec.src.pn || ''; $('tplQty').value = rec.src.qty || ''; $('tplPts').value = rec.src.pts || '';
+    for (var i = 0; i < (rec.src.photos || []).length; i++) {
+      var b = await (await fetch(rec.src.photos[i])).blob();
+      await tplSetPhoto(new File([b], 'photo' + (i + 1) + '.jpg', { type: 'image/jpeg' }));
+    }
+    tplPhotoMsg('');
+  } else { // 取り込んだPDFや前の版で作ったもの：元のPDFを写真1枚として読み込む
+    $('tplPn').value = rec.name.replace(/\.pdf$/i, '');
+    await tplSetPdf(new File([rec.data], rec.name, { type: 'application/pdf' }));
+    tplPhotoMsg('ℹ このポイント表は入力内容が残っていないため、元のPDFを写真として読み込みました。収容数・ポイントを入れて「上書き保存」してください。');
+  }
+  tplDraw();
+  setTimeout(function () { $('tplCard').scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 50);
+}
+$('editCancel').onclick = function () {
+  if (!confirm('編集をやめますか？（登録済みのポイント表は変わりません）')) return;
+  tplEditEnd(); tplReset();
 };
 $('tplDl').onclick = async function () {
   var r = await tplBuild(); if (!r) return;
@@ -2476,12 +2537,8 @@ $('tplDl').onclick = async function () {
   var a = document.createElement('a'); a.href = url; a.download = r.name; document.body.appendChild(a); a.click(); a.remove();
 };
 $('tplClear').onclick = function () {
-  if (!confirm('入力した内容をクリアしますか？')) return;
-  TPL.imgs.forEach(function (p) { try { URL.revokeObjectURL(p.url); } catch (x) {} }); TPL.imgs = []; tplRenderPhotos();
-  tplPhotoMsg('');
-  $('tplPn').value = ''; $('tplQty').value = ''; $('tplPts').value = ''; $('tplMsg').textContent = '';
-  document.querySelectorAll('.tplItem.bad').forEach(function (el) { el.classList.remove('bad'); });
-  tplDraw();
+  if (!confirm('入力した内容をクリアしますか？' + (TPL.editKey ? '（編集もやめます）' : ''))) return;
+  tplEditEnd(); tplReset();
 };
 tplDraw();
 
