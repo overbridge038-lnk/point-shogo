@@ -1359,8 +1359,12 @@ async function startKanban(raw) {
   resetView();
   S.state = 'busy'; S.kRaw = raw;
   // 照合は「かんばんQRの品番」と「ポイント表PDFのファイル名（＝品番）」で行う。PDFの中身は照合に使わない
-  var cand = fields(raw), key = '', shown = '';
-  // ① 区切り（カンマ・空白など）で分けた項目が、そのまま品番と一致
+  // ⓪ トヨタ形式の品番（数字5桁-英数5桁［-2桁］）をQRの中から抜き取って、最初に照合する
+  //    例：…PA0U0P74043-60020Q32P017… → 74043-60020
+  var picked = [], re = /(\d{5})-([0-9A-Z]{5})(?:-([0-9A-Z]{2}))?/g, mm, up = String(raw).normalize('NFKC').toUpperCase();
+  while ((mm = re.exec(up))) { picked.push(mm[0]); if (mm[3]) picked.push(mm[1] + '-' + mm[2]); }
+  var cand = picked.concat(fields(raw)), key = '', shown = '';
+  // ① 抜き取った品番、または区切り（カンマ・空白など）で分けた項目が、そのまま品番と一致
   for (var i = 0; i < cand.length; i++) { var k = norm(cand[i]); if (k && PDF_INDEX[k]) { key = k; shown = cand[i]; break; } }
   // ② 区切りのないQR（固定長など）：QRの中に登録済みの品番が含まれていれば一致とする
   //    短すぎる品番は別の数字に偶然含まれるので5文字以上だけ。複数含まれる時は一番長い品番を採用
@@ -1369,18 +1373,22 @@ async function startKanban(raw) {
     if (hits.length) {
       hits.sort(function (a, b) { return b.length - a.length; });
       var top = hits.filter(function (k) { return k.length === hits[0].length; });
+      // 抜き取った品番の中にあるものを優先
+      var pk = picked.map(norm), pref = top.filter(function (k) { return pk.some(function (q) { return q.indexOf(k) >= 0; }); });
+      if (pref.length === 1) top = pref;
       if (top.length > 1) { // 同じ長さで別の品番が2つ以上 → どちらか決められないので止める
         CARD.kPn = raw; renderCards(); setSteps(2);
         return ng('ng_multi', { t: 'multi', k: raw, list: top.map(function (k) { return PDF_INDEX[k].name.replace(/\.pdf$/i, ''); }).join('、') }, { kRaw: raw, part: top.join('/') });
       }
-      key = hits[0]; shown = PDF_INDEX[key].name.replace(/\.pdf$/i, '');
+      key = top[0]; shown = PDF_INDEX[key].name.replace(/\.pdf$/i, '');
     }
   }
-  if (!shown) shown = raw;
+  if (!shown) shown = picked[0] || raw; // 一致しない時も、抜き取れた品番があればそれを見せる
   CARD.kPn = shown; CARD.kRaw = cand.length > 2 ? raw : ''; renderCards();
   setSteps(2);
   if (!key) {
-    return ng('ng_noreg', { t: 'raw', k: raw }, { kRaw: raw, part: norm(raw) });
+    CARD.kPn = shown; renderCards();
+    return ng('ng_noreg', { t: 'raw', k: shown }, { kRaw: raw, part: norm(shown) });
   }
   S.kKey = key; S.kShown = shown;
   var rec = await getPdf(key);
@@ -1901,7 +1909,8 @@ function showScan(v, mode) {
 function scanWarn(on) { $('scanWarn').textContent = on ? t('sc_bad') : ''; $('scanWarn').classList.toggle('on', !!on); }
 function scanFlush() {
   clearTimeout(scanTimer);
-  var fromField = toHalf(scanInp.value), fromCode = scanBuf;
+  // QRの区切り記号（GS・RS などの見えない制御文字）は空白に置きかえる
+  var fromField = toHalf(scanInp.value).replace(/[\x00-\x1F\x7F]+/g, ' '), fromCode = scanBuf;
   scanInp.value = ''; scanBuf = '';
   // 欄の文字が半角英数ならそれ、かなが混ざった・空のときはキー位置から組み立てた文字を使う
   var okF = fromField.trim() && isAscii(fromField), okC = fromCode.trim() && isAscii(fromCode), v = '';
