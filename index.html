@@ -124,8 +124,15 @@ header h1 .logo{width:34px;height:36px;flex:none}
 .pdfhead{display:flex;align-items:center;gap:8px;padding:10px 16px;border-bottom:var(--line);font-size:14px;font-weight:700;background:var(--sun-soft)}
 .pdfhead b{font-size:17px;font-weight:900}
 #pdfCount{background:var(--card);border:2px solid var(--ink);border-radius:999px;padding:2px 10px;font-size:13px}
-#pdfbox{flex:1;overflow:auto;padding:14px;text-align:center;position:relative}
-#pdfbox canvas{max-width:100%;border:2px solid var(--ink);border-radius:8px;margin-bottom:12px;background:#fff}
+#pdfbox{flex:1;overflow:auto;padding:14px;text-align:center;position:relative;touch-action:pan-x pan-y;-webkit-user-select:none;user-select:none}
+#pdfbox canvas{display:block;margin:0 auto 12px;max-width:none;border:2px solid var(--ink);border-radius:8px;background:#fff}
+/* 拡大・縮小（ピンチ・ダブルタップ・ボタン） */
+.zoomBar{display:flex;align-items:center;gap:4px;background:var(--card);border:2px solid var(--ink);border-radius:999px;padding:2px 4px}
+.zoomBar[hidden]{display:none}
+.zoomBar button{min-width:38px;height:34px;border:0;border-radius:999px;background:var(--violet-soft);font-size:20px;font-weight:900;color:var(--ink)}
+.zoomBar button:active{background:var(--violet);color:#fff}
+.zoomBar .zfit{font-size:13px;padding:0 10px}
+#zLbl{min-width:48px;text-align:center;font-size:13px;font-weight:900}
 .empty{display:flex;flex-direction:column;align-items:center;gap:10px;color:var(--sub);font-size:18px;font-weight:800;padding:50px 20px}
 .empty svg{width:120px;height:130px;opacity:.9}
 
@@ -376,7 +383,7 @@ html[lang=my] #ng .why{font-size:22px;line-height:1.6}
     </div>
   </div>
   <div class="right">
-    <div class="pdfhead"><span data-i18n="pdf_h">ポイント表：</span><b id="pdfName">―</b><span style="flex:1"></span><span id="pdfCount"></span></div>
+    <div class="pdfhead"><span data-i18n="pdf_h">ポイント表：</span><b id="pdfName">―</b><span style="flex:1"></span><div class="zoomBar" id="zoomBar" hidden><button id="zOut" aria-label="縮小">－</button><span id="zLbl">100%</span><button id="zIn" aria-label="拡大">＋</button><button id="zFit" class="zfit" data-i18n="z_fit">全体</button></div><span id="pdfCount"></span></div>
     <div id="pdfbox"><div class="empty"><span data-mascot="wait"></span>かんばんを読むと、ここにポイント表が開きます</div></div>
   </div>
 </section>
@@ -1071,7 +1078,7 @@ var I18N = {
     sw4: 'NG（赤・ブー）→作業を止めて班長を呼ぶ。解除は解除番号のみ',
     pdf_h: 'ポイント表：', pdf_cnt: '登録 {n} 件', empty: 'かんばんを読むと、ここにポイント表が開きます',
     ng_noreg: 'この品番のポイント表がありません（品番違いの疑い）', ng_mis: '品番が一致しません（誤品の疑い）',
-    ng_twice: 'かんばんをもう一度読んでいます', ng_open: 'ポイント表PDFを開けません',
+    ng_multi: 'QRの中に複数のポイント表の品番があります', ng_twice: 'かんばんをもう一度読んでいます', ng_open: 'ポイント表PDFを開けません',
     d_k: 'かんばん', d_p: 'ポイント表QR', d_scanp: 'ポイント表のQRを読んでください',
     ng_ask: '作業を止めて班長を呼んでください。解除番号を入力',
     t_unlock: '解除しました。正しいかんばんを読み直してください', t_wrong: '番号が違います',
@@ -1086,7 +1093,7 @@ var I18N = {
     c_other: 'カメラを開けません（{e}）', c_alt: '。写真で読むこともできます',
     p_k: 'かんばんのQRの内容（品番）を入力', p_p: 'ポイント表のQRの内容を入力',
     sc_lbl: 'かんばん読取欄', sc_hint: 'スキャナーで読む／手入力もここ', sc_ph: 'スキャナーで読むと、ここに文字が並びます', sc_man_ph: '品番を入力してEnter', sc_ok: '確定', sc_bad: '正しく読み取れませんでした。もう一度読み取ってください',
-    pl_del: '削除', pl_title: '登録済みのポイント表', pl_search: '品番で探す', pl_none: '合うポイント表はありません', pl_empty: 'まだ登録がありません', pl_cnt: '{n} 件',
+    z_fit: '全体', pl_del: '削除', pl_title: '登録済みのポイント表', pl_search: '品番で探す', pl_none: '合うポイント表はありません', pl_empty: 'まだ登録がありません', pl_cnt: '{n} 件',
     pin_ok: '決定', pin_cancel: 'キャンセル', pin_set: '設定のパスワードを入力', pin_ng: 'NG解除番号を入力',
     t_setpw: 'パスワードが違います'
   },
@@ -1108,7 +1115,7 @@ var I18N = {
     sw4: 'NG (merah, bunyi buzzer) → hentikan kerja dan panggil leader. Hanya bisa dibuka dengan kode',
     pdf_h: 'Tabel poin: ', pdf_cnt: 'Terdaftar {n}', empty: 'Scan kanban, tabel poin akan terbuka di sini',
     ng_noreg: 'Tabel poin untuk nomor part ini tidak ada (kemungkinan salah part)', ng_mis: 'Nomor part tidak cocok (kemungkinan salah part)',
-    ng_twice: 'Kanban yang sama di-scan lagi', ng_open: 'PDF tabel poin tidak bisa dibuka',
+    ng_multi: 'Di dalam QR ada lebih dari satu nomor part tabel poin', ng_twice: 'Kanban yang sama di-scan lagi', ng_open: 'PDF tabel poin tidak bisa dibuka',
     d_k: 'Kanban', d_p: 'QR tabel poin', d_scanp: 'Scan QR tabel poin',
     ng_ask: 'Hentikan kerja dan panggil leader. Masukkan kode untuk membuka',
     t_unlock: 'NG sudah dibuka. Scan ulang kanban yang benar', t_wrong: 'Kode salah',
@@ -1123,7 +1130,7 @@ var I18N = {
     c_other: 'Kamera tidak bisa dibuka ({e})', c_alt: '. Bisa juga baca dengan foto',
     p_k: 'Ketik isi QR kanban (nomor part)', p_p: 'Ketik isi QR tabel poin',
     sc_lbl: 'Kolom scan kanban', sc_hint: 'Scan dengan scanner / ketik juga di sini', sc_ph: 'Scan dengan scanner, huruf akan muncul di sini', sc_man_ph: 'Ketik nomor part lalu Enter', sc_ok: 'OK', sc_bad: 'Tidak terbaca dengan benar. Scan sekali lagi',
-    pl_del: 'Hapus', pl_title: 'Daftar tabel poin', pl_search: 'Cari nomor part', pl_none: 'Tidak ada tabel poin yang cocok', pl_empty: 'Belum ada yang terdaftar', pl_cnt: '{n} buah',
+    z_fit: 'Penuh', pl_del: 'Hapus', pl_title: 'Daftar tabel poin', pl_search: 'Cari nomor part', pl_none: 'Tidak ada tabel poin yang cocok', pl_empty: 'Belum ada yang terdaftar', pl_cnt: '{n} buah',
     pin_ok: 'OK', pin_cancel: 'Batal', pin_set: 'Masukkan kata sandi pengaturan', pin_ng: 'Masukkan kode buka NG',
     t_setpw: 'Kata sandi salah'
   },
@@ -1145,7 +1152,7 @@ var I18N = {
     sw4: 'NG (အနီ・ဘူး) → အလုပ်ရပ်ပြီး ခေါင်းဆောင်ကို ခေါ်ပါ။ နံပါတ်ဖြင့်သာ ပြန်ဖွင့်နိုင်သည်',
     pdf_h: 'ပွိုင့်ဇယား: ', pdf_cnt: 'မှတ်ပုံတင် {n} ခု', empty: 'ကန်ဘန်ဖတ်လိုက်ရင် ဒီမှာ ပွိုင့်ဇယား ပွင့်လာမည်',
     ng_noreg: 'ဒီပါ့နံပါတ်အတွက် ပွိုင့်ဇယား မရှိပါ (ပစ္စည်းမှားနိုင်သည်)', ng_mis: 'ပါ့နံပါတ် မကိုက်ညီပါ (ပစ္စည်းမှားနိုင်သည်)',
-    ng_twice: 'ကန်ဘန်ကို ထပ်ဖတ်နေသည်', ng_open: 'ပွိုင့်ဇယား PDF ကို မဖွင့်နိုင်ပါ',
+    ng_multi: 'QR ထဲမှာ ပွိုင့်ဇယား ပါ့နံပါတ် တစ်ခုထက်ပိုပါနေသည်', ng_twice: 'ကန်ဘန်ကို ထပ်ဖတ်နေသည်', ng_open: 'ပွိုင့်ဇယား PDF ကို မဖွင့်နိုင်ပါ',
     d_k: 'ကန်ဘန်', d_p: 'ပွိုင့်ဇယား QR', d_scanp: 'ပွိုင့်ဇယားရဲ့ QR ကို ဖတ်ပါ',
     ng_ask: 'အလုပ်ရပ်ပြီး ခေါင်းဆောင်ကို ခေါ်ပါ။ ဖွင့်ရန်နံပါတ် ထည့်ပါ',
     t_unlock: 'ပြန်ဖွင့်ပြီးပါပြီ။ မှန်ကန်တဲ့ ကန်ဘန်ကို ပြန်ဖတ်ပါ', t_wrong: 'နံပါတ် မှားနေသည်',
@@ -1160,7 +1167,7 @@ var I18N = {
     c_other: 'ကင်မရာ မဖွင့်နိုင်ပါ ({e})', c_alt: '။ ဓာတ်ပုံနဲ့လည်း ဖတ်နိုင်သည်',
     p_k: 'ကန်ဘန် QR (ပါ့နံပါတ်) ကို ရိုက်ထည့်ပါ', p_p: 'ပွိုင့်ဇယား QR ကို ရိုက်ထည့်ပါ',
     sc_lbl: 'ကန်ဘန် ဖတ်ရန်ကွက်', sc_hint: 'စကင်နာနဲ့ဖတ်ပါ / ရိုက်ထည့်ခြင်းလည်း ဒီမှာ', sc_ph: 'စကင်နာနဲ့ ဖတ်လိုက်ရင် စာလုံးတွေ ဒီမှာ ပေါ်လာမည်', sc_man_ph: 'ပါ့နံပါတ် ရိုက်ပြီး Enter', sc_ok: 'အတည်ပြု', sc_bad: 'မှန်ကန်စွာ မဖတ်နိုင်ပါ။ ထပ်ဖတ်ပါ',
-    pl_del: 'ဖျက်', pl_title: 'မှတ်ပုံတင်ပြီး ပွိုင့်ဇယားများ', pl_search: 'ပါ့နံပါတ်ဖြင့် ရှာပါ', pl_none: 'ကိုက်ညီသော ပွိုင့်ဇယား မရှိပါ', pl_empty: 'မှတ်ပုံမတင်ရသေးပါ', pl_cnt: '{n} ခု',
+    z_fit: 'အပြည့်', pl_del: 'ဖျက်', pl_title: 'မှတ်ပုံတင်ပြီး ပွိုင့်ဇယားများ', pl_search: 'ပါ့နံပါတ်ဖြင့် ရှာပါ', pl_none: 'ကိုက်ညီသော ပွိုင့်ဇယား မရှိပါ', pl_empty: 'မှတ်ပုံမတင်ရသေးပါ', pl_cnt: '{n} ခု',
     pin_ok: 'အတည်ပြု', pin_cancel: 'မလုပ်တော့ပါ', pin_set: 'ဆက်တင် စကားဝှက် ထည့်ပါ', pin_ng: 'NG ဖွင့်ရန်နံပါတ် ထည့်ပါ',
     t_setpw: 'စကားဝှက် မှားနေသည်'
   }
@@ -1334,7 +1341,7 @@ function resetView() {
   S = { state: 'k', kRaw: '', kKey: '', pdfName: '' };
   CARD = { kPn: '―', kRaw: '', pPn: '―', pRaw: '', pHow: '' };
   setSteps(1); setJudge('wait', 'wait_big', 'wait_msg');
-  $('pdfName').textContent = '―';
+  $('pdfName').textContent = '―'; $('zoomBar').hidden = true; ZM.z = 1;
   $('pdfbox').innerHTML = '<div class="empty">' + mascot('wait') + esc(t('empty')) + '</div>';
   renderCards();
 }
@@ -1352,9 +1359,24 @@ async function startKanban(raw) {
   resetView();
   S.state = 'busy'; S.kRaw = raw;
   // 照合は「かんばんQRの品番」と「ポイント表PDFのファイル名（＝品番）」で行う。PDFの中身は照合に使わない
-  var cand = fields(raw), key = '';
-  for (var i = 0; i < cand.length; i++) { var k = norm(cand[i]); if (k && PDF_INDEX[k]) { key = k; break; } }
-  var shown = key ? (cand.find(function (c) { return norm(c) === key; }) || raw) : raw;
+  var cand = fields(raw), key = '', shown = '';
+  // ① 区切り（カンマ・空白など）で分けた項目が、そのまま品番と一致
+  for (var i = 0; i < cand.length; i++) { var k = norm(cand[i]); if (k && PDF_INDEX[k]) { key = k; shown = cand[i]; break; } }
+  // ② 区切りのないQR（固定長など）：QRの中に登録済みの品番が含まれていれば一致とする
+  //    短すぎる品番は別の数字に偶然含まれるので5文字以上だけ。複数含まれる時は一番長い品番を採用
+  if (!key) {
+    var whole = norm(raw), hits = Object.keys(PDF_INDEX).filter(function (k) { return k.length >= 5 && whole.indexOf(k) >= 0; });
+    if (hits.length) {
+      hits.sort(function (a, b) { return b.length - a.length; });
+      var top = hits.filter(function (k) { return k.length === hits[0].length; });
+      if (top.length > 1) { // 同じ長さで別の品番が2つ以上 → どちらか決められないので止める
+        CARD.kPn = raw; renderCards(); setSteps(2);
+        return ng('ng_multi', { t: 'multi', k: raw, list: top.map(function (k) { return PDF_INDEX[k].name.replace(/\.pdf$/i, ''); }).join('、') }, { kRaw: raw, part: top.join('/') });
+      }
+      key = hits[0]; shown = PDF_INDEX[key].name.replace(/\.pdf$/i, '');
+    }
+  }
+  if (!shown) shown = raw;
   CARD.kPn = shown; CARD.kRaw = cand.length > 2 ? raw : ''; renderCards();
   setSteps(2);
   if (!key) {
@@ -1395,6 +1417,7 @@ function renderNg() {
   else if (d.t === 'mis') txt = t('d_k') + ': ' + d.k + '　／　' + t('d_p') + ': ' + d.p;
   else if (d.t === 'twice') txt = t('d_scanp');
   else if (d.t === 'open') txt = d.f + ': ' + d.e;
+  else if (d.t === 'multi') txt = t('d_k') + ': ' + d.k + '　／　' + d.list;
   $('ngWhy').textContent = t(NGVIEW.why); $('ngDet').textContent = txt;
 }
 var codeBuf = '';
@@ -1420,21 +1443,69 @@ function padKey(k) {
 }
 
 // ---------- PDF表示とQR自動読取 ----------
+// ---- ポイント表の表示と拡大（写真の細かい所まで見られるように） ----
+var ZM = { z: 1, fitW: 0 }, Z_MAX = 4;
 async function renderPdf(data) {
   var doc = await pdfjs.getDocument({ data: data.slice(0), isEvalSupported: false }).promise;
   var box = $('pdfbox'); box.innerHTML = '';
-  var pages = [], maxW = Math.max(300, box.clientWidth - 24);
+  var pages = [], fitW = Math.max(300, box.clientWidth - 32), dpr = window.devicePixelRatio || 1;
+  ZM.z = 1; ZM.fitW = fitW;
   for (var n = 1; n <= doc.numPages; n++) {
     var page = await doc.getPage(n), vp0 = page.getViewport({ scale: 1 });
-    var scale = Math.min(3, maxW / vp0.width) * (window.devicePixelRatio || 1);
+    // 拡大してもぼやけないよう、画面の幅より高い解像度で描いておく（重くなりすぎないよう上限あり）
+    var renderW = Math.min(3200, fitW * dpr * 2.5), scale = renderW / vp0.width;
     var vp = page.getViewport({ scale: scale }), cv = document.createElement('canvas');
-    cv.width = vp.width; cv.height = vp.height; cv.style.width = (vp.width / (window.devicePixelRatio || 1)) + 'px';
+    cv.width = Math.round(vp.width); cv.height = Math.round(vp.height); cv.style.width = fitW + 'px';
     box.appendChild(cv);
     await page.render({ canvasContext: cv.getContext('2d'), viewport: vp }).promise;
     pages.push({ page: page, canvas: cv });
   }
+  $('zoomBar').hidden = false; zoomLabel();
   return pages;
 }
+function zoomLabel() { $('zLbl').textContent = Math.round(ZM.z * 100) + '%'; }
+/** 倍率を変える。cx, cy（枠の中の位置）が拡大の中心になる */
+function setZoom(z, cx, cy) {
+  var box = $('pdfbox'); if (!ZM.fitW || !box.querySelector('canvas')) return;
+  z = Math.max(1, Math.min(Z_MAX, z));
+  if (cx === undefined) { cx = box.clientWidth / 2; cy = box.clientHeight / 2; }
+  var r = z / ZM.z, sx = box.scrollLeft + cx, sy = box.scrollTop + cy;
+  ZM.z = z;
+  box.querySelectorAll('canvas').forEach(function (cv) { cv.style.width = (ZM.fitW * z) + 'px'; });
+  box.scrollLeft = sx * r - cx; box.scrollTop = sy * r - cy;
+  zoomLabel();
+}
+$('zIn').onclick = function () { setZoom(ZM.z * 1.5); };
+$('zOut').onclick = function () { setZoom(ZM.z / 1.5); };
+$('zFit').onclick = function () { setZoom(1); $('pdfbox').scrollTop = 0; };
+(function zoomGestures() {
+  var box = $('pdfbox'), pinch = null, lastTap = 0, lastXY = null;
+  function rel(t) { var r = box.getBoundingClientRect(); return { x: t.clientX - r.left, y: t.clientY - r.top }; }
+  box.addEventListener('touchstart', function (e) {
+    if (e.touches.length === 2) { // 2本指でピンチ
+      var a = e.touches[0], b = e.touches[1];
+      pinch = { d: Math.hypot(a.clientX - b.clientX, a.clientY - b.clientY), z: ZM.z };
+    } else if (e.touches.length === 1) { // ダブルタップ：100% ⇔ 250%
+      var now = Date.now(), p = rel(e.touches[0]);
+      if (now - lastTap < 300 && lastXY && Math.hypot(p.x - lastXY.x, p.y - lastXY.y) < 40) {
+        e.preventDefault(); setZoom(ZM.z > 1.2 ? 1 : 2.5, p.x, p.y); lastTap = 0;
+      } else { lastTap = now; lastXY = p; }
+    }
+  }, { passive: false });
+  box.addEventListener('touchmove', function (e) {
+    if (!pinch || e.touches.length !== 2) return;
+    e.preventDefault();
+    var a = e.touches[0], b = e.touches[1], d = Math.hypot(a.clientX - b.clientX, a.clientY - b.clientY);
+    var m = rel({ clientX: (a.clientX + b.clientX) / 2, clientY: (a.clientY + b.clientY) / 2 });
+    setZoom(pinch.z * d / pinch.d, m.x, m.y);
+  }, { passive: false });
+  box.addEventListener('touchend', function (e) { if (e.touches.length < 2) pinch = null; });
+  box.addEventListener('dblclick', function (e) { var p = rel(e); setZoom(ZM.z > 1.2 ? 1 : 2.5, p.x, p.y); });
+  box.addEventListener('wheel', function (e) { // PC：Ctrl＋ホイール
+    if (!e.ctrlKey) return;
+    e.preventDefault(); var p = rel(e); setZoom(ZM.z * (e.deltaY < 0 ? 1.15 : 1 / 1.15), p.x, p.y);
+  }, { passive: false });
+})();
 /** PDFの各ページを画像化してQRを探す（読めなければ倍率を変えて再挑戦） */
 async function findQrInPages(pages) {
   var hasBD = ('BarcodeDetector' in window);
