@@ -117,6 +117,13 @@ header h1 .logo{width:34px;height:36px;flex:none}
 .pdfhead{display:flex;align-items:center;gap:8px;padding:10px 16px;border-bottom:var(--line);font-size:14px;font-weight:700;background:var(--sun-soft)}
 .pdfhead b{font-size:17px;font-weight:900}
 #pdfCount{background:var(--card);border:2px solid var(--ink);border-radius:999px;padding:2px 10px;font-size:13px}
+#ptTrans{flex:none;max-height:38%;overflow:auto;padding:10px 16px;border-bottom:var(--line);background:var(--sun-soft)}
+#ptTrans h4{margin:0 0 6px;font-size:14px;font-weight:900;color:var(--sub)}
+#ptTrans ol{list-style:none;margin:0;padding:0;display:grid;gap:6px}
+#ptTrans li{display:flex;align-items:flex-start;gap:10px;background:var(--card);border:2px solid var(--ink);border-radius:14px;padding:6px 12px}
+#ptTrans li b{flex:none;display:grid;place-items:center;width:26px;height:26px;border-radius:50%;background:var(--ink);color:#fff;font-size:14px}
+#ptTrans .tx{font-size:22px;font-weight:900;line-height:1.3}
+#ptTrans .jp{font-size:12px;font-weight:700;color:var(--sub)}
 #pdfbox{flex:1;overflow:auto;padding:14px;text-align:center;position:relative;touch-action:pan-x pan-y;-webkit-user-select:none;user-select:none}
 #pdfbox canvas{display:block;margin:0 auto 12px;max-width:none;border:2px solid var(--ink);border-radius:8px;background:#fff}
 /* 拡大・縮小（ピンチ・ダブルタップ・ボタン） */
@@ -382,6 +389,7 @@ html[lang=tl] .tab,html[lang=id] .tab{font-size:14px}
   </div>
   <div class="right">
     <div class="pdfhead"><span data-i18n="pdf_h">ポイント表：</span><b id="pdfName">―</b><span style="flex:1"></span><div class="zoomBar" id="zoomBar" hidden><button id="zOut" aria-label="縮小">－</button><span id="zLbl">100%</span><button id="zIn" aria-label="拡大">＋</button><button id="zFit" class="zfit" data-i18n="z_fit">全体</button></div><span id="pdfCount"></span></div>
+    <div id="ptTrans" hidden></div>
     <div id="pdfbox"><div class="empty"><span data-mascot="wait"></span>かんばんを読むと、ここにポイント表が開きます</div></div>
   </div>
 </section>
@@ -462,6 +470,13 @@ html[lang=tl] .tab,html[lang=id] .tab{font-size:14px}
           <span class="tplQty"><input type="number" id="tplQty" inputmode="numeric" min="1" step="1" data-i18n-ph="tp_qty_ph" placeholder="例：20"><span data-i18n="tp_pcs">個</span></span></label>
         <label class="f tplItem"><span class="tplLbl"><b>4</b><span data-i18n="tp_pts">ポイント</span> <span class="req" data-i18n="req">必須</span></span>
           <textarea id="tplPts" rows="5" data-i18n-ph="tp_pts_ph" placeholder="1行に1つずつ書きます&#10;例：向きを確認する&#10;例：キズ・打痕がないこと"></textarea></label>
+        <details class="tplItem" id="tplTrBox"><summary class="tplLbl"><b>5</b><span data-i18n="tp_tr_h">翻訳（任意）</span></summary>
+          <p class="note" style="margin:6px 0" data-i18n="tp_tr_note"></p>
+          <label class="f"><span>English</span><textarea id="tplTr_en" rows="4" spellcheck="false"></textarea></label>
+          <label class="f"><span>Bahasa Indonesia</span><textarea id="tplTr_id" rows="4" spellcheck="false"></textarea></label>
+          <label class="f"><span>Tagalog</span><textarea id="tplTr_tl" rows="4" spellcheck="false"></textarea></label>
+          <p class="note" id="tplTrMsg" style="margin:6px 0 0"></p>
+        </details>
         <p class="note" id="tplMsg" style="margin:0"></p>
         <div class="btnrow">
           <button class="btn pri" id="tplSave" data-i18n="tp_save">登録する</button>
@@ -779,6 +794,9 @@ var I18N = {
     tp_pcs: "個",
     tp_pts: "ポイント",
     tp_pts_ph: "1行に1つずつ書きます\n例：向きを確認する\n例：キズ・打痕がないこと",
+    tp_tr_h: "翻訳（任意）：他の言語の文",
+    tp_tr_note: "日本語のポイントと同じ順番・同じ行数で書きます。入れておくと、その言語を選んだ端末で照合画面のPDFの上に大きく出ます（PDFの文字は日本語のまま）。",
+    tp_tr_warn: "{l} は {n} 行（日本語は {m} 行）。行数をそろえてください",
     tp_save: "登録する",
     tp_overwrite: "上書き保存",
     tp_dl: "PDFを保存",
@@ -1032,6 +1050,9 @@ var I18N = {
     tp_pcs: "pcs",
     tp_pts: "Poin",
     tp_pts_ph: "Tulis satu poin per baris\nContoh: cek arah\nContoh: tidak ada goresan/penyok",
+    tp_tr_h: "Terjemahan (opsional): kalimat bahasa lain",
+    tp_tr_note: "Tulis dengan urutan dan jumlah baris yang sama dengan poin bahasa Jepang. Akan tampil besar di atas PDF pada layar cek di tablet yang memakai bahasa itu (teks PDF tetap bahasa Jepang).",
+    tp_tr_warn: "{l}: {n} baris (bahasa Jepang {m} baris). Samakan jumlah baris",
     tp_save: "Daftarkan",
     tp_overwrite: "Timpa & simpan",
     tp_dl: "Simpan PDF",
@@ -1285,6 +1306,9 @@ var I18N = {
     tp_pcs: "piraso",
     tp_pts: "Mga punto",
     tp_pts_ph: "Isang punto bawat linya\nHal.: tingnan ang direksyon\nHal.: walang gasgas/yupi",
+    tp_tr_h: "Salin (opsyonal): mga pangungusap sa ibang wika",
+    tp_tr_note: "Isulat sa parehong ayos at bilang ng linya ng mga punto sa Japanese. Lalabas ito nang malaki sa ibabaw ng PDF sa check screen ng tablet na gumagamit ng wikang iyon (Japanese pa rin ang teksto ng PDF).",
+    tp_tr_warn: "{l}: {n} linya (Japanese: {m} linya). Pantayin ang bilang ng linya",
     tp_save: "Irehistro",
     tp_overwrite: "I-overwrite",
     tp_dl: "I-save ang PDF",
@@ -1538,6 +1562,9 @@ var I18N = {
     tp_pcs: "pcs",
     tp_pts: "Points",
     tp_pts_ph: "One point per line\ne.g. Check the direction\ne.g. No scratches or dents",
+    tp_tr_h: "Translation (optional): text in other languages",
+    tp_tr_note: "Write in the same order and with the same number of lines as the Japanese points. It is shown large above the PDF on the check screen of tablets set to that language (the PDF text stays Japanese).",
+    tp_tr_warn: "{l}: {n} lines (Japanese: {m} lines). Match the number of lines",
     tp_save: "Register",
     tp_overwrite: "Overwrite",
     tp_dl: "Save PDF",
@@ -1603,6 +1630,7 @@ var I18N = {
   }
 };
 var LANG = 'ja';
+var TRREC = null; // いま照合画面に出しているポイント表の入力内容（翻訳つき）
 /** 訳を取り出す。{n} などは params で置きかえ。無い言語は日本語で表示 */
 function t(key, params) {
   var s = (I18N[LANG] && I18N[LANG][key]) || I18N.ja[key] || key;
@@ -1616,6 +1644,7 @@ function applyLang() {
   document.querySelectorAll('[data-i18n]').forEach(function (el) { el.textContent = t(el.getAttribute('data-i18n')); });
   document.querySelectorAll('[data-i18n-html]').forEach(function (el) { el.innerHTML = t(el.getAttribute('data-i18n-html')); });
   document.querySelectorAll('[data-i18n-ph]').forEach(function (el) { el.placeholder = t(el.getAttribute('data-i18n-ph')); });
+  if (typeof renderTrans === 'function') renderTrans();
   if (typeof tplRenderPhotos === 'function') { tplRenderPhotos(); if (TPL.editKey) $('tplSave').textContent = t('tp_overwrite'); }
   if (typeof showPdfList === 'function' && document.getElementById('v-pdf').classList.contains('on')) showPdfList();
   if (typeof showLogs === 'function' && document.getElementById('v-log').classList.contains('on')) showLogs();
@@ -1769,6 +1798,20 @@ function renderJudge() {
   if (J.big === 'ngstop') face = 'ng';
   $('jMascot').innerHTML = mascot(face);
 }
+/** ポイント表に翻訳が入っていて、日本語以外の言語を選んでいるときは、PDFの上に翻訳を大きく出す */
+function renderTrans() {
+  var box = $('ptTrans'), src = TRREC, ja = [], tr = [];
+  if (src) {
+    ja = String(src.pts || '').split(/\r?\n/).map(function (x) { return x.trim(); }).filter(Boolean);
+    tr = String((src.tr || {})[LANG] || '').split(/\r?\n/).map(function (x) { return x.trim(); }).filter(Boolean);
+  }
+  if (LANG === 'ja' || !tr.length) { box.hidden = true; box.innerHTML = ''; return; }
+  var n = Math.max(ja.length, tr.length), h = '<h4>' + esc(t('tp_pts')) + '</h4><ol>';
+  for (var i = 0; i < n; i++) {
+    h += '<li><b>' + (i + 1) + '</b><div>' + (tr[i] ? '<div class="tx">' + esc(tr[i]) + '</div>' : '') + (ja[i] ? '<div class="jp">' + esc(ja[i]) + '</div>' : '') + '</div></li>';
+  }
+  box.innerHTML = h + '</ol>'; box.hidden = false;
+}
 function renderCards() {
   $('kPn').textContent = CARD.kPn;
   $('kRaw').textContent = CARD.kRaw ? t('qr_content') + CARD.kRaw : '';
@@ -1780,7 +1823,7 @@ function resetView() {
   S = { state: 'k', kRaw: '', kKey: '', pdfName: '' };
   CARD = { kPn: '―', kRaw: '', pPn: '―', pRaw: '', pHow: '' };
   setSteps(1); setJudge('wait', 'wait_big', 'wait_msg');
-  $('pdfName').textContent = '―'; $('zoomBar').hidden = true; ZM.z = 1;
+  $('pdfName').textContent = '―'; $('zoomBar').hidden = true; ZM.z = 1; TRREC = null; renderTrans();
   $('pdfbox').innerHTML = '<div class="empty">' + mascot('wait') + esc(t('empty')) + '</div>';
   renderCards();
 }
@@ -1852,7 +1895,7 @@ async function startKanban(raw) {
   $('pdfName').textContent = rec.name;
   CARD.pPn = rec.name; renderCards();
   setJudge('wait', 'chk_big', 'chk_msg');
-  try { await renderPdf(rec.data); }
+  try { await renderPdf(rec.data); TRREC = rec.src || null; renderTrans(); }
   catch (e) { return ng('ng_open', { t: 'open', f: rec.name, e: (e && e.message || String(e)) }, { kRaw: raw, part: key, pdf: rec.name }); }
   S.state = 'done';
   setSteps(3, true);
@@ -2206,6 +2249,7 @@ $('dlAll').onclick = async function () {
 // ---------- ポイント表の受け渡し（2台そろえる）：1つの一式ファイル（.ptpack）に全部まとめる ----------
 // 形式：先頭8バイト "PTPACK1\n"＋4バイト（見出しの長さ）＋見出しJSON＋PDF本体を順に連結
 var PK = null; // 取り込み待ちの一式 { meta, items:[{key,name,at,data}] }
+function pkTr(src) { var r = (src && src.tr) || {}; return [r.en, r.id, r.tl].map(function (x) { return String(x || '').trim(); }).join('\u0001'); }
 function pkSame(a, b) {
   if (a.byteLength !== b.byteLength) return false;
   var x = new Uint8Array(a), y = new Uint8Array(b);
@@ -2220,7 +2264,7 @@ $('pkOut').onclick = async function () {
     var items = [], parts = [];
     for (var i = 0; i < keys.length; i++) {
       var rec = await getPdf(keys[i]); if (!rec) continue;
-      items.push({ key: rec.key, name: rec.name, at: rec.at, size: rec.data.byteLength }); parts.push(rec.data);
+      items.push({ key: rec.key, name: rec.name, at: rec.at, size: rec.data.byteLength, src: rec.src || null }); parts.push(rec.data);
     }
     var hdr = new TextEncoder().encode(JSON.stringify({ v: 1, term: CF.term, at: today() + ' ' + nowTime(), items: items }));
     var top = new Uint8Array(12); top.set(new TextEncoder().encode('PTPACK1\n'), 0);
@@ -2241,7 +2285,7 @@ $('pkIn').onchange = async function () {
     var buf = await f.arrayBuffer();
     if (buf.byteLength < 12 || new TextDecoder().decode(buf.slice(0, 8)) !== 'PTPACK1\n') throw 0;
     var hl = new DataView(buf).getUint32(8), meta = JSON.parse(new TextDecoder().decode(buf.slice(12, 12 + hl))), off = 12 + hl, items = [];
-    meta.items.forEach(function (m) { items.push({ key: m.key, name: m.name, at: m.at, data: buf.slice(off, off + m.size) }); off += m.size; });
+    meta.items.forEach(function (m) { items.push({ key: m.key, name: m.name, at: m.at, src: m.src || null, data: buf.slice(off, off + m.size) }); off += m.size; });
     if (off > buf.byteLength) throw 0;
     PK = { meta: meta, items: items };
   } catch (e) { PK = null; return toast(t('pk_bad'), 4000); }
@@ -2256,7 +2300,7 @@ async function pkPreview() {
     var it = PK.items[i]; inPack[it.key] = 1;
     if (!PDF_INDEX[it.key]) { a++; it.st = 'a'; continue; }
     var cur = await getPdf(it.key);
-    if (cur && pkSame(cur.data, it.data)) { same++; it.st = 's'; } else { u++; it.st = 'u'; }
+    if (cur && pkSame(cur.data, it.data) && pkTr(cur.src) === pkTr(it.src)) { same++; it.st = 's'; } else { u++; it.st = 'u'; }
   }
   PK.del = $('pkMode').value === 'replace' ? Object.keys(PDF_INDEX).filter(function (k) { return !inPack[k]; }) : [];
   $('pkPrev').innerHTML = esc(t('pk_prev', { a: a, u: u, s: same })) + (PK.del.length ? t('pk_prev_del', { d: PK.del.length }) : '');
@@ -2269,7 +2313,7 @@ $('pkApply').onclick = async function () {
   await tx('pdfs', 'readwrite', function (st) {
     PK.items.forEach(function (it) {
       if (it.st === 's') return;
-      st.put({ key: it.key, name: it.name, size: it.data.byteLength, at: it.at, data: it.data });
+      st.put({ key: it.key, name: it.name, size: it.data.byteLength, at: it.at, data: it.data, src: it.src || undefined });
       if (it.st === 'a') a++; else u++;
     });
     PK.del.forEach(function (k) { st.delete(k); });
@@ -2998,6 +3042,7 @@ function tplSource() {
   var v = tplVal();
   return {
     pn: v.pn, qty: v.qty, pts: $('tplPts').value,
+    tr: { en: $('tplTr_en').value, id: $('tplTr_id').value, tl: $('tplTr_tl').value },
     photos: TPL.imgs.map(function (p) {
       var im = p.im, sc = Math.min(1, 1600 / Math.max(im.naturalWidth, im.naturalHeight));
       var cv = document.createElement('canvas'); cv.width = Math.round(im.naturalWidth * sc); cv.height = Math.round(im.naturalHeight * sc);
@@ -3027,6 +3072,7 @@ function tplReset() {
   TPL.imgs.forEach(function (p) { try { URL.revokeObjectURL(p.url); } catch (x) {} }); TPL.imgs = []; tplRenderPhotos();
   tplPhotoMsg('');
   $('tplPn').value = ''; $('tplQty').value = ''; $('tplPts').value = ''; $('tplMsg').textContent = '';
+  ['en', 'id', 'tl'].forEach(function (l) { $('tplTr_' + l).value = ''; }); $('tplTrMsg').textContent = '';
   document.querySelectorAll('.tplItem.bad').forEach(function (el) { el.classList.remove('bad'); });
   tplDraw();
 }
@@ -3039,6 +3085,9 @@ async function editPdf(k) {
   TPL.editKey = k; $('editName').textContent = rec.name.replace(/\.pdf$/i, ''); $('editBar').hidden = false; $('tplSave').textContent = t('tp_overwrite');
   if (rec.src) { // このアプリで作ったもの：入力した内容をそのまま戻す
     $('tplPn').value = rec.src.pn || ''; $('tplQty').value = rec.src.qty || ''; $('tplPts').value = rec.src.pts || '';
+    var rtr = rec.src.tr || {}; ['en', 'id', 'tl'].forEach(function (l) { $('tplTr_' + l).value = rtr[l] || ''; });
+    if (rtr.en || rtr.id || rtr.tl) $('tplTrBox').open = true;
+    tplTrCheck();
     for (var i = 0; i < (rec.src.photos || []).length; i++) {
       var b = await (await fetch(rec.src.photos[i])).blob();
       await tplSetPhoto(new File([b], 'photo' + (i + 1) + '.jpg', { type: 'image/jpeg' }));
@@ -3065,6 +3114,16 @@ $('tplClear').onclick = function () {
   if (!confirm(t('tp_clear_confirm') + (TPL.editKey ? t('tp_clear_edit') : ''))) return;
   tplEditEnd(); tplReset();
 };
+/** 翻訳の行数が日本語とちがうと、番号がずれるので知らせる（登録はできる） */
+function tplTrCheck() {
+  var cnt = function (v) { return String(v || '').split(/\r?\n/).map(function (x) { return x.trim(); }).filter(Boolean).length; };
+  var m = cnt($('tplPts').value), warn = [];
+  [['en', 'English'], ['id', 'Bahasa Indonesia'], ['tl', 'Tagalog']].forEach(function (x) {
+    var c = cnt($('tplTr_' + x[0]).value); if (c && c !== m) warn.push(t('tp_tr_warn', { l: x[1], n: c, m: m }));
+  });
+  $('tplTrMsg').innerHTML = warn.length ? '<span style="color:var(--ng);font-weight:800">⚠ ' + esc(warn.join(' / ')) + '</span>' : '';
+}
+['tplPts', 'tplTr_en', 'tplTr_id', 'tplTr_tl'].forEach(function (id) { $(id).addEventListener('input', tplTrCheck); });
 tplDraw();
 
 // ---------- 照合データのクリア（班長・担当者のみ：解除番号で保護） ----------
