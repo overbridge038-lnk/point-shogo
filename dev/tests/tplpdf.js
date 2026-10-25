@@ -1,0 +1,16 @@
+const { chromium } = require('playwright'); const S=process.argv[2];
+(async()=>{const b=await chromium.launch({executablePath: process.env.CHROME_PATH || undefined,env:{...process.env,LANG:'C.UTF-8'}});
+const ctx=await b.newContext({viewport:{width:1280,height:800}}); const p=await ctx.newPage(); p.on('pageerror',e=>console.log('pageerror',e.message));
+await p.goto('file://'+S+'/../../dist/ポイント表照合.html'); await p.waitForFunction(()=>/登録済み/.test(document.getElementById('startNote').textContent)); await p.click('.langBtn[data-lang=ja]');
+await p.click('.tab[data-v=set]'); for(const k of '0000') await p.click(`#pinPad button:text-is("${k}")`); await p.click('#pinOk');
+await p.locator('#tplDrop').scrollIntoViewIfNeeded(); const cdp=await ctx.newCDPSession(p); const box=await p.locator('#tplDrop').boundingBox();
+const drop=async(f)=>{ for (const type of ['dragEnter','dragOver','drop']) await cdp.send('Input.dispatchDragEvent',{type,x:box.x+100,y:box.y+50,data:{dragOperationsMask:1,items:[],files:[f]}}); await p.waitForTimeout(1500); };
+const res=async()=>JSON.stringify({photo:await p.evaluate(()=>!!TPL.img), msg:(await p.textContent('#tplPhotoMsg')).slice(0,50)});
+await drop(S+'/broken.pdf'); console.log('broken pdf:', await res());
+await drop(S+'/two.pdf'); console.log('2-page pdf drop:', await res());
+await p.setInputFiles('#tplPhotoIn', S+'/in/12345-67890.pdf'); await p.waitForTimeout(1500); console.log('pdf via file select:', await res());
+await p.fill('#tplPn','55555-66666'); await p.fill('#tplQty','12'); await p.fill('#tplPts','ポイント表PDFを写真として使用');
+await p.locator('#tplCanvas').screenshot({path:S+'/tplpdf_canvas.png'});
+await p.click('#tplSave'); await p.waitForTimeout(500); console.log('save:', await p.textContent('#tplMsg'));
+await p.click('.tab[data-v=check]'); await p.evaluate(()=>onScan('55555-66666')); await p.waitForFunction(()=>document.getElementById('jBig').textContent==='OK'); console.log('scan OK:', await p.textContent('#pdfName'));
+await b.close();})();
