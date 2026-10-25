@@ -138,6 +138,14 @@ header h1 .logo{width:34px;height:36px;flex:none}
 
 #cam{position:fixed;right:16px;bottom:16px;width:340px;border-radius:22px;overflow:hidden;border:var(--line);box-shadow:var(--pop);background:#000;display:none;z-index:40}
 #cam.on{display:block}
+#shot{position:fixed;inset:0;z-index:66;display:none;background:rgba(36,26,74,.7);padding:16px;align-items:center;justify-content:center}
+#shot.on{display:flex}
+#shot .shotbox{background:var(--card);border:var(--line);border-radius:22px;box-shadow:var(--pop);width:min(720px,100%);max-height:100%;overflow:hidden;display:flex;flex-direction:column}
+#shot .shotview{background:#000}
+#shot video{width:100%;display:block;max-height:68vh;object-fit:contain}
+#shot .shotinfo{padding:8px 14px;font-weight:900;text-align:center;background:var(--sun-soft);border-top:var(--line)}
+#shot .cambar{display:flex;gap:8px;padding:8px;border-top:var(--line)}
+#shot .cambar .btn{flex:1;min-height:52px}
 #cam .camview{position:relative;overflow:hidden}
 #cam video{width:100%;display:block;aspect-ratio:4/3;object-fit:cover}
 /* 読み取り枠（中央80%の正方形＝実際に解析する範囲） */
@@ -461,7 +469,9 @@ html[lang=tl] .tab,html[lang=id] .tab{font-size:14px}
           <div class="drop tplDrop" id="tplDrop" role="button" tabindex="0" aria-label="写真を選ぶ">
             <div id="tplDropTxt"><div class="dropTtl">写真・PDFをドラッグ＆ドロップ（最大4枚）</div><div class="dropSub">タップするとファイル選択・撮影ができます。まとめて選んでもOK（コピーした画像は Ctrl＋V でも可）</div></div>
           </div>
+          <div class="btnrow" style="margin-top:8px"><button type="button" class="btn pri" id="tplShot" data-i18n="tp_shot">📷 写真を撮る</button></div>
           <input type="file" id="tplPhotoIn" accept="image/*,application/pdf,.pdf" multiple hidden>
+          <input type="file" id="tplShotIn" accept="image/*" capture="environment" hidden>
           <div class="tplPhotoMsg" id="tplPhotoMsg"></div>
         </div>
         <label class="f tplItem"><span class="tplLbl"><b>2</b><span data-i18n="tp_pn">品番</span> <span class="req" data-i18n="req">必須</span></span>
@@ -541,6 +551,13 @@ html[lang=tl] .tab,html[lang=id] .tab{font-size:14px}
   <div class="cambar"><button class="btn" id="camPhoto" data-i18n="c_photo">📸 写真で撮る</button><button class="btn" id="camClose" data-i18n="c_close">✕ 閉じる</button></div>
 </div>
 <input type="file" id="photoIn" accept="image/*" capture="environment" hidden>
+<div id="shot" role="dialog" aria-modal="true">
+  <div class="shotbox">
+    <div class="shotview"><video id="shotVideo" playsinline muted autoplay></video></div>
+    <div class="shotinfo" id="shotInfo"></div>
+    <div class="cambar"><button class="btn pri" id="shotDo" data-i18n="tp_shot_do">📸 撮る</button><button class="btn" id="shotClose" data-i18n="c_close">✕ 閉じる</button></div>
+  </div>
+</div>
 <div id="toast"></div>
 <div id="plist" role="dialog" aria-modal="true">
   <div class="pvbox">
@@ -797,6 +814,10 @@ var I18N = {
     tp_pts: "ポイント",
     tp_pts_ph: "1行に1つずつ書きます\n例：向きを確認する\n例：キズ・打痕がないこと",
     tp_tr_h: "翻訳（任意）：他の言語の文",
+    tp_shot: "📷 写真を撮る",
+    tp_shot_do: "📸 撮る",
+    tp_shot_info: "撮ると、写真に追加されます（{n} / {m} 枚）",
+    tp_shot_added: "写真を追加しました（{n} / {m} 枚）",
     tp_tr_btn: "🌐 自動翻訳（オンラインのとき）",
     tp_tr_note2: "オンラインのとき：上のボタンで、日本語のポイントを3言語に自動で入れます（翻訳サービスに文を送ります）。オフラインのとき：手入力するか、空のままにします。自動翻訳は間違うことがあるので、現場の方が確認してください。",
     tp_tr_nojp: "先に「4 ポイント」を日本語で入れてください",
@@ -1061,6 +1082,10 @@ var I18N = {
     tp_pts: "Poin",
     tp_pts_ph: "Tulis satu poin per baris\nContoh: cek arah\nContoh: tidak ada goresan/penyok",
     tp_tr_h: "Terjemahan (opsional): kalimat bahasa lain",
+    tp_shot: "📷 Ambil foto",
+    tp_shot_do: "📸 Ambil",
+    tp_shot_info: "Foto yang diambil akan ditambahkan ({n} / {m})",
+    tp_shot_added: "Foto ditambahkan ({n} / {m})",
     tp_tr_btn: "🌐 Terjemah otomatis (saat online)",
     tp_tr_note2: "Saat online: tombol di atas mengisi 3 bahasa dari poin bahasa Jepang (kalimat dikirim ke layanan terjemahan). Saat offline: ketik manual atau biarkan kosong. Terjemahan otomatis bisa salah, jadi mohon dicek oleh orang di lapangan.",
     tp_tr_nojp: "Isi dulu \"4 Poin\" dalam bahasa Jepang",
@@ -1325,6 +1350,10 @@ var I18N = {
     tp_pts: "Mga punto",
     tp_pts_ph: "Isang punto bawat linya\nHal.: tingnan ang direksyon\nHal.: walang gasgas/yupi",
     tp_tr_h: "Salin (opsyonal): mga pangungusap sa ibang wika",
+    tp_shot: "📷 Kumuha ng litrato",
+    tp_shot_do: "📸 Kunan",
+    tp_shot_info: "Madaragdag ang kinunan na litrato ({n} / {m})",
+    tp_shot_added: "Naidagdag ang litrato ({n} / {m})",
     tp_tr_btn: "🌐 Awtomatikong salin (kapag online)",
     tp_tr_note2: "Kapag online: pupunuin ng button sa itaas ang 3 wika mula sa mga punto sa Japanese (ipinapadala ang teksto sa translation service). Kapag offline: mag-type nang mano-mano o iwanang blangko. Maaaring mali ang awtomatikong salin, kaya pakisuri ng taga-floor.",
     tp_tr_nojp: "Ilagay muna ang \"4 Mga punto\" sa Japanese",
@@ -1589,6 +1618,10 @@ var I18N = {
     tp_pts: "Points",
     tp_pts_ph: "One point per line\ne.g. Check the direction\ne.g. No scratches or dents",
     tp_tr_h: "Translation (optional): text in other languages",
+    tp_shot: "📷 Take a photo",
+    tp_shot_do: "📸 Capture",
+    tp_shot_info: "Photos you take are added here ({n} / {m})",
+    tp_shot_added: "Photo added ({n} / {m})",
     tp_tr_btn: "🌐 Auto-translate (when online)",
     tp_tr_note2: "When online: the button above fills in all 3 languages from the Japanese points (the text is sent to a translation service). When offline: type them in, or leave them empty. Automatic translation can be wrong, so please have someone on the floor check it.",
     tp_tr_nojp: "Enter \"4 Points\" in Japanese first",
@@ -2910,6 +2943,7 @@ function tplRenderPhotos() {
   }).join('');
   $('tplCnt').textContent = t('tp_cnt', { n: n, m: TPL_MAX }); $('tplCnt').classList.toggle('full', n >= TPL_MAX);
   $('tplDrop').classList.toggle('full', n >= TPL_MAX);
+  $('tplShot').hidden = n >= TPL_MAX;
   $('tplDropTxt').innerHTML = n
     ? '<div class="dropTtl">' + esc(t('tp_add_t', { n: TPL_MAX - n })) + '</div><div class="dropSub">' + esc(t('tp_add_s')) + '</div>'
     : '<div class="dropTtl">' + esc(t('tp_drop_t')) + '</div><div class="dropSub">' + esc(t('tp_drop_s')) + '</div>';
@@ -2961,6 +2995,37 @@ document.addEventListener('paste', function (e) {
 $('tplDrop').addEventListener('dragleave', function () { $('tplDrop').classList.remove('over'); });
 $('tplDrop').onclick = function () { $('tplPhotoIn').click(); };
 $('tplDrop').onkeydown = function (e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); $('tplPhotoIn').click(); } };
+/** 「写真を撮る」：この画面のままカメラで撮って、ポイント表の写真に追加する（続けて何枚でも撮れる。いっぱいになったら自動で閉じる） */
+var shotStream = null;
+function shotStop() {
+  $('shot').classList.remove('on');
+  if (shotStream) shotStream.getTracks().forEach(function (x) { x.stop(); }); shotStream = null;
+}
+function shotInfo() { $('shotInfo').textContent = t('tp_shot_info', { n: TPL.imgs.length, m: TPL_MAX }); }
+$('tplShot').onclick = async function () {
+  if (TPL.imgs.length >= TPL_MAX) return tplPhotoMsg(esc(t('tp_max')));
+  if (camOn) camStop();
+  if (liveCameraProblem()) return $('tplShotIn').click(); // ライブ映像が使えない開き方 → 端末のカメラアプリで撮る
+  try { shotStream = await getCameraStream(); }
+  catch (e) { toast(camErrorText(e) + t('c_alt'), 5000); return $('tplShotIn').click(); }
+  var v = $('shotVideo'); v.setAttribute('playsinline', ''); v.muted = true; v.srcObject = shotStream;
+  try { await v.play(); } catch (e) {}
+  shotInfo(); $('shot').classList.add('on');
+};
+$('shotDo').onclick = function () {
+  var v = $('shotVideo'); if (!v.videoWidth) return;
+  var sc = Math.min(1, 1600 / Math.max(v.videoWidth, v.videoHeight)), cv = document.createElement('canvas');
+  cv.width = Math.round(v.videoWidth * sc); cv.height = Math.round(v.videoHeight * sc);
+  cv.getContext('2d').drawImage(v, 0, 0, cv.width, cv.height);
+  cv.toBlob(async function (blob) {
+    if (!blob) return;
+    await tplSetPhoto(new File([blob], 'shot' + Date.now() + '.jpg', { type: 'image/jpeg' }));
+    toast(t('tp_shot_added', { n: TPL.imgs.length, m: TPL_MAX }), 1500); soundOk();
+    if (TPL.imgs.length >= TPL_MAX) shotStop(); else shotInfo();
+  }, 'image/jpeg', 0.88);
+};
+$('shotClose').onclick = shotStop;
+$('tplShotIn').onchange = function () { var fs = Array.prototype.slice.call(this.files || []); this.value = ''; if (fs.length && !tplAddFiles(fs)) tplPhotoMsg(esc(t('tp_pick_bad'))); };
 $('tplPhotoIn').onchange = function () { var fs = Array.prototype.slice.call(this.files || []); this.value = ''; if (fs.length && !tplAddFiles(fs)) tplPhotoMsg(esc(t('tp_pick_bad'))); };
 ['tplPn', 'tplQty', 'tplPts'].forEach(function (id) { $(id).addEventListener('input', function () { tplDraw(); if (!tplMark(true).length) $('tplMsg').textContent = ''; }); });
 
