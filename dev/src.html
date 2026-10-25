@@ -475,6 +475,24 @@ html[lang=tl] .tab,html[lang=id] .tab{font-size:14px}
       </div>
     </div>
   </div>
+  <div class="card" id="pkCard">
+    <h3 data-i18n="pk_h">ポイント表の受け渡し（2台そろえる）</h3>
+    <div style="display:grid;gap:14px;max-width:560px">
+      <p class="note" style="margin:0" data-i18n-html="pk_note"></p>
+      <div class="btnrow">
+        <button class="btn pri" id="pkOut" data-i18n="pk_out">📤 ポイント表一式を書き出す</button>
+        <button class="btn" id="pkPick" data-i18n="pk_in">📥 一式ファイルを取り込む</button>
+        <input type="file" id="pkIn" hidden>
+      </div>
+      <div id="pkBox" hidden style="display:none;gap:10px">
+        <div class="note" id="pkFrom" style="margin:0"></div>
+        <label class="f"><span data-i18n="pk_mode">取り込み方</span>
+          <select id="pkMode"><option value="merge" data-i18n="pk_m_merge">追加・上書き（今あるものは残す）</option><option value="replace" data-i18n="pk_m_replace">全部入れ替え（一式にないものは削除）</option></select></label>
+        <div class="card" id="pkPrev" style="margin:0;font-weight:800"></div>
+        <div class="btnrow"><button class="btn pri" id="pkApply" data-i18n="pk_apply">この内容で取り込む</button><button class="btn" id="pkCancel" data-i18n="pk_cancel">やめる</button></div>
+      </div>
+    </div>
+  </div>
   <div class="card">
     <h3 data-i18n="cl_h">照合データのクリア</h3>
     <div style="display:grid;gap:14px;max-width:560px">
@@ -799,6 +817,24 @@ var I18N = {
     cl_day: "この日の記録を削除",
     cl_all: "すべての記録を削除",
     cl_note2: "登録したポイント表（PDF）は消えません。PDFの削除は「ポイント表の登録」タブから行えます。",
+    pk_h: "ポイント表の受け渡し（2台そろえる）",
+    pk_note: "親の端末でポイント表を直したら、<b>「書き出す」</b>で1つのファイルにして、USBや共有フォルダでもう1台へ渡し、<b>「取り込む」</b>でそろえます。<br>照合の記録は台ごとのままで、取り込んでも消えません。",
+    pk_out: "📤 ポイント表一式を書き出す",
+    pk_in: "📥 一式ファイルを取り込む",
+    pk_mode: "取り込み方",
+    pk_m_merge: "追加・上書き（今あるものは残す）",
+    pk_m_replace: "全部入れ替え（一式にないものは削除）",
+    pk_apply: "この内容で取り込む",
+    pk_cancel: "やめる",
+    pk_none: "書き出すポイント表がありません",
+    pk_out_done: "書き出しました：{n} 件（{f}）",
+    pk_bad: "このファイルは「ポイント表一式」ではありません",
+    pk_busy: "読み込み中…",
+    pk_from: "書き出した端末：{term}／{at}／{n} 件",
+    pk_prev: "取り込み前の確認：新規 {a} 件／上書き {u} 件／変更なし {s} 件",
+    pk_prev_del: "／<span style=\"color:var(--red)\">削除 {d} 件</span>",
+    pk_confirm_replace: "一式にない {d} 件のポイント表を削除して、入れ替えます。よろしいですか？",
+    pk_done: "取り込み完了：新規 {a} 件、上書き {u} 件、削除 {d} 件",
     cl_none_day: "{d} の記録はありません",
     cl_conf_day: "{d} の照合記録 {n}件を削除します。元に戻せません。よろしいですか？",
     cl_done_day: "{d} の記録を削除しました（{n}件）",
@@ -1034,6 +1070,24 @@ var I18N = {
     cl_day: "Hapus catatan hari ini",
     cl_all: "Hapus semua catatan",
     cl_note2: "Tabel poin (PDF) tidak ikut terhapus. Hapus PDF dari tab \"Daftar Tabel Poin\".",
+    pk_h: "Serah terima tabel poin (samakan 2 tablet)",
+    pk_note: "Setelah memperbaiki tabel poin di tablet utama, tekan <b>\"Ekspor\"</b> untuk membuat 1 file, kirim ke tablet lain lewat USB atau folder bersama, lalu tekan <b>\"Impor\"</b>.<br>Riwayat cek tetap per tablet dan tidak terhapus saat impor.",
+    pk_out: "📤 Ekspor semua tabel poin",
+    pk_in: "📥 Impor file paket",
+    pk_mode: "Cara impor",
+    pk_m_merge: "Tambah/timpa (yang ada tetap disimpan)",
+    pk_m_replace: "Ganti semua (yang tidak ada di paket dihapus)",
+    pk_apply: "Impor sesuai isi ini",
+    pk_cancel: "Batal",
+    pk_none: "Tidak ada tabel poin untuk diekspor",
+    pk_out_done: "Berhasil diekspor: {n} berkas ({f})",
+    pk_bad: "Berkas ini bukan paket tabel poin",
+    pk_busy: "Membaca…",
+    pk_from: "Tablet asal: {term} / {at} / {n} berkas",
+    pk_prev: "Cek sebelum impor: baru {a} / ditimpa {u} / tidak berubah {s}",
+    pk_prev_del: " / <span style=\"color:var(--red)\">dihapus {d}</span>",
+    pk_confirm_replace: "{d} tabel poin yang tidak ada di paket akan dihapus dan diganti. Lanjutkan?",
+    pk_done: "Impor selesai: baru {a}, ditimpa {u}, dihapus {d}",
     cl_none_day: "Tidak ada catatan pada {d}",
     cl_conf_day: "Hapus {n} catatan tanggal {d}? Tidak bisa dikembalikan.",
     cl_done_day: "Catatan {d} dihapus ({n})",
@@ -1269,6 +1323,24 @@ var I18N = {
     cl_day: "Burahin ang talaan ng araw na ito",
     cl_all: "Burahin lahat ng talaan",
     cl_note2: "Hindi nabubura ang mga point table (PDF). Burahin ang PDF sa tab na \"Irehistro ang Point Table\".",
+    pk_h: "Paglilipat ng point table (pagpantayin ang 2 tablet)",
+    pk_note: "Pagkatapos ayusin ang point table sa pangunahing tablet, pindutin ang <b>\"I-export\"</b> para gumawa ng 1 file, ipasa sa isa pang tablet gamit ang USB o shared folder, at pindutin ang <b>\"I-import\"</b>.<br>Nananatili sa bawat tablet ang mga talaan ng check at hindi nabubura sa import.",
+    pk_out: "📤 I-export ang lahat ng point table",
+    pk_in: "📥 I-import ang package file",
+    pk_mode: "Paraan ng import",
+    pk_m_merge: "Dagdag/palitan (mananatili ang kasalukuyan)",
+    pk_m_replace: "Palitan lahat (buburahin ang wala sa package)",
+    pk_apply: "I-import ayon dito",
+    pk_cancel: "Huwag ituloy",
+    pk_none: "Walang point table na maie-export",
+    pk_out_done: "Na-export: {n} (file: {f})",
+    pk_bad: "Hindi ito point table package",
+    pk_busy: "Binabasa…",
+    pk_from: "Mula sa tablet: {term} / {at} / {n} file",
+    pk_prev: "Tingnan bago mag-import: bago {a} / pinalitan {u} / walang pagbabago {s}",
+    pk_prev_del: " / <span style=\"color:var(--red)\">buburahin {d}</span>",
+    pk_confirm_replace: "Buburahin at papalitan ang {d} point table na wala sa package. Ituloy?",
+    pk_done: "Tapos ang import: bago {a}, pinalitan {u}, binura {d}",
     cl_none_day: "Walang talaan sa {d}",
     cl_conf_day: "Burahin ang {n} talaan ng {d}? Hindi na maibabalik.",
     cl_done_day: "Nabura ang talaan ng {d} ({n})",
@@ -1504,6 +1576,24 @@ var I18N = {
     cl_day: "Delete this day",
     cl_all: "Delete all records",
     cl_note2: "Registered point tables (PDF) are not deleted. Delete PDFs from the \"Register Point Tables\" tab.",
+    pk_h: "Share point tables (keep 2 tablets in sync)",
+    pk_note: "After fixing point tables on the main tablet, press <b>\"Export\"</b> to make one file, carry it to the other tablet by USB or a shared folder, and press <b>\"Import\"</b>.<br>Check records stay on each tablet and are not erased by importing.",
+    pk_out: "📤 Export all point tables",
+    pk_in: "📥 Import a package file",
+    pk_mode: "Import mode",
+    pk_m_merge: "Add / overwrite (keep what is already here)",
+    pk_m_replace: "Replace all (delete what is not in the package)",
+    pk_apply: "Import with these results",
+    pk_cancel: "Cancel",
+    pk_none: "No point tables to export",
+    pk_out_done: "Exported: {n} files ({f})",
+    pk_bad: "This file is not a point table package",
+    pk_busy: "Reading…",
+    pk_from: "From tablet: {term} / {at} / {n} files",
+    pk_prev: "Check before import: new {a} / overwrite {u} / unchanged {s}",
+    pk_prev_del: " / <span style=\"color:var(--red)\">delete {d}</span>",
+    pk_confirm_replace: "{d} point tables not in the package will be deleted and replaced. Continue?",
+    pk_done: "Import done: new {a}, overwritten {u}, deleted {d}",
     cl_none_day: "No records on {d}",
     cl_conf_day: "Delete {n} records from {d}? This cannot be undone.",
     cl_done_day: "Deleted records from {d} ({n})",
@@ -2112,6 +2202,81 @@ $('dlAll').onclick = async function () {
   }
   btn.disabled = false; btn.textContent = t('r_dlall');
   toast(t('r_dl_done', { n: keys.length }), 3000);
+};
+// ---------- ポイント表の受け渡し（2台そろえる）：1つの一式ファイル（.ptpack）に全部まとめる ----------
+// 形式：先頭8バイト "PTPACK1\n"＋4バイト（見出しの長さ）＋見出しJSON＋PDF本体を順に連結
+var PK = null; // 取り込み待ちの一式 { meta, items:[{key,name,at,data}] }
+function pkSame(a, b) {
+  if (a.byteLength !== b.byteLength) return false;
+  var x = new Uint8Array(a), y = new Uint8Array(b);
+  for (var i = 0; i < x.length; i++) if (x[i] !== y[i]) return false;
+  return true;
+}
+$('pkOut').onclick = async function () {
+  var keys = Object.keys(PDF_INDEX).sort();
+  if (!keys.length) return toast(t('pk_none'));
+  var btn = this; btn.disabled = true;
+  try {
+    var items = [], parts = [];
+    for (var i = 0; i < keys.length; i++) {
+      var rec = await getPdf(keys[i]); if (!rec) continue;
+      items.push({ key: rec.key, name: rec.name, at: rec.at, size: rec.data.byteLength }); parts.push(rec.data);
+    }
+    var hdr = new TextEncoder().encode(JSON.stringify({ v: 1, term: CF.term, at: today() + ' ' + nowTime(), items: items }));
+    var top = new Uint8Array(12); top.set(new TextEncoder().encode('PTPACK1\n'), 0);
+    new DataView(top.buffer).setUint32(8, hdr.length);
+    var fname = 'ポイント表一式_' + today() + '_' + CF.term + '.ptpack';
+    var a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([top, hdr].concat(parts), { type: 'application/octet-stream' })); a.download = fname;
+    document.body.appendChild(a); a.click(); a.remove();
+    toast(t('pk_out_done', { n: items.length, f: fname }), 5000);
+  } finally { btn.disabled = false; }
+};
+$('pkPick').onclick = function () { $('pkIn').value = ''; $('pkIn').click(); };
+function pkHide() { PK = null; $('pkBox').style.display = 'none'; }
+$('pkCancel').onclick = pkHide;
+$('pkIn').onchange = async function () {
+  var f = this.files && this.files[0]; if (!f) return;
+  toast(t('pk_busy'), 1500);
+  try {
+    var buf = await f.arrayBuffer();
+    if (buf.byteLength < 12 || new TextDecoder().decode(buf.slice(0, 8)) !== 'PTPACK1\n') throw 0;
+    var hl = new DataView(buf).getUint32(8), meta = JSON.parse(new TextDecoder().decode(buf.slice(12, 12 + hl))), off = 12 + hl, items = [];
+    meta.items.forEach(function (m) { items.push({ key: m.key, name: m.name, at: m.at, data: buf.slice(off, off + m.size) }); off += m.size; });
+    if (off > buf.byteLength) throw 0;
+    PK = { meta: meta, items: items };
+  } catch (e) { PK = null; return toast(t('pk_bad'), 4000); }
+  $('pkBox').style.display = 'grid';
+  $('pkFrom').textContent = t('pk_from', { term: PK.meta.term, at: PK.meta.at, n: PK.items.length });
+  pkPreview();
+};
+$('pkMode').onchange = function () { if (PK) pkPreview(); };
+async function pkPreview() {
+  var a = 0, u = 0, same = 0, inPack = {};
+  for (var i = 0; i < PK.items.length; i++) {
+    var it = PK.items[i]; inPack[it.key] = 1;
+    if (!PDF_INDEX[it.key]) { a++; it.st = 'a'; continue; }
+    var cur = await getPdf(it.key);
+    if (cur && pkSame(cur.data, it.data)) { same++; it.st = 's'; } else { u++; it.st = 'u'; }
+  }
+  PK.del = $('pkMode').value === 'replace' ? Object.keys(PDF_INDEX).filter(function (k) { return !inPack[k]; }) : [];
+  $('pkPrev').innerHTML = esc(t('pk_prev', { a: a, u: u, s: same })) + (PK.del.length ? t('pk_prev_del', { d: PK.del.length }) : '');
+}
+$('pkApply').onclick = async function () {
+  if (!PK) return;
+  if (!PK.del) await pkPreview();
+  if (PK.del.length && !confirm(t('pk_confirm_replace', { d: PK.del.length }))) return;
+  var a = 0, u = 0, d = PK.del.length;
+  await tx('pdfs', 'readwrite', function (st) {
+    PK.items.forEach(function (it) {
+      if (it.st === 's') return;
+      st.put({ key: it.key, name: it.name, size: it.data.byteLength, at: it.at, data: it.data });
+      if (it.st === 'a') a++; else u++;
+    });
+    PK.del.forEach(function (k) { st.delete(k); });
+  });
+  pkHide();
+  await loadPdfIndex(); showPdfList(); updateHeader();
+  toast(t('pk_done', { a: a, u: u, d: d }), 5000);
 };
 /** ポイント表を1件削除（確認つき） */
 async function deletePdf(k) {
