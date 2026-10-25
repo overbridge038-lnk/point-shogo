@@ -1,0 +1,2969 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>ポイント表照合</title>
+<style>
+/* =====================================================================
+   デザイン：ステッカーポップ
+   太いインクの輪郭＋ベタ塗り＋ずらし影。主役はマスコット「かんばんくん」。
+   色の意味は変えない：OK=ミントグリーン / NG=レッド / 注意=イエロー / 待ち=パープル（見える化）
+   ===================================================================== */
+:root{
+  --ink:#241A4A;        /* 輪郭・文字 */
+  --paper:#F4F0FF;      /* 背景（うすいラベンダー） */
+  --card:#FFFFFF;
+  --violet:#8B5CF6;     /* 待ち・メイン */
+  --violet-soft:#E4DAFF;
+  --mint:#2FE0A0;       /* OK */
+  --mint-soft:#D6FBEC;
+  --red:#FF3D5E;        /* NG */
+  --red-soft:#FFE0E6;
+  --sun:#FFD23F;        /* 注意 */
+  --sun-soft:#FFF4C7;
+  --pink:#FF8FD1;       /* アクセント（ほっぺ・選択中タブ） */
+  --sub:#6A5F8F;
+  --line:3px solid var(--ink);
+  --pop:4px 4px 0 var(--ink);
+  --pop-s:3px 3px 0 var(--ink);
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;color:var(--ink);-webkit-tap-highlight-color:transparent;
+  font-family:"Hiragino Maru Gothic ProN","Zen Maru Gothic","M PLUS Rounded 1c","BIZ UDPGothic","Yu Gothic UI","Meiryo","Noto Sans JP",sans-serif}
+body{display:flex;flex-direction:column;
+  background-color:var(--paper);
+  background-image:radial-gradient(rgba(36,26,74,.09) 1.5px,transparent 1.6px);
+  background-size:22px 22px}
+button{font:inherit;cursor:pointer;color:inherit}
+:focus-visible{outline:3px dashed var(--violet);outline-offset:3px}
+
+/* ---- ヘッダー ---- */
+header{flex:none;display:flex;align-items:center;gap:10px;padding:10px 14px;background:var(--card);border-bottom:var(--line)}
+header h1{display:flex;align-items:center;gap:8px;font-size:20px;margin:0 8px 0 0;white-space:nowrap;font-weight:900;letter-spacing:.02em}
+header h1 .logo{width:34px;height:36px;flex:none}
+.tabs{display:flex;gap:8px;flex:1;overflow-x:auto;padding:2px 6px 6px 2px}
+.tab{background:var(--card);border:var(--line);border-radius:999px;padding:7px 16px;font-size:15px;font-weight:800;white-space:nowrap;box-shadow:var(--pop-s);transition:transform .08s}
+.tab:active{transform:translate(2px,2px);box-shadow:1px 1px 0 var(--ink)}
+.tab.on{background:var(--pink)}
+.pcount{cursor:pointer;font:inherit;color:var(--ink);box-shadow:2px 2px 0 var(--ink);white-space:nowrap;font-size:14px;font-weight:800;background:var(--mint-soft);border:2px solid var(--ink);border-radius:999px;padding:4px 12px}
+.pcount b{font-size:18px;font-weight:900}
+.pcount.zero{background:var(--sun)}
+.pcount:active{transform:translate(2px,2px);box-shadow:none}
+.pcArrow{margin-left:4px;font-size:12px}
+.hinfo{font-size:13px;font-weight:700;white-space:nowrap;background:var(--violet-soft);border:2px solid var(--ink);border-radius:999px;padding:4px 12px}
+.view{display:none;flex:1;min-height:0}
+.view.on{display:flex}
+
+/* ---- 照合画面 ---- */
+#v-check{gap:16px;padding:16px}
+.left{flex:0 0 410px;display:flex;flex-direction:column;gap:12px;overflow-y:auto;padding:2px 6px 8px 2px}
+.right{flex:1;display:flex;flex-direction:column;background:var(--card);border:var(--line);border-radius:22px;box-shadow:var(--pop);min-width:0;overflow:hidden;margin:2px 6px 6px 0}
+
+/* 手順は本当に順番なので番号チップで表示 */
+.steps{display:flex;gap:8px}
+.step{flex:1;white-space:nowrap;min-width:0;display:flex;align-items:center;gap:8px;border:var(--line);border-radius:999px;padding:6px 10px 6px 6px;font-size:13px;font-weight:800;background:var(--card);color:var(--sub)}
+.step b{flex:none;display:grid;place-items:center;width:28px;height:28px;border-radius:50%;border:2.5px solid var(--ink);background:var(--paper);color:var(--ink);font-size:15px}
+.step.now{background:var(--violet);color:#fff;box-shadow:var(--pop-s)}
+.step.now b{background:var(--sun)}
+.step.done{background:var(--mint-soft);color:var(--ink)}
+.step.done b{background:var(--mint)}
+
+/* 読取欄：スキャナーや手入力の文字がここに並ぶ（gohinと同じ考え方） */
+.scanbox{position:relative;background:var(--card);border:var(--line);border-radius:18px;padding:8px 12px 10px;box-shadow:var(--pop-s);cursor:text}
+.scanbox:focus-within{border-color:var(--violet);box-shadow:3px 3px 0 var(--violet)}
+.scanHead{display:flex;justify-content:space-between;gap:8px;font-size:13px;font-weight:800;color:var(--sub)}
+.scanHint{font-weight:700;font-size:12px}
+.scanShow{margin-top:4px;min-height:44px;padding:6px 10px;border:2px dashed var(--violet);border-radius:12px;background:var(--paper);font-size:24px;font-weight:900;letter-spacing:.04em;word-break:break-all;line-height:1.3}
+.scanShow.empty{font-size:14px;font-weight:700;color:var(--sub);font-family:inherit;letter-spacing:0;display:flex;align-items:center}
+.scanShow.live{border-style:solid;border-color:var(--violet);background:var(--violet-soft)}
+.scanShow.done{border-style:solid;border-color:var(--ink)}
+#scanInput{position:absolute;left:12px;bottom:10px;width:1px;height:1px;opacity:0;border:0;padding:0}
+.manRow{display:none;gap:8px;margin-top:8px}
+.scanbox.manual .manRow{display:flex}
+.manRow input{flex:1;min-width:0;font:inherit;font-size:20px;font-weight:800;padding:8px 12px;border:var(--line);border-radius:12px;min-height:48px;font-family:"Roboto Mono",Consolas,monospace}
+.manRow .btn{min-height:48px;padding:6px 14px}
+.scanWarn{display:none;margin-top:6px;padding:6px 10px;border-radius:10px;background:var(--sun);border:2px solid var(--ink);font-weight:800;font-size:13px}
+.scanWarn.on{display:block}
+/* 判定パネル：ここが一番目立つ場所 */
+.judge{display:flex;align-items:center;gap:14px;border:var(--line);border-radius:26px;padding:14px 18px 14px 12px;background:var(--card);box-shadow:var(--pop)}
+.judge .mascot{flex:none;width:96px;height:104px}
+.judge .jtext{flex:1;min-width:0}
+.judge .big{font-size:64px;font-weight:900;line-height:1.05;letter-spacing:.06em}
+.judge .msg{font-size:17px;margin-top:4px;font-weight:800}
+.judge.wait{background:var(--violet-soft)}
+.judge.wait .big,.judge.warn .big{font-size:27px;letter-spacing:0}
+.judge.warn{background:var(--sun)}
+.judge.ok{background:var(--mint)}
+.judge.ok .mascot{animation:hop .5s ease-out}
+@keyframes hop{0%{transform:translateY(0)}35%{transform:translateY(-14px) rotate(-6deg)}70%{transform:translateY(0) rotate(3deg)}100%{transform:none}}
+
+.card{background:var(--card);border:var(--line);border-radius:18px;padding:10px 14px;box-shadow:var(--pop-s)}
+.card h3{margin:0 0 4px;font-size:13px;color:var(--sub);font-weight:800}
+.mono{font-family:"Roboto Mono",Consolas,"Courier New",monospace;word-break:break-all}
+.pn{font-size:25px;font-weight:900}
+.note{font-size:13px;color:var(--sub);line-height:1.7}
+
+.btnrow{display:flex;gap:10px;flex-wrap:wrap}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;border:var(--line);background:var(--card);border-radius:999px;padding:10px 18px;font-size:16px;font-weight:800;min-height:52px;box-shadow:var(--pop-s);transition:transform .08s}
+.btn:active{transform:translate(2px,2px);box-shadow:1px 1px 0 var(--ink)}
+.btn.pri{background:var(--violet);color:#fff}
+.btn.dng{background:var(--red);color:#fff}
+.btn.on{background:var(--ink);color:#fff}
+.left .btnrow{display:grid;grid-template-columns:1fr 1fr;gap:8px}.left .btnrow .btn{min-width:0;padding:8px 8px;white-space:nowrap;font-size:15px}
+.sw{font-size:13px;line-height:1.75;margin:0;padding-left:20px;font-weight:600}
+.sw li::marker{font-weight:900;color:var(--violet)}
+
+.pdfhead{display:flex;align-items:center;gap:8px;padding:10px 16px;border-bottom:var(--line);font-size:14px;font-weight:700;background:var(--sun-soft)}
+.pdfhead b{font-size:17px;font-weight:900}
+#pdfCount{background:var(--card);border:2px solid var(--ink);border-radius:999px;padding:2px 10px;font-size:13px}
+#pdfbox{flex:1;overflow:auto;padding:14px;text-align:center;position:relative;touch-action:pan-x pan-y;-webkit-user-select:none;user-select:none}
+#pdfbox canvas{display:block;margin:0 auto 12px;max-width:none;border:2px solid var(--ink);border-radius:8px;background:#fff}
+/* 拡大・縮小（ピンチ・ダブルタップ・ボタン） */
+.zoomBar{display:flex;align-items:center;gap:4px;background:var(--card);border:2px solid var(--ink);border-radius:999px;padding:2px 4px}
+.zoomBar[hidden]{display:none}
+.zoomBar button{min-width:38px;height:34px;border:0;border-radius:999px;background:var(--violet-soft);font-size:20px;font-weight:900;color:var(--ink)}
+.zoomBar button:active{background:var(--violet);color:#fff}
+.zoomBar .zfit{font-size:13px;padding:0 10px}
+#zLbl{min-width:48px;text-align:center;font-size:13px;font-weight:900}
+.empty{display:flex;flex-direction:column;align-items:center;gap:10px;color:var(--sub);font-size:18px;font-weight:800;padding:50px 20px}
+.empty svg{width:120px;height:130px;opacity:.9}
+
+#cam{position:fixed;right:16px;bottom:16px;width:340px;border-radius:22px;overflow:hidden;border:var(--line);box-shadow:var(--pop);background:#000;display:none;z-index:40}
+#cam.on{display:block}
+#cam .camview{position:relative;overflow:hidden}
+#cam video{width:100%;display:block;aspect-ratio:4/3;object-fit:cover}
+/* 読み取り枠（中央80%の正方形＝実際に解析する範囲） */
+#cam .camframe{position:absolute;left:50%;top:50%;height:80%;aspect-ratio:1;transform:translate(-50%,-50%);border:4px solid var(--sun);border-radius:18px;box-shadow:0 0 0 999px rgba(36,26,74,.35);pointer-events:none}
+#cam .camlbl{position:absolute;left:10px;right:10px;top:10px;text-align:center;background:var(--sun);border:2px solid var(--ink);border-radius:999px;font-size:13px;font-weight:900;padding:4px 10px}
+#cam .cambar{display:flex;gap:8px;padding:8px;background:var(--card);border-top:var(--line)}
+#cam .cambar .btn{flex:1;min-height:46px;font-size:15px;padding:6px 8px}
+.btn.hint{background:var(--sun);animation:hop .5s ease-out 2}
+@media (orientation:portrait),(max-width:600px){
+  #cam{left:0;right:0;bottom:0;width:auto;border-radius:22px 22px 0 0;border-width:3px 0 0}
+  #cam video{aspect-ratio:1;max-height:62vh}
+  .tab{padding:5px 12px;font-size:14px}
+}
+
+/* ---- NG（アンドン）：画面全体を赤にして止める ---- */
+#ng{position:fixed;inset:0;background:var(--red);color:#fff;display:none;z-index:50;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:20px;text-align:center;
+  background-image:repeating-linear-gradient(-45deg,rgba(255,255,255,.07) 0 22px,transparent 22px 44px)}
+#ng.on{display:flex;animation:flash .5s steps(1) 6}
+@keyframes flash{50%{background-color:#C8102E}}
+#ng .ngtop{display:flex;align-items:center;gap:18px}
+#ng .ngtop svg{width:110px;height:120px;filter:drop-shadow(4px 4px 0 var(--ink))}
+#ng .big{font-size:110px;font-weight:900;letter-spacing:.1em;line-height:1;-webkit-text-stroke:4px var(--ink);paint-order:stroke fill;text-shadow:6px 6px 0 var(--ink)}
+#ng .why{font-size:26px;font-weight:900;max-width:900px;background:var(--card);color:var(--ink);border:var(--line);border-radius:16px;padding:8px 18px;box-shadow:var(--pop)}
+#ng .det{font-size:16px;font-weight:700;max-width:900px}
+#ng .ask{margin-top:6px;font-size:18px;font-weight:900}
+.pad{display:grid;grid-template-columns:repeat(3,84px);gap:10px;margin-top:4px}
+.pad button{height:62px;font-size:28px;border-radius:18px;border:var(--line);background:#fff;color:var(--ink);font-weight:900;box-shadow:var(--pop-s)}
+.pad button:active{transform:translate(2px,2px);box-shadow:1px 1px 0 var(--ink)}
+#codeView{font-size:30px;letter-spacing:12px;background:var(--card);color:var(--ink);border:var(--line);border-radius:14px;padding:4px 20px;min-width:220px;min-height:52px}
+
+/* ---- 一覧系 ---- */
+.page{flex-direction:column;gap:14px;padding:16px;overflow-y:auto}
+/* 一覧のカードは中身の高さに合わせる（縮んで行がはみ出さないように）。長い一覧はカードの中でスクロール */
+.page>.card,.page>.sum{flex:none}
+.listbox{overflow:auto;max-height:60vh;border-radius:12px}
+.page .card{padding:16px;box-shadow:var(--pop)}
+table{width:100%;border-collapse:separate;border-spacing:0;font-size:14px}
+th,td{border-bottom:2px dashed #D8CFF5;padding:9px 8px;text-align:left}
+th{background:var(--violet-soft);position:sticky;top:0;font-weight:900;border-bottom:var(--line)}
+td.r{text-align:right}
+.tag{display:inline-block;border:2px solid var(--ink);border-radius:999px;padding:1px 10px;font-weight:900;font-size:13px}
+.tag.ok{background:var(--mint)} .tag.ng{background:var(--red);color:#fff}
+.sum{display:flex;gap:12px;flex-wrap:wrap}
+.sum div{flex:1;min-width:120px;border:var(--line);border-radius:20px;padding:10px 16px;background:var(--card);box-shadow:var(--pop-s);font-weight:800}
+.sum div:nth-child(2){background:var(--mint-soft)} .sum div:nth-child(3){background:var(--red-soft)}
+.sum b{display:block;font-size:34px;font-weight:900}
+input[type=text],input[type=date],input[type=url],input[type=number],select{font:inherit;font-size:16px;font-weight:700;padding:10px 14px;border:var(--line);border-radius:14px;min-height:48px;background:#fff;color:var(--ink)}
+label.f{display:flex;flex-direction:column;gap:6px;font-size:14px;font-weight:800}
+/* ---- 登録済み一覧（中身が見えるカード） ---- */
+.pgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px}
+.pcard{background:var(--card);border:var(--line);border-radius:16px;box-shadow:var(--pop-s);overflow:hidden;display:flex;flex-direction:column}
+.pthumb{height:170px;background:var(--paper);border:0;border-bottom:var(--line);display:grid;place-items:center;cursor:zoom-in;padding:8px;width:100%;overflow:hidden}
+.pthumb img{max-width:100%;max-height:154px;object-fit:contain;display:block;box-shadow:0 0 0 1px #d8cff5}
+.pthumb span{font-size:12px;font-weight:700;color:var(--sub)}
+.pinfo{padding:8px 12px 4px;display:grid;gap:2px;min-width:0}
+.pinfo b{font-size:18px;font-weight:900;word-break:break-all}
+.pinfo .pname{font-size:13px;font-weight:700;word-break:break-all}
+.pinfo .note{font-size:12px;line-height:1.4}
+.pacts{display:flex;flex-wrap:wrap;gap:8px;padding:8px 12px 12px;margin-top:auto}
+#pdfList .pacts .btn{flex:1 1 calc(50% - 4px)}
+.pacts .btn{flex:1;min-height:40px;padding:4px 6px;font-size:13px;white-space:nowrap}
+.pempty{grid-column:1/-1;padding:24px;text-align:center;color:var(--sub);font-weight:700}
+#plist{position:fixed;inset:0;z-index:63;display:none;background:rgba(36,26,74,.55);padding:16px;align-items:center;justify-content:center}
+#plist.on{display:flex}
+#plist .pvbox{height:100%}
+#pview{position:fixed;inset:0;z-index:64;display:none;background:rgba(36,26,74,.55);padding:16px;align-items:center;justify-content:center}
+#pview.on{display:flex}
+.pvbox{background:var(--card);border:var(--line);border-radius:22px;box-shadow:var(--pop);width:min(1100px,100%);max-height:100%;display:flex;flex-direction:column;overflow:hidden}
+.pvhead{display:flex;align-items:center;gap:10px;padding:10px 16px;border-bottom:var(--line);background:var(--sun-soft)}
+.pvhead b{font-size:20px;font-weight:900}
+.pvbody{overflow:auto;padding:14px;text-align:center}
+.pvbody canvas{max-width:100%;border:2px solid var(--ink);border-radius:8px;margin-bottom:12px;background:#fff}
+/* ---- ポイント表をつくる ---- */
+.editBar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:0 0 12px;padding:10px 14px;background:var(--sun);border:var(--line);border-radius:16px;font-weight:800;box-shadow:var(--pop-s)}
+.editBar[hidden]{display:none}
+.editBar span{flex:1;min-width:200px}
+.editBar .btn{min-height:40px;padding:4px 14px;font-size:14px}
+.tplGrid{display:grid;grid-template-columns:minmax(260px,420px) 1fr;gap:18px;align-items:start}
+.tplForm{display:grid;gap:12px}
+.tplLbl{display:flex;align-items:center;gap:6px;font-size:14px;font-weight:900;color:var(--ink)}
+.tplLbl b{display:grid;place-items:center;width:22px;height:22px;border-radius:50%;border:2px solid var(--ink);background:var(--sun);font-size:12px}
+.req{font-size:11px;font-weight:800;background:var(--red-soft);border:1.5px solid var(--ink);border-radius:999px;padding:0 6px}
+.tplDrop{margin:6px 0 0;min-height:110px;justify-content:center}
+.tplDrop img{max-width:100%;max-height:180px;border-radius:12px;border:2px solid var(--ink)}
+.tplCnt{margin-left:auto;font-size:12px;font-weight:900;background:var(--violet-soft);border:2px solid var(--ink);border-radius:999px;padding:1px 10px}
+.tplCnt.full{background:var(--mint)}
+.tplPhotos{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:6px}
+.tplPhotos:empty{display:none}
+.tph{position:relative;aspect-ratio:1;border:var(--line);border-radius:12px;overflow:hidden;background:var(--paper)}
+.tph img{width:100%;height:100%;object-fit:contain;display:block;background:#fff}
+.tph .no{position:absolute;left:4px;top:4px;width:22px;height:22px;border-radius:50%;background:var(--ink);color:#fff;font-size:12px;font-weight:900;display:grid;place-items:center}
+.tph .x{position:absolute;right:3px;top:3px;width:28px;height:28px;border-radius:50%;border:2px solid var(--ink);background:#fff;font-weight:900;font-size:14px;line-height:1;padding:0}
+.tph .mv{position:absolute;left:4px;bottom:4px;height:24px;min-width:28px;border-radius:999px;border:2px solid var(--ink);background:#fff;font-weight:900;font-size:12px;padding:0 6px}
+.tplDrop.full{display:none}
+.tplPhotoMsg{display:none;margin-top:6px;padding:8px 12px;border-radius:12px;background:var(--sun);border:2px solid var(--ink);font-size:13px;font-weight:800;line-height:1.6}
+.tplPhotoMsg.on{display:block}
+.tplQty{display:flex;align-items:center;gap:8px;font-weight:900;color:var(--ink)}
+.tplQty input{width:140px}
+textarea{font:inherit;font-size:16px;font-weight:700;padding:10px 14px;border:var(--line);border-radius:14px;background:#fff;color:var(--ink);resize:vertical;line-height:1.6}
+.tplItem.bad input,.tplItem.bad textarea,.tplItem.bad .tplDrop{border-color:var(--red);background:var(--red-soft)}
+.tplPrev{position:sticky;top:0}
+#tplCanvas{width:100%;height:auto;border:var(--line);border-radius:10px;background:#fff;margin-top:6px;box-shadow:var(--pop-s)}
+@media (max-width:820px){.tplGrid{grid-template-columns:1fr}.tplPrev{position:static}}
+/* ---- ドラッグ＆ドロップ ---- */
+.drop{display:flex;align-items:center;gap:16px;margin:12px 0 14px;padding:16px 20px;border:3px dashed var(--violet);border-radius:22px;background:var(--violet-soft);cursor:pointer;transition:background .12s,transform .12s}
+.drop .dropMascot svg{width:64px;height:70px;display:block}
+.dropTtl{font-size:20px;font-weight:900}
+.dropSub{font-size:13px;font-weight:700;color:var(--sub);margin-top:2px}
+.drop.over{background:var(--mint-soft);border-color:var(--ink);border-style:solid;transform:scale(1.01)}
+/* 画面のどこにドロップしても取り込めることを示す全面表示 */
+#dropAll{position:fixed;inset:0;z-index:65;display:none;align-items:center;justify-content:center;pointer-events:none;background:rgba(139,92,246,.35)}
+#dropAll.on{display:flex}
+#dropAll div{display:flex;align-items:center;gap:16px;background:var(--card);border:var(--line);border-radius:26px;padding:18px 28px;font-size:24px;font-weight:900;box-shadow:var(--pop)}
+#dropAll svg{width:72px;height:78px}
+#pinDlg{position:fixed;inset:0;z-index:66;display:none;align-items:center;justify-content:center;background:rgba(36,26,74,.45);padding:16px}
+#pinDlg.on{display:flex}
+.pinbox{background:var(--card);border:var(--line);border-radius:24px;box-shadow:var(--pop);padding:18px;display:flex;flex-direction:column;align-items:center;gap:12px;max-width:340px;width:100%}
+.pinTitle{font-size:18px;font-weight:900;text-align:center}
+#pinView{font-size:28px;letter-spacing:10px;border:var(--line);border-radius:14px;min-height:50px;width:100%;text-align:center;padding:4px;background:var(--paper)}
+.pinpad{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;width:100%}
+.pinpad button{height:58px;font-size:26px;font-weight:900;border:var(--line);border-radius:16px;background:#fff;box-shadow:var(--pop-s)}
+.pinpad button:active{transform:translate(2px,2px);box-shadow:1px 1px 0 var(--ink)}
+.pinbox .btnrow{width:100%}.pinbox .btnrow .btn{flex:1}
+#toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:var(--ink);color:#fff;padding:12px 22px;border-radius:999px;font-size:16px;font-weight:800;display:none;z-index:60;max-width:90%;box-shadow:4px 4px 0 var(--pink)}
+
+/* ---- スタート画面 ---- */
+#start{position:fixed;inset:0;z-index:70;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;text-align:center;padding:20px;
+  background-color:var(--violet);
+  background-image:radial-gradient(rgba(255,255,255,.18) 2px,transparent 2.2px);background-size:26px 26px;color:#fff}
+#start svg{width:170px;height:185px;filter:drop-shadow(6px 6px 0 var(--ink));animation:sway 3s ease-in-out infinite}
+@keyframes sway{50%{transform:rotate(-4deg)}}
+#start .ttl{font-size:38px;font-weight:900;letter-spacing:.04em;-webkit-text-stroke:3px var(--ink);paint-order:stroke fill;text-shadow:4px 4px 0 var(--ink)}
+#start .bub{background:#fff;color:var(--ink);border:var(--line);border-radius:999px;padding:6px 18px;font-weight:800;box-shadow:var(--pop-s)}
+#start .btn{font-size:24px;padding:16px 48px;background:var(--sun);color:var(--ink);box-shadow:var(--pop)}
+#start p{margin:0;font-weight:700}
+#start .langs{display:flex;flex-direction:column;gap:12px;width:min(420px,100%)}
+#start .langBtn{font-size:24px;padding:14px 22px;background:#fff;color:var(--ink);box-shadow:var(--pop);justify-content:flex-start;gap:14px}
+#start .langBtn .flag{font-size:30px;line-height:1}
+#start .langBtn.last{background:var(--sun)}
+.langSw{white-space:nowrap;font-size:14px;font-weight:800;background:#fff;border:2px solid var(--ink);border-radius:999px;padding:4px 12px;box-shadow:2px 2px 0 var(--ink)}
+
+/* 10インチタブレット横向き（CSS幅850前後）でも判定とPDFを横並びで1画面に */
+@media (max-width:1000px) and (orientation:landscape){
+  #v-check{padding:10px;gap:10px}
+  .left{flex-basis:300px;gap:8px}
+  .judge{padding:8px 12px 8px 8px;gap:8px;border-radius:20px}
+  .judge .mascot{width:62px;height:68px}
+  .judge .big{font-size:44px}.judge.wait .big,.judge.warn .big{font-size:20px}.judge .msg{font-size:14px}
+  .step{font-size:11px;padding:4px 5px 4px 3px;gap:3px;letter-spacing:-.02em}.left .btnrow .btn{font-size:13px;gap:3px}.step b{width:21px;height:21px;font-size:12px;border-width:2px}
+  .pn{font-size:19px}.card{padding:7px 12px}
+  .btn{min-height:46px;padding:8px 14px;font-size:15px}
+  .hinfo{display:none}
+  .manRow{flex-wrap:wrap}.manRow input{flex-basis:100%}.manRow .btn{flex:1}.scanShow{font-size:20px;min-height:38px}
+  header{padding:6px 10px}header h1{font-size:16px}header h1 .logo{width:26px;height:28px}.tab{padding:5px 12px;font-size:14px}
+}
+/* 縦向き・スマホ：上に判定、下にポイント表 */
+@media (orientation:portrait){
+  #v-check{flex-direction:column;overflow-y:auto;padding:10px}
+  .left{flex:none;overflow:visible}
+  .right{min-height:70vh;flex:none}
+  .hinfo{display:none}
+  #swCard{display:none}
+  header h1 span{display:none}
+  header{flex-wrap:wrap;row-gap:6px}.tabs{flex:1 0 calc(100% - 60px);min-width:0}.pcount{order:3;flex:1 0 auto;text-align:center;font-size:13px;padding:2px 10px}.langSw{order:4;font-size:13px}.pcount b{font-size:15px}
+}
+/* ミャンマー語・インドネシア語は文字が長いので、手順チップとボタンは折り返しOK・少し小さく */
+html[lang=id] .step,html[lang=tl] .step,html[lang=en] .step{white-space:normal;line-height:1.25}
+html[lang=tl] .judge.wait .big,html[lang=tl] .judge.warn .big,html[lang=id] .judge.wait .big,html[lang=id] .judge.warn .big{font-size:23px}
+html[lang=id] .left .btnrow .btn,html[lang=tl] .left .btnrow .btn,html[lang=en] .left .btnrow .btn{font-size:13px}
+html[lang=tl] .tab,html[lang=id] .tab{font-size:14px}
+@media (prefers-reduced-motion:reduce){
+  *{animation:none!important;transition:none!important}
+}
+</style>
+</head>
+<body>
+
+<div id="start">
+  <span data-mascot="wait"></span>
+  <div class="ttl">ポイント表照合</div>
+  <div class="bub">言語を選んでください ／ Pilih bahasa ／ Pumili ng wika ／ Choose a language</div>
+  <div class="langs">
+    <button class="btn langBtn" data-lang="ja"><span class="flag">🇯🇵</span>日本語</button>
+    <button class="btn langBtn" data-lang="id"><span class="flag">🇮🇩</span>Bahasa Indonesia</button>
+    <button class="btn langBtn" data-lang="tl"><span class="flag">🇵🇭</span>Tagalog</button>
+    <button class="btn langBtn" data-lang="en"><span class="flag">🇬🇧</span>English</button>
+  </div>
+  <p id="startNote" style="font-size:13px">準備中…</p>
+</div>
+
+<header>
+  <h1><i class="logo" data-mascot="ok"></i><span>ポイント表照合</span></h1>
+  <div class="tabs">
+    <button class="tab on" data-v="check" data-i18n="tab_check">照合</button>
+    <button class="tab" data-v="pdf" data-i18n="tab_pdf">ポイント表の登録</button>
+    <button class="tab" data-v="log" data-i18n="tab_log">記録</button>
+    <button class="tab" data-v="set" data-i18n="tab_set">設定</button>
+  </div>
+  <button class="pcount" id="pCountBadge" title="登録済みのポイント表を見る"><span id="pCountTxt">📄 ポイント表 0 件</span><b id="pCountNum" hidden>0</b><span class="pcArrow">▾</span></button>
+  <button class="langSw" id="langSw" data-i18n="lang_btn">🌐 言語</button>
+  <div class="hinfo" id="hinfo"></div>
+</header>
+
+<!-- ================= 照合 ================= -->
+<section class="view on" id="v-check">
+  <div class="left">
+    <div class="steps">
+      <div class="step" id="st1"><b>1</b><span data-i18n="st1">かんばん</span></div>
+      <div class="step" id="st2"><b>2</b><span data-i18n="st2">ポイント表</span></div>
+      <div class="step" id="st3"><b>3</b><span data-i18n="st3">判定</span></div>
+    </div>
+    <div class="scanbox" id="scanBox">
+      <div class="scanHead"><span data-i18n="sc_lbl">かんばん読取欄</span><span class="scanHint" data-i18n="sc_hint">スキャナーで読む／手入力もここ</span></div>
+      <div class="scanShow mono empty" id="scanShow"></div>
+      <input id="scanInput" type="password" name="scan-field" autocomplete="off" autocapitalize="off" autocorrect="off" inputmode="none" spellcheck="false" data-lpignore="true" aria-label="scan">
+      <div class="manRow">
+        <input id="manIn" type="url" inputmode="url" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" aria-label="manual">
+        <button class="btn pri" id="manOk" data-i18n="sc_ok">確定</button>
+        <button class="btn" id="manCancel" data-i18n="pin_cancel">キャンセル</button>
+      </div>
+      <div class="scanWarn" id="scanWarn"></div>
+    </div>
+    <div class="judge wait" id="judge"><div class="mascot" id="jMascot" data-mascot="wait"></div><div class="jtext"><div class="big" id="jBig">かんばんを読む</div><div class="msg" id="jMsg">かんばんのQRを読んでください</div></div></div>
+    <div class="card">
+      <h3 data-i18n="card_k">かんばん</h3>
+      <div class="pn mono" id="kPn">―</div>
+      <div class="note mono" id="kRaw"></div>
+    </div>
+    <div class="card">
+      <h3 data-i18n="card_p">ポイント表（PDF）のQR</h3>
+      <div class="pn mono" id="pPn">―</div>
+      <div class="note mono" id="pRaw"></div>
+    </div>
+    <div class="btnrow">
+      <button class="btn" id="camBtn" data-i18n="b_cam">📷 カメラ</button>
+      <button class="btn" id="photoBtn" data-i18n="b_photo">📸 写真</button>
+      <button class="btn" id="manBtn" data-i18n="b_man">⌨ 手入力</button>
+      <button class="btn" id="resetBtn" data-i18n="b_reset">↺ やり直し</button>
+    </div>
+    <div class="card" id="swCard">
+      <h3 data-i18n="sw_t">標準作業</h3>
+      <ol class="sw">
+        <li data-i18n="sw1"></li>
+        <li data-i18n="sw2"></li>
+        <li data-i18n="sw3"></li>
+        <li data-i18n="sw4"></li>
+      </ol>
+    </div>
+  </div>
+  <div class="right">
+    <div class="pdfhead"><span data-i18n="pdf_h">ポイント表：</span><b id="pdfName">―</b><span style="flex:1"></span><div class="zoomBar" id="zoomBar" hidden><button id="zOut" aria-label="縮小">－</button><span id="zLbl">100%</span><button id="zIn" aria-label="拡大">＋</button><button id="zFit" class="zfit" data-i18n="z_fit">全体</button></div><span id="pdfCount"></span></div>
+    <div id="pdfbox"><div class="empty"><span data-mascot="wait"></span>かんばんを読むと、ここにポイント表が開きます</div></div>
+  </div>
+</section>
+
+<!-- ================= ポイント表の登録 ================= -->
+<section class="view page" id="v-pdf">
+  <div class="card">
+    <h3 data-i18n="r_h">ポイント表PDFを取り込む</h3>
+    <p class="note" data-i18n-html="r_note"></p>
+    <div class="drop" id="dropZone" role="button" tabindex="0" aria-label="PDFを選んで取込">
+      <span data-mascot="wait" class="dropMascot"></span>
+      <div><div class="dropTtl" data-i18n="r_drop_t">ここにPDFをドラッグ＆ドロップ</div>
+      <div class="dropSub" data-i18n="r_drop_s">PDFファイルでもフォルダごとでもOK／タップするとファイルを選べます</div></div>
+    </div>
+    <div class="btnrow">
+      <label class="btn pri"><span data-i18n="r_pick">PDFを選んで取込</span><input type="file" id="fileIn" accept="application/pdf,.pdf" multiple hidden></label>
+      <label class="btn"><span data-i18n="r_dir">フォルダごと取込</span><input type="file" id="dirIn" webkitdirectory multiple hidden></label>
+      <button class="btn dng" id="clearPdf" data-i18n="r_clear">全部削除</button>
+    </div>
+    <p class="note" id="impMsg"></p>
+  </div>
+  <div class="card">
+    <div class="btnrow" style="align-items:center;margin-bottom:8px">
+      <h3 style="margin:0;flex:1"><span data-i18n="r_list">登録済み</span> <span id="pdfTotal"></span></h3>
+      <button class="btn" id="dlAll" data-i18n="r_dlall">⬇ すべて保存（1件ずつ）</button>
+      <input type="text" id="pdfSearch" data-i18n-ph="r_search_ph" placeholder="品番で検索" autocomplete="off">
+    </div>
+    <div class="pgrid" id="pdfList"></div>
+  </div>
+</section>
+
+<!-- ================= 記録 ================= -->
+<section class="view page" id="v-log">
+  <div class="card">
+    <div class="btnrow" style="align-items:flex-end">
+      <label class="f"><span data-i18n="l_date">日付</span><input type="date" id="logDate"></label>
+      <button class="btn pri" id="csvBtn" data-i18n="l_csv">CSVで保存</button>
+      <span class="note" style="flex:1" data-i18n="l_note"></span>
+    </div>
+  </div>
+  <div class="sum"><div><span data-i18n="l_all">照合件数</span><b id="sAll">0</b></div><div style="color:var(--ok)">OK<b id="sOk">0</b></div><div style="color:var(--ng)">NG<b id="sNg">0</b></div></div>
+  <div class="card">
+    <div class="listbox">
+      <table><thead><tr><th data-i18n="l_th_time">時刻</th><th data-i18n="l_th_res">判定</th><th data-i18n="l_th_k">かんばん品番</th><th data-i18n="l_th_p">ポイント表PDF</th><th data-i18n="l_th_why">理由</th><th data-i18n="l_th_unl">解除</th></tr></thead><tbody id="logList"></tbody></table>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 設定 ================= -->
+<section class="view page" id="v-set">
+  <div class="card">
+    <h3 data-i18n="s_h">設定</h3>
+    <div style="display:grid;gap:14px;max-width:560px">
+      <label class="f"><span data-i18n="s_term">端末番号</span><input type="text" id="cfTerm" maxlength="4" autocomplete="off"></label>
+      <label class="f"><span data-i18n="s_sound">音</span><select id="cfSound"><option value="1" data-i18n="s_on">鳴らす</option><option value="0" data-i18n="s_off">鳴らさない</option></select></label>
+      <div class="btnrow"><button class="btn pri" id="saveCf" data-i18n="s_save">保存</button><button class="btn" id="chgCode" data-i18n="s_chg_code">NG解除番号を変更</button><button class="btn" id="chgSetPw" data-i18n="s_chg_pw">設定パスワードを変更</button></div>
+      <p class="note" data-i18n-html="s_note"></p>
+    </div>
+  </div>
+  <div class="card" id="tplCard">
+    <h3 data-i18n="tp_h">ポイント表をつくる（スマホからもOK）</h3>
+    <div class="editBar" id="editBar" hidden><span><span data-i18n="tp_editing">✏ 編集中：</span><b id="editName"></b><span data-i18n="tp_edit_note"></span></span><button class="btn" id="editCancel" data-i18n="tp_edit_cancel">編集をやめる</button></div>
+    <p class="note" style="margin:0 0 10px" data-i18n-html="tp_note"></p>
+    <div class="tplGrid">
+      <div class="tplForm">
+        <div class="tplItem">
+          <div class="tplLbl"><b>1</b><span data-i18n="tp_photo">写真（またはPDF）</span> <span class="req" data-i18n="req">必須</span><span class="tplCnt" id="tplCnt">0 / 4 枚</span></div>
+          <div class="tplPhotos" id="tplPhotos"></div>
+          <div class="drop tplDrop" id="tplDrop" role="button" tabindex="0" aria-label="写真を選ぶ">
+            <div id="tplDropTxt"><div class="dropTtl">写真・PDFをドラッグ＆ドロップ（最大4枚）</div><div class="dropSub">タップするとファイル選択・撮影ができます。まとめて選んでもOK（コピーした画像は Ctrl＋V でも可）</div></div>
+          </div>
+          <input type="file" id="tplPhotoIn" accept="image/*,application/pdf,.pdf" multiple hidden>
+          <div class="tplPhotoMsg" id="tplPhotoMsg"></div>
+        </div>
+        <label class="f tplItem"><span class="tplLbl"><b>2</b><span data-i18n="tp_pn">品番</span> <span class="req" data-i18n="req">必須</span></span>
+          <input type="url" id="tplPn" inputmode="url" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" data-i18n-ph="tp_pn_ph" placeholder="例：12345-67890"></label>
+        <label class="f tplItem"><span class="tplLbl"><b>3</b><span data-i18n="tp_qty">収容数</span> <span class="req" data-i18n="req">必須</span></span>
+          <span class="tplQty"><input type="number" id="tplQty" inputmode="numeric" min="1" step="1" data-i18n-ph="tp_qty_ph" placeholder="例：20"><span data-i18n="tp_pcs">個</span></span></label>
+        <label class="f tplItem"><span class="tplLbl"><b>4</b><span data-i18n="tp_pts">ポイント</span> <span class="req" data-i18n="req">必須</span></span>
+          <textarea id="tplPts" rows="5" data-i18n-ph="tp_pts_ph" placeholder="1行に1つずつ書きます&#10;例：向きを確認する&#10;例：キズ・打痕がないこと"></textarea></label>
+        <p class="note" id="tplMsg" style="margin:0"></p>
+        <div class="btnrow">
+          <button class="btn pri" id="tplSave" data-i18n="tp_save">登録する</button>
+          <button class="btn" id="tplDl" data-i18n="tp_dl">PDFを保存</button>
+          <button class="btn" id="tplClear" data-i18n="tp_clear">クリア</button>
+        </div>
+      </div>
+      <div class="tplPrev">
+        <div class="tplLbl" data-i18n="tp_prev">できあがりの見本</div>
+        <canvas id="tplCanvas" width="1684" height="1191"></canvas>
+      </div>
+    </div>
+  </div>
+  <div class="card">
+    <h3 data-i18n="cl_h">照合データのクリア</h3>
+    <div style="display:grid;gap:14px;max-width:560px">
+      <p class="note" style="margin:0" data-i18n-html="cl_note"></p>
+      <div class="btnrow" style="align-items:flex-end">
+        <label class="f"><span data-i18n="l_date">日付</span><input type="date" id="clrDate"></label>
+        <span class="note" id="clrCount"></span>
+      </div>
+      <div class="btnrow">
+        <button class="btn dng" id="clrDay" data-i18n="cl_day">この日の記録を削除</button>
+        <button class="btn dng" id="clrAll" data-i18n="cl_all">すべての記録を削除</button>
+      </div>
+      <p class="note" style="margin:0" data-i18n="cl_note2"></p>
+    </div>
+  </div>
+</section>
+
+<div id="ng">
+  <div class="ngtop"><span data-mascot="ng"></span><div class="big">NG</div></div>
+  <div class="why" id="ngWhy"></div>
+  <div class="det mono" id="ngDet"></div>
+  <div class="ask" data-i18n="ng_ask">作業を止めて班長を呼んでください。解除番号を入力</div>
+  <div id="codeView"></div>
+  <div class="pad" id="pad"></div>
+</div>
+<div id="cam">
+  <div class="camview"><video id="video" playsinline muted autoplay></video><div class="camframe"></div>
+  <div class="camlbl" id="camLbl">QRを枠に入れてください</div></div>
+  <div class="cambar"><button class="btn" id="camPhoto" data-i18n="c_photo">📸 写真で撮る</button><button class="btn" id="camClose" data-i18n="c_close">✕ 閉じる</button></div>
+</div>
+<input type="file" id="photoIn" accept="image/*" capture="environment" hidden>
+<div id="toast"></div>
+<div id="plist" role="dialog" aria-modal="true">
+  <div class="pvbox">
+    <div class="pvhead"><b data-i18n="pl_title">登録済みのポイント表</b><span class="note" id="plCount" style="margin:0"></span><span style="flex:1"></span><button class="btn" id="plClose" data-i18n="c_close">✕ 閉じる</button></div>
+    <div style="padding:10px 16px 0"><input type="text" id="plSearch" autocomplete="off" style="width:100%"></div>
+    <div class="pvbody" style="text-align:left"><div class="pgrid" id="plGrid"></div></div>
+  </div>
+</div>
+<div id="pview" role="dialog" aria-modal="true">
+  <div class="pvbox">
+    <div class="pvhead"><div><div class="note" style="margin:0" data-i18n="pv_title">ポイント表</div><b class="mono" id="pvName"></b></div><span style="flex:1"></span><button class="btn" id="pvSave" data-i18n="r_save">⬇ 保存</button><button class="btn" id="pvClose" data-i18n="c_close">✕ 閉じる</button></div>
+    <div class="pvbody" id="pvBody"></div>
+  </div>
+</div>
+<div id="pinDlg" role="dialog" aria-modal="true">
+  <div class="pinbox">
+    <div class="pinTitle" id="pinTitle"></div>
+    <div id="pinView"></div>
+    <div class="pinpad" id="pinPad"></div>
+    <div class="btnrow"><button class="btn" id="pinCancel" data-i18n="pin_cancel">キャンセル</button><button class="btn pri" id="pinOk" data-i18n="pin_ok">決定</button></div>
+  </div>
+</div>
+<div id="dropAll"><div><span data-mascot="ok"></span><span data-i18n="drop_all">はなすと取り込みます</span></div></div>
+
+<script type="application/octet-stream" id="b64-pdfjs">@@PDFJS@@</script>
+<script type="application/octet-stream" id="b64-worker">@@WORKER@@</script>
+<script>@@QRDECODE@@</script>
+<script>
+'use strict';
+/* =========================================================================
+   ポイント表照合
+   流れ：①かんばんQR → ②ファイル名＝品番のポイント表PDFを探す
+        → ③あればOK（PDFを表示）、なければNGで止める。PDFの中身は照合に使わない
+   TPSの考え方：
+   ・ポカヨケ  … 人が目で見比べず、システムがQR同士を照合する
+   ・自働化    … 異常（品番違い・PDFなし・QR読めない）は赤画面＋ブザーで止め、解除番号でしか戻れない
+   ・見える化  … OK=緑 / NG=赤 / 待ち=青・黄、①②③の進み具合を表示
+   ・記録      … 全件を日付ごとに残し、NGの理由も残して再発防止に使う
+   ========================================================================= */
+
+// ---------- 設定（localStorage） ----------
+var CF = { term: '01', mode: 'auto', sound: '1', code: '1234', setpw: '0000', lang: 'ja' };
+function loadCf() { try { var s = JSON.parse(localStorage.getItem('ptShogoCf') || '{}'); for (var k in s) CF[k] = s[k]; } catch (e) {} }
+function saveCfStore() {
+  try { localStorage.setItem('ptShogoCf', JSON.stringify(CF)); } catch (e) {}
+  // localStorage が使えない・消える開き方（スマホでファイルを直接開く等）でも残るよう、IndexedDB にも保存
+  if (DB) return tx('kv', 'readwrite', function (s) { s.put({ k: 'cf', v: JSON.parse(JSON.stringify(CF)) }); });
+  return Promise.resolve();
+}
+function loadCfDb() {
+  return tx('kv', 'readonly', function (s) { return s.get('cf'); }).then(function (r) {
+    if (r && r.v) for (var k in r.v) CF[k] = r.v[k];
+  }).catch(function () {});
+}
+/** 解除番号の比較：全角数字・空白の違いで間違えないようにそろえる */
+function pinNorm(v) { return String(v == null ? '' : v).normalize('NFKC').replace(/\s/g, ''); }
+loadCf();
+
+// ---------- 共通 ----------
+var $ = function (id) { return document.getElementById(id); };
+
+// ---------- 言語（日本語・インドネシア語・タガログ語・英語） ----------
+// 画面はすべて選んだ言語で表示。記録の中身・CSV・ポイント表PDFは日本語のまま（集計・報告で言葉がそろうように）。
+// 訳を直したい時は、この表の文字だけを書き換えてください。
+var I18N = {
+  ja: {
+    tab_check: "照合",
+    tab_pdf: "ポイント表の登録",
+    tab_log: "記録",
+    tab_set: "設定",
+    badge: "📄 ポイント表 {n} 件",
+    lang_btn: "🌐 言語",
+    st1: "かんばん",
+    st2: "ポイント表",
+    st3: "判定",
+    wait_big: "かんばんを読む",
+    wait_msg: "かんばんのQRを読んでください",
+    chk_big: "ポイント表を開いています",
+    chk_msg: "品番と同じ名前のPDFを開いています…",
+    man_big: "ポイント表のQRを読む",
+    man_msg: "ポイント表のQRをスキャンしてください",
+    af_big: "QRを自動で読めません",
+    af_msg: "ポイント表のQRをスキャナーで読んでください",
+    ok_msg: "品番一致：{pn}",
+    ngstop: "NG停止中",
+    card_k: "かんばん",
+    card_p: "ポイント表（ファイル名）",
+    qr_content: "QR内容：",
+    auto_read: "（PDFから自動読取）",
+    scanned: "（スキャン）",
+    b_cam: "📷 カメラ",
+    b_photo: "📸 写真",
+    b_man: "⌨ 手入力",
+    b_reset: "↺ やり直し",
+    sw_t: "標準作業",
+    sw1: "かんばんのQRを読む（スキャナー／カメラ）",
+    sw2: "品番と同じ名前のポイント表があればOK、なければNG",
+    sw3: "OK（緑・ピンポン）→ポイント表を見て作業／次のかんばんへ",
+    sw4: "NG（赤・ブー）→作業を止めて班長を呼ぶ。解除は解除番号のみ",
+    pdf_h: "ポイント表：",
+    pdf_cnt: "登録 {n} 件",
+    empty: "かんばんを読むと、ここにポイント表が開きます",
+    ng_noreg: "この品番のポイント表がありません（品番違いの疑い）",
+    ng_mis: "品番が一致しません（誤品の疑い）",
+    ng_multi: "QRの中に複数のポイント表の品番があります",
+    ng_twice: "かんばんをもう一度読んでいます",
+    ng_open: "ポイント表PDFを開けません",
+    d_k: "かんばん",
+    d_p: "ポイント表QR",
+    d_scanp: "ポイント表のQRを読んでください",
+    ng_ask: "作業を止めて班長を呼んでください。解除番号を入力",
+    t_unlock: "解除しました。正しいかんばんを読み直してください",
+    t_wrong: "番号が違います",
+    t_kana: "入力が「かな」になっています。半角英数に切り替えてください",
+    t_first: "まず「ポイント表の登録」でPDFを取り込んでください（班長に連絡）",
+    c_frame: "QRを枠に入れてください",
+    c_frame2: "QRを枠に入れて、正面から近づけてください",
+    c_hint: "読めない時は「📸 写真」で撮ってください",
+    c_photo: "📸 写真で撮る",
+    c_close: "✕ 閉じる",
+    c_reading: "写真からQRを読んでいます…",
+    c_fail: "QRを読めませんでした。QRを真ん中に大きく、ピントを合わせて撮り直してください",
+    c_insecure: "この開き方ではライブ読取ができないため、写真で読みます",
+    c_nosup: "このブラウザはライブ読取に非対応のため、写真で読みます",
+    c_denied: "カメラの使用が許可されていません。アドレスバーの🔒（サイト設定）→カメラ→「許可」にしてください",
+    c_notfound: "カメラが見つかりません",
+    c_busy: "他のアプリがカメラを使っています。そのアプリを閉じてください",
+    c_other: "カメラを開けません（{e}）",
+    c_alt: "。写真で読むこともできます",
+    p_k: "かんばんのQRの内容（品番）を入力",
+    p_p: "ポイント表のQRの内容を入力",
+    sc_lbl: "かんばん読取欄",
+    sc_hint: "スキャナーで読む／手入力もここ",
+    sc_ph: "スキャナーで読むと、ここに文字が並びます",
+    sc_man_ph: "品番を入力してEnter",
+    sc_ok: "確定",
+    sc_bad: "正しく読み取れませんでした。もう一度読み取ってください",
+    z_fit: "全体",
+    pl_del: "削除",
+    pl_title: "登録済みのポイント表",
+    pl_search: "品番で探す",
+    pl_none: "合うポイント表はありません",
+    pl_empty: "まだ登録がありません",
+    pl_cnt: "{n} 件",
+    pin_ok: "決定",
+    pin_cancel: "キャンセル",
+    pin_set: "設定のパスワードを入力",
+    pin_ng: "NG解除番号を入力",
+    t_setpw: "パスワードが違います",
+    start_note: "ポイント表 {n} 件 登録済み",
+    start_err: "起動エラー：{e}",
+    h_info: "端末{t}｜本日 {n}件（NG {g}）",
+    drop_all: "はなすと取り込みます",
+    r_h: "ポイント表PDFを取り込む",
+    r_note: "Googleドライブからダウンロードしたポイント表PDFを取り込みます（何件でもまとめてOK）。<br><b>ファイル名＝品番</b>（例：12345-67890.pdf）。ハイフン・空白・全角半角の違いは無視して照合します。同じ品番は上書きされます。<br>取り込んだPDFは端末内に保存されるので、普段はネットなし（オフライン）で使えます。",
+    r_drop_t: "ここにPDFをドラッグ＆ドロップ",
+    r_drop_s: "PDFファイルでもフォルダごとでもOK／タップするとファイルを選べます",
+    r_pick: "PDFを選んで取込",
+    r_dir: "フォルダごと取込",
+    r_clear: "全部削除",
+    r_list: "登録済み",
+    r_dlall: "⬇ すべて保存（1件ずつ）",
+    r_search_ph: "品番で検索",
+    r_total: "（{n}件）",
+    r_making: "見本を作成中…",
+    r_key: "照合キー",
+    r_view: "🔍 見る",
+    r_save: "⬇ 保存",
+    r_edit: "✏ 編集",
+    r_del: "🗑 削除",
+    r_nomatch: "「{q}」に合うポイント表はありません。",
+    r_none: "まだ登録がありません。上の枠にPDFをドラッグ＆ドロップしてください。",
+    r_thumb_err: "⚠ 見本を表示できません",
+    pv_title: "ポイント表",
+    pv_opening: "開いています…",
+    pv_err: "⚠ このPDFは開けません",
+    r_dl_none: "保存するポイント表がありません",
+    r_dl_confirm: "{n} 件を、1件ずつPDFで保存します。\nブラウザに「複数ファイルのダウンロード」の確認が出たら「許可」を押してください。",
+    r_dl_prog: "⬇ 保存中… {i} / {n}",
+    r_dl_done: "{n} 件を保存しました",
+    r_del_confirm: "ポイント表「{name}」を削除しますか？\n削除すると、この品番のかんばんはNG（ポイント表なし）になります。\n※必要なら先に「⬇ 保存」しておいてください。",
+    r_deleted: "削除しました：{name}",
+    r_saved: "保存しました：{name}",
+    r_clear_confirm: "登録済みのポイント表をすべて削除しますか？",
+    r_ngstop_drop: "NG停止中は取り込めません。先に解除してください",
+    im_nopdf: "受け取った {n} 件の中にPDFがありませんでした",
+    im_nofile: "ファイルを受け取れませんでした",
+    im_prog: "取り込み中… {i} / {n}",
+    im_f_empty: "（ファイル名が空）",
+    im_f_notpdf: "（PDFの中身ではありません）",
+    im_f_read: "（読み込めません：{e}）",
+    im_done: "取込完了：新規 <b>{a}</b> 件、上書き <b>{u}</b> 件",
+    im_ignored: "（PDF以外の {n} 件は無視）",
+    im_dup: "⚠ 同じ品番になるファイルがあります（後のものを採用）：",
+    im_fail: "⚠ 取り込めなかったファイル {n} 件：",
+    im_drive_tip: "Googleドライブ（パソコン版）のファイルは、右クリック→「オフラインで使用」にするか、デスクトップなどにコピーしてから入れてください。",
+    im_toast: "取込完了：新規 {a} 件、上書き {u} 件",
+    im_toast_fail: "（失敗 {n} 件）",
+    im_gd: "Googleドライブの<b>ブラウザ画面</b>から直接ドラッグしても、ファイル本体は渡されません（リンクだけになります）。<br>①ドライブでPDFを選んで「ダウンロード」→ ②ダウンロードしたPDFをここへドラッグ（またはタップして選択）してください。",
+    im_link: "リンクや文字がドロップされました。PDFファイルそのものをドラッグしてください（エクスプローラーやデスクトップから）。",
+    im_dir_fail_t: "⚠ フォルダの中を読めませんでした",
+    im_dir_fail_s: "フォルダを開いて中のPDFをまとめて選んでドラッグするか、「フォルダごと取込」ボタンを使ってください。",
+    l_date: "日付",
+    l_csv: "CSVで保存",
+    l_note: "照合結果は日付ごとに全件残ります（0時で翌日に切替）。CSVはGoogleドライブに移して受注データとの照合に使えます。",
+    l_all: "照合件数",
+    l_th_time: "時刻",
+    l_th_res: "判定",
+    l_th_k: "かんばん品番",
+    l_th_p: "ポイント表PDF",
+    l_th_why: "理由",
+    l_th_unl: "解除",
+    l_none: "この日の記録はありません",
+    s_h: "設定",
+    s_term: "端末番号（CSVのファイル名に入ります。端末ごとに変えてください）",
+    s_sound: "音",
+    s_on: "鳴らす",
+    s_off: "鳴らさない",
+    s_save: "保存",
+    s_chg_code: "NG解除番号を変更",
+    s_chg_pw: "設定パスワードを変更",
+    s_note: "NG解除番号の初期値は <b>1234</b>、設定パスワードの初期値は <b>0000</b> です（「ポイント表の登録」と「設定」を開く時に使います）。必ず班長・担当者だけが知る番号に変えてください。<br>カメラ読取：Androidのタブレット・スマホのChromeで使えます（PCはスキャナーを使用）。",
+    s_term_bad: "端末番号は半角英数1〜4文字で入力してください",
+    s_saved: "保存しました",
+    pp_cur_code: "今のNG解除番号を入力",
+    pp_new_code: "新しい解除番号（数字4〜8桁）",
+    pp_again: "確認のため、もう一度入力",
+    pp_cur_pw: "今の設定パスワードを入力",
+    pp_new_pw: "新しい設定パスワード（数字4〜8桁）",
+    t_cur_code_bad: "今の解除番号が違います",
+    t_cur_pw_bad: "今の設定パスワードが違います",
+    t_digits: "数字4〜8桁で入力してください",
+    t_mismatch: "1回目と2回目が違います。もう一度やり直してください",
+    t_code_changed: "解除番号を変更しました（次から新しい番号で解除）",
+    t_pw_changed: "設定パスワードを変更しました",
+    t_save_err: "保存できませんでした：{e}",
+    tp_h: "ポイント表をつくる（スマホからもOK）",
+    tp_editing: "✏ 編集中：",
+    tp_edit_note: "（「上書き保存」で登録済みのポイント表を入れ替えます）",
+    tp_edit_cancel: "編集をやめる",
+    tp_note: "写真・品番・収容数・ポイントを入れて「登録する」を押すと、ポイント表（PDF・ファイル名＝品番）ができて、すぐ照合に使えます。<br>ほかの端末でも使う時は「PDFを保存」して、Googleドライブに置いてください。",
+    tp_photo: "写真（またはPDF）",
+    req: "必須",
+    tp_cnt: "{n} / {m} 枚",
+    tp_drop_t: "写真・PDFをドラッグ＆ドロップ（最大4枚）",
+    tp_drop_s: "タップするとファイル選択・撮影ができます。まとめて選んでもOK（コピーした画像は Ctrl＋V でも可）",
+    tp_add_t: "写真を追加（あと{n}枚）",
+    tp_add_s: "ドラッグ＆ドロップ／タップして選択",
+    tp_pn: "品番",
+    tp_pn_ph: "例：12345-67890",
+    tp_qty: "収容数",
+    tp_qty_ph: "例：20",
+    tp_pcs: "個",
+    tp_pts: "ポイント",
+    tp_pts_ph: "1行に1つずつ書きます\n例：向きを確認する\n例：キズ・打痕がないこと",
+    tp_save: "登録する",
+    tp_overwrite: "上書き保存",
+    tp_dl: "PDFを保存",
+    tp_clear: "クリア",
+    tp_prev: "できあがりの見本",
+    tp_pdf_loading: "PDFを読み込んでいます…",
+    tp_pdf_page1: "1ページ目を使いました（全{n}ページ）",
+    tp_pdf_err: "⚠ このPDFは開けません（{f}）。パスワード付きや壊れたPDFは使えません。",
+    tp_max: "⚠ 写真は4枚までです。入れ替える時は、いらない写真の × を押してから入れてください。",
+    tp_max_skip: "⚠ 写真は4枚までなので、{n}枚は入れませんでした。",
+    tp_heic: "⚠ iPhoneの写真（HEIC形式）はこのパソコンでは開けません。スマホから直接選ぶか、JPEGで保存してから入れてください。",
+    tp_img_err: "⚠ この写真は開けません（{f}）。JPEGかPNGの写真を選んでください。",
+    tp_not_img: "⚠ 写真でもPDFでもありません（{f}）。写真（JPEG・PNG）かPDFを入れてください。",
+    tp_link: "⚠ 写真のファイルを受け取れませんでした。<br>ブラウザやアプリ（Googleドライブ・フォト、メール、チャットなど）の画面から直接ドラッグすると、写真ではなくリンクだけが渡されます。<br>①写真をいったんパソコン（デスクトップなど）に保存 → ②そのファイルをドラッグ、または枠をクリックして選んでください。<br>画像をコピーした時は、この画面で <b>Ctrl＋V</b>（貼り付け）でも入れられます。",
+    tp_pick_bad: "⚠ 写真（JPEG・PNG）かPDFを選んでください。",
+    tp_missing: "⚠ 入っていない項目があります：",
+    tp_f_photo: "写真",
+    tp_f_pn: "品番",
+    tp_f_qty: "収容数（1以上の数字）",
+    tp_f_pts: "ポイント",
+    tp_pn_check: "品番を確かめてください",
+    tp_rename_confirm: "品番を「{a}」から「{b}」に変えました。\n元のポイント表は消して、新しい品番で登録します。よろしいですか？",
+    tp_exists_confirm: "品番 {pn} のポイント表は登録済みです（{name}）。上書きしますか？",
+    tp_done_save: "✓ 登録しました：{name}（照合に使えます）",
+    tp_done_over: "✓ 上書き保存しました：{name}（照合に使えます）",
+    tp_toast_save: "ポイント表を登録しました：{name}",
+    tp_toast_over: "ポイント表を上書き保存しました：{name}",
+    tp_nosrc: "ℹ このポイント表は入力内容が残っていないため、元のPDFを写真として読み込みました。収容数・ポイントを入れて「上書き保存」してください。",
+    tp_cancel_confirm: "編集をやめますか？（登録済みのポイント表は変わりません）",
+    tp_clear_confirm: "入力した内容をクリアしますか？",
+    tp_clear_edit: "（編集もやめます）",
+    tp_rm: "写真{n}を外す",
+    cl_h: "照合データのクリア",
+    cl_note: "照合記録は品質のエビデンスです。消す前に「記録」タブから<b>CSVで保存</b>してください。<br>削除にはNG解除番号が必要です。削除したデータは元に戻せません。",
+    cl_count: "この日：{d}件／全部：{a}件",
+    cl_day: "この日の記録を削除",
+    cl_all: "すべての記録を削除",
+    cl_note2: "登録したポイント表（PDF）は消えません。PDFの削除は「ポイント表の登録」タブから行えます。",
+    cl_none_day: "{d} の記録はありません",
+    cl_conf_day: "{d} の照合記録 {n}件を削除します。元に戻せません。よろしいですか？",
+    cl_done_day: "{d} の記録を削除しました（{n}件）",
+    cl_none: "削除する記録はありません",
+    cl_conf_all: "すべての照合記録 {n}件を削除します。元に戻せません。よろしいですか？",
+    cl_done_all: "すべての記録を削除しました（{n}件）"
+  },
+  id: {
+    tab_check: "Cek",
+    tab_pdf: "Daftar Tabel Poin",
+    tab_log: "Riwayat",
+    tab_set: "Pengaturan",
+    badge: "📄 Tabel poin: {n}",
+    lang_btn: "🌐 Bahasa",
+    st1: "Kanban",
+    st2: "Tabel poin",
+    st3: "Hasil",
+    wait_big: "Scan kanban",
+    wait_msg: "Scan QR pada kanban",
+    chk_big: "Membuka tabel poin",
+    chk_msg: "Membuka PDF dengan nama yang sama dengan nomor part…",
+    man_big: "Scan QR tabel poin",
+    man_msg: "Scan QR pada tabel poin",
+    af_big: "QR tidak terbaca otomatis",
+    af_msg: "Scan QR tabel poin dengan scanner",
+    ok_msg: "Nomor part cocok: {pn}",
+    ngstop: "NG — Berhenti",
+    card_k: "Kanban",
+    card_p: "Tabel poin (nama file)",
+    qr_content: "Isi QR: ",
+    auto_read: " (dibaca otomatis dari PDF)",
+    scanned: " (scan)",
+    b_cam: "📷 Kamera",
+    b_photo: "📸 Foto",
+    b_man: "⌨ Ketik",
+    b_reset: "↺ Ulangi",
+    sw_t: "Standar kerja",
+    sw1: "Scan QR kanban (scanner / kamera)",
+    sw2: "Jika ada tabel poin dengan nama nomor part yang sama → OK, jika tidak → NG",
+    sw3: "OK (hijau, bunyi ping-pong) → lihat tabel poin lalu kerja / kanban berikutnya",
+    sw4: "NG (merah, bunyi buzzer) → hentikan kerja dan panggil leader. Hanya bisa dibuka dengan kode",
+    pdf_h: "Tabel poin: ",
+    pdf_cnt: "Terdaftar {n}",
+    empty: "Scan kanban, tabel poin akan terbuka di sini",
+    ng_noreg: "Tabel poin untuk nomor part ini tidak ada (kemungkinan salah part)",
+    ng_mis: "Nomor part tidak cocok (kemungkinan salah part)",
+    ng_multi: "Di dalam QR ada lebih dari satu nomor part tabel poin",
+    ng_twice: "Kanban yang sama di-scan lagi",
+    ng_open: "PDF tabel poin tidak bisa dibuka",
+    d_k: "Kanban",
+    d_p: "QR tabel poin",
+    d_scanp: "Scan QR tabel poin",
+    ng_ask: "Hentikan kerja dan panggil leader. Masukkan kode untuk membuka",
+    t_unlock: "NG sudah dibuka. Scan ulang kanban yang benar",
+    t_wrong: "Kode salah",
+    t_kana: "Input dalam mode kana Jepang. Ganti ke huruf/angka biasa",
+    t_first: "Tabel poin (PDF) belum didaftarkan. Hubungi leader",
+    c_frame: "Masukkan QR ke dalam kotak",
+    c_frame2: "Masukkan QR ke dalam kotak, dekatkan dari depan",
+    c_hint: "Jika tidak terbaca, ambil 📸 foto",
+    c_photo: "📸 Ambil foto",
+    c_close: "✕ Tutup",
+    c_reading: "Membaca QR dari foto…",
+    c_fail: "QR tidak terbaca. Foto ulang: QR besar di tengah dan fokus",
+    c_insecure: "Kamera langsung tidak bisa dipakai dengan cara buka ini, jadi pakai foto",
+    c_nosup: "Browser ini tidak mendukung kamera langsung, jadi pakai foto",
+    c_denied: "Izin kamera ditolak. Buka ikon 🔒 (pengaturan situs) → Kamera → Izinkan",
+    c_notfound: "Kamera tidak ditemukan",
+    c_busy: "Kamera sedang dipakai aplikasi lain. Tutup aplikasi itu",
+    c_other: "Kamera tidak bisa dibuka ({e})",
+    c_alt: ". Bisa juga baca dengan foto",
+    p_k: "Ketik isi QR kanban (nomor part)",
+    p_p: "Ketik isi QR tabel poin",
+    sc_lbl: "Kolom scan kanban",
+    sc_hint: "Scan dengan scanner / ketik juga di sini",
+    sc_ph: "Scan dengan scanner, huruf akan muncul di sini",
+    sc_man_ph: "Ketik nomor part lalu Enter",
+    sc_ok: "OK",
+    sc_bad: "Tidak terbaca dengan benar. Scan sekali lagi",
+    z_fit: "Penuh",
+    pl_del: "Hapus",
+    pl_title: "Daftar tabel poin",
+    pl_search: "Cari nomor part",
+    pl_none: "Tidak ada tabel poin yang cocok",
+    pl_empty: "Belum ada yang terdaftar",
+    pl_cnt: "{n} buah",
+    pin_ok: "OK",
+    pin_cancel: "Batal",
+    pin_set: "Masukkan kata sandi pengaturan",
+    pin_ng: "Masukkan kode buka NG",
+    t_setpw: "Kata sandi salah",
+    start_note: "Tabel poin terdaftar: {n}",
+    start_err: "Gagal memulai: {e}",
+    h_info: "Terminal {t} | Hari ini {n} (NG {g})",
+    drop_all: "Lepaskan untuk mengimpor",
+    r_h: "Impor PDF tabel poin",
+    r_note: "Impor PDF tabel poin yang diunduh dari Google Drive (boleh banyak sekaligus).<br><b>Nama file = nomor part</b> (contoh: 12345-67890.pdf). Tanda hubung, spasi, huruf lebar/sempit diabaikan saat dicek. Nomor part yang sama akan ditimpa.<br>PDF disimpan di dalam tablet, jadi bisa dipakai tanpa internet (offline).",
+    r_drop_t: "Seret & lepas PDF di sini",
+    r_drop_s: "Boleh file PDF atau satu folder / ketuk untuk memilih file",
+    r_pick: "Pilih PDF & impor",
+    r_dir: "Impor satu folder",
+    r_clear: "Hapus semua",
+    r_list: "Terdaftar",
+    r_dlall: "⬇ Simpan semua (satu per satu)",
+    r_search_ph: "Cari nomor part",
+    r_total: "({n})",
+    r_making: "Membuat pratinjau…",
+    r_key: "Kunci cek",
+    r_view: "🔍 Lihat",
+    r_save: "⬇ Simpan",
+    r_edit: "✏ Edit",
+    r_del: "🗑 Hapus",
+    r_nomatch: "Tidak ada tabel poin yang cocok dengan \"{q}\".",
+    r_none: "Belum ada yang terdaftar. Seret & lepas PDF ke kotak di atas.",
+    r_thumb_err: "⚠ Pratinjau tidak bisa ditampilkan",
+    pv_title: "Tabel poin",
+    pv_opening: "Membuka…",
+    pv_err: "⚠ PDF ini tidak bisa dibuka",
+    r_dl_none: "Tidak ada tabel poin untuk disimpan",
+    r_dl_confirm: "{n} file akan disimpan satu per satu sebagai PDF.\nJika browser menanyakan \"unduh beberapa file\", tekan \"Izinkan\".",
+    r_dl_prog: "⬇ Menyimpan… {i} / {n}",
+    r_dl_done: "{n} file disimpan",
+    r_del_confirm: "Hapus tabel poin \"{name}\"?\nSetelah dihapus, kanban nomor part ini akan NG (tidak ada tabel poin).\n* Jika perlu, \"⬇ Simpan\" dulu.",
+    r_deleted: "Dihapus: {name}",
+    r_saved: "Disimpan: {name}",
+    r_clear_confirm: "Hapus semua tabel poin yang terdaftar?",
+    r_ngstop_drop: "Tidak bisa impor saat NG. Buka NG dulu",
+    im_nopdf: "Tidak ada PDF di antara {n} file yang diterima",
+    im_nofile: "File tidak diterima",
+    im_prog: "Mengimpor… {i} / {n}",
+    im_f_empty: " (nama file kosong)",
+    im_f_notpdf: " (isinya bukan PDF)",
+    im_f_read: " (tidak bisa dibaca: {e})",
+    im_done: "Impor selesai: baru <b>{a}</b>, ditimpa <b>{u}</b>",
+    im_ignored: " ({n} file bukan PDF diabaikan)",
+    im_dup: "⚠ Ada file dengan nomor part yang sama (yang terakhir dipakai): ",
+    im_fail: "⚠ {n} file gagal diimpor: ",
+    im_drive_tip: "Untuk file Google Drive (versi PC), klik kanan → \"Tersedia offline\", atau salin ke desktop dulu.",
+    im_toast: "Impor selesai: baru {a}, ditimpa {u}",
+    im_toast_fail: " (gagal {n})",
+    im_gd: "Menyeret langsung dari <b>layar browser</b> Google Drive hanya mengirim tautan, bukan file.<br>① Pilih PDF di Drive lalu \"Download\" → ② seret PDF yang sudah diunduh ke sini (atau ketuk untuk memilih).",
+    im_link: "Yang dilepas adalah tautan atau teks. Seret file PDF-nya sendiri (dari Explorer atau desktop).",
+    im_dir_fail_t: "⚠ Isi folder tidak bisa dibaca",
+    im_dir_fail_s: "Buka folder lalu pilih semua PDF dan seret, atau pakai tombol \"Impor satu folder\".",
+    l_date: "Tanggal",
+    l_csv: "Simpan CSV",
+    l_note: "Semua hasil cek disimpan per tanggal (berganti hari pukul 00:00). CSV bisa dipindah ke Google Drive untuk dicocokkan dengan data pesanan.",
+    l_all: "Jumlah cek",
+    l_th_time: "Jam",
+    l_th_res: "Hasil",
+    l_th_k: "Nomor part kanban",
+    l_th_p: "PDF tabel poin",
+    l_th_why: "Alasan",
+    l_th_unl: "Dibuka",
+    l_none: "Tidak ada catatan pada tanggal ini",
+    s_h: "Pengaturan",
+    s_term: "Nomor terminal (masuk ke nama file CSV; beda untuk tiap tablet)",
+    s_sound: "Suara",
+    s_on: "Nyala",
+    s_off: "Mati",
+    s_save: "Simpan",
+    s_chg_code: "Ganti kode buka NG",
+    s_chg_pw: "Ganti kata sandi pengaturan",
+    s_note: "Kode buka NG awal <b>1234</b>, kata sandi pengaturan awal <b>0000</b> (dipakai saat membuka \"Daftar Tabel Poin\" dan \"Pengaturan\"). Wajib diganti dengan nomor yang hanya diketahui leader/penanggung jawab.<br>Kamera: bisa dipakai di Chrome tablet/HP Android (PC memakai scanner).",
+    s_term_bad: "Nomor terminal: 1–4 huruf/angka",
+    s_saved: "Disimpan",
+    pp_cur_code: "Masukkan kode buka NG saat ini",
+    pp_new_code: "Kode baru (4–8 angka)",
+    pp_again: "Masukkan sekali lagi untuk konfirmasi",
+    pp_cur_pw: "Masukkan kata sandi pengaturan saat ini",
+    pp_new_pw: "Kata sandi baru (4–8 angka)",
+    t_cur_code_bad: "Kode saat ini salah",
+    t_cur_pw_bad: "Kata sandi saat ini salah",
+    t_digits: "Masukkan 4–8 angka",
+    t_mismatch: "Input pertama dan kedua berbeda. Ulangi lagi",
+    t_code_changed: "Kode buka diganti (mulai sekarang pakai kode baru)",
+    t_pw_changed: "Kata sandi pengaturan diganti",
+    t_save_err: "Gagal menyimpan: {e}",
+    tp_h: "Buat tabel poin (bisa dari HP)",
+    tp_editing: "✏ Sedang diedit: ",
+    tp_edit_note: " (\"Timpa & simpan\" akan mengganti tabel poin yang terdaftar)",
+    tp_edit_cancel: "Batal edit",
+    tp_note: "Isi foto, nomor part, jumlah isi dan poin lalu tekan \"Daftarkan\" — tabel poin (PDF, nama file = nomor part) langsung bisa dipakai untuk cek.<br>Untuk tablet lain, \"Simpan PDF\" lalu taruh di Google Drive.",
+    tp_photo: "Foto (atau PDF)",
+    req: "Wajib",
+    tp_cnt: "{n} / {m}",
+    tp_drop_t: "Seret & lepas foto/PDF (maks. 4)",
+    tp_drop_s: "Ketuk untuk memilih file atau memotret. Boleh pilih sekaligus (gambar yang disalin bisa Ctrl+V)",
+    tp_add_t: "Tambah foto (sisa {n})",
+    tp_add_s: "Seret & lepas / ketuk untuk memilih",
+    tp_pn: "Nomor part",
+    tp_pn_ph: "Contoh: 12345-67890",
+    tp_qty: "Jumlah isi",
+    tp_qty_ph: "Contoh: 20",
+    tp_pcs: "pcs",
+    tp_pts: "Poin",
+    tp_pts_ph: "Tulis satu poin per baris\nContoh: cek arah\nContoh: tidak ada goresan/penyok",
+    tp_save: "Daftarkan",
+    tp_overwrite: "Timpa & simpan",
+    tp_dl: "Simpan PDF",
+    tp_clear: "Hapus isian",
+    tp_prev: "Pratinjau hasil",
+    tp_pdf_loading: "Membaca PDF…",
+    tp_pdf_page1: "Halaman 1 dipakai (total {n} halaman)",
+    tp_pdf_err: "⚠ PDF ini tidak bisa dibuka ({f}). PDF berkata sandi atau rusak tidak bisa dipakai.",
+    tp_max: "⚠ Maksimal 4 foto. Untuk mengganti, tekan × pada foto yang tidak perlu dulu.",
+    tp_max_skip: "⚠ Maksimal 4 foto, jadi {n} foto tidak dimasukkan.",
+    tp_heic: "⚠ Foto iPhone (HEIC) tidak bisa dibuka di PC ini. Pilih langsung dari HP, atau simpan sebagai JPEG dulu.",
+    tp_img_err: "⚠ Foto ini tidak bisa dibuka ({f}). Pilih foto JPEG atau PNG.",
+    tp_not_img: "⚠ Bukan foto atau PDF ({f}). Masukkan foto (JPEG/PNG) atau PDF.",
+    tp_link: "⚠ File foto tidak diterima.<br>Menyeret langsung dari browser atau aplikasi (Google Drive/Foto, email, chat) hanya mengirim tautan.<br>① Simpan foto ke PC (desktop dll.) → ② seret file itu, atau klik kotak untuk memilih.<br>Jika gambar disalin, tekan <b>Ctrl+V</b> di layar ini.",
+    tp_pick_bad: "⚠ Pilih foto (JPEG/PNG) atau PDF.",
+    tp_missing: "⚠ Ada yang belum diisi: ",
+    tp_f_photo: "foto",
+    tp_f_pn: "nomor part",
+    tp_f_qty: "jumlah isi (angka 1 ke atas)",
+    tp_f_pts: "poin",
+    tp_pn_check: "Periksa nomor part",
+    tp_rename_confirm: "Nomor part diganti dari \"{a}\" ke \"{b}\".\nTabel poin lama dihapus dan didaftarkan dengan nomor baru. Lanjut?",
+    tp_exists_confirm: "Tabel poin {pn} sudah terdaftar ({name}). Timpa?",
+    tp_done_save: "✓ Terdaftar: {name} (siap dipakai cek)",
+    tp_done_over: "✓ Ditimpa: {name} (siap dipakai cek)",
+    tp_toast_save: "Tabel poin didaftarkan: {name}",
+    tp_toast_over: "Tabel poin ditimpa: {name}",
+    tp_nosrc: "ℹ Isian tabel poin ini tidak tersimpan, jadi PDF aslinya dimuat sebagai foto. Isi jumlah dan poin lalu \"Timpa & simpan\".",
+    tp_cancel_confirm: "Batal edit? (Tabel poin terdaftar tidak berubah)",
+    tp_clear_confirm: "Hapus semua isian?",
+    tp_clear_edit: " (edit juga dibatalkan)",
+    tp_rm: "Lepas foto {n}",
+    cl_h: "Hapus data cek",
+    cl_note: "Catatan cek adalah bukti kualitas. Sebelum menghapus, <b>simpan CSV</b> dari tab \"Riwayat\".<br>Perlu kode buka NG untuk menghapus. Data yang dihapus tidak bisa kembali.",
+    cl_count: "Hari ini: {d} / Semua: {a}",
+    cl_day: "Hapus catatan hari ini",
+    cl_all: "Hapus semua catatan",
+    cl_note2: "Tabel poin (PDF) tidak ikut terhapus. Hapus PDF dari tab \"Daftar Tabel Poin\".",
+    cl_none_day: "Tidak ada catatan pada {d}",
+    cl_conf_day: "Hapus {n} catatan tanggal {d}? Tidak bisa dikembalikan.",
+    cl_done_day: "Catatan {d} dihapus ({n})",
+    cl_none: "Tidak ada catatan untuk dihapus",
+    cl_conf_all: "Hapus semua {n} catatan? Tidak bisa dikembalikan.",
+    cl_done_all: "Semua catatan dihapus ({n})"
+  },
+  tl: {
+    tab_check: "Suriin",
+    tab_pdf: "Irehistro ang Point Table",
+    tab_log: "Talaan",
+    tab_set: "Settings",
+    badge: "📄 Point table: {n}",
+    lang_btn: "🌐 Wika",
+    st1: "Kanban",
+    st2: "Point table",
+    st3: "Resulta",
+    wait_big: "I-scan ang kanban",
+    wait_msg: "I-scan ang QR ng kanban",
+    chk_big: "Binubuksan ang point table",
+    chk_msg: "Binubuksan ang PDF na kapareho ng part number…",
+    man_big: "I-scan ang QR ng point table",
+    man_msg: "I-scan ang QR sa point table",
+    af_big: "Hindi mabasa ang QR nang awtomatiko",
+    af_msg: "I-scan ang QR ng point table gamit ang scanner",
+    ok_msg: "Tugma ang part number: {pn}",
+    ngstop: "NG — Nakahinto",
+    card_k: "Kanban",
+    card_p: "Point table (pangalan ng file)",
+    qr_content: "Laman ng QR: ",
+    auto_read: " (awtomatikong binasa mula sa PDF)",
+    scanned: " (na-scan)",
+    b_cam: "📷 Camera",
+    b_photo: "📸 Litrato",
+    b_man: "⌨ I-type",
+    b_reset: "↺ Ulitin",
+    sw_t: "Standard na trabaho",
+    sw1: "I-scan ang QR ng kanban (scanner / camera)",
+    sw2: "Kapag may point table na kapareho ng part number → OK, kung wala → NG",
+    sw3: "OK (berde, ping-pong) → tingnan ang point table at magtrabaho / susunod na kanban",
+    sw4: "NG (pula, buzzer) → itigil ang trabaho at tawagin ang leader. Mabubuksan lang gamit ang code",
+    pdf_h: "Point table: ",
+    pdf_cnt: "Nakarehistro: {n}",
+    empty: "Kapag na-scan ang kanban, dito lalabas ang point table",
+    ng_noreg: "Walang point table para sa part number na ito (baka maling part)",
+    ng_mis: "Hindi tugma ang part number (baka maling part)",
+    ng_multi: "May higit sa isang part number ng point table sa loob ng QR",
+    ng_twice: "Na-scan ulit ang parehong kanban",
+    ng_open: "Hindi mabuksan ang PDF ng point table",
+    d_k: "Kanban",
+    d_p: "QR ng point table",
+    d_scanp: "I-scan ang QR ng point table",
+    ng_ask: "Itigil ang trabaho at tawagin ang leader. Ilagay ang code para buksan",
+    t_unlock: "Nabuksan na. I-scan ulit ang tamang kanban",
+    t_wrong: "Mali ang code",
+    t_kana: "Naka-Japanese (kana) ang input. Ilipat sa ordinaryong letra/numero",
+    t_first: "Wala pang point table (PDF). Makipag-ugnayan sa leader",
+    c_frame: "Ilagay ang QR sa loob ng kahon",
+    c_frame2: "Ilagay ang QR sa loob ng kahon at ilapit mula sa harap",
+    c_hint: "Kung hindi mabasa, kumuha ng 📸 litrato",
+    c_photo: "📸 Kumuha ng litrato",
+    c_close: "✕ Isara",
+    c_reading: "Binabasa ang QR mula sa litrato…",
+    c_fail: "Hindi mabasa ang QR. Kumuha ulit: malaki sa gitna at malinaw",
+    c_insecure: "Hindi magagamit ang live camera sa ganitong pagbukas, kaya litrato ang gagamitin",
+    c_nosup: "Hindi suportado ng browser na ito ang live camera, kaya litrato ang gagamitin",
+    c_denied: "Walang pahintulot ang camera. Pindutin ang 🔒 (site settings) → Camera → Allow",
+    c_notfound: "Walang nakitang camera",
+    c_busy: "Ginagamit ng ibang app ang camera. Isara ang app na iyon",
+    c_other: "Hindi mabuksan ang camera ({e})",
+    c_alt: ". Puwede ring gumamit ng litrato",
+    p_k: "I-type ang laman ng QR ng kanban (part number)",
+    p_p: "I-type ang laman ng QR ng point table",
+    sc_lbl: "Lugar ng pag-scan ng kanban",
+    sc_hint: "I-scan gamit ang scanner / dito rin mag-type",
+    sc_ph: "Kapag nag-scan, dito lalabas ang mga letra",
+    sc_man_ph: "I-type ang part number at pindutin ang Enter",
+    sc_ok: "OK",
+    sc_bad: "Hindi nabasa nang tama. I-scan ulit",
+    z_fit: "Buo",
+    pl_del: "Burahin",
+    pl_title: "Mga nakarehistrong point table",
+    pl_search: "Hanapin ang part number",
+    pl_none: "Walang tugmang point table",
+    pl_empty: "Wala pang nakarehistro",
+    pl_cnt: "{n}",
+    pin_ok: "OK",
+    pin_cancel: "Kanselahin",
+    pin_set: "Ilagay ang password ng settings",
+    pin_ng: "Ilagay ang code para buksan ang NG",
+    t_setpw: "Mali ang password",
+    start_note: "Nakarehistrong point table: {n}",
+    start_err: "Error sa pagsisimula: {e}",
+    h_info: "Terminal {t} | Ngayon {n} (NG {g})",
+    drop_all: "Bitawan para i-import",
+    r_h: "I-import ang PDF ng point table",
+    r_note: "I-import ang mga PDF ng point table na na-download mula sa Google Drive (puwedeng marami nang sabay).<br><b>Pangalan ng file = part number</b> (hal. 12345-67890.pdf). Hindi pinapansin ang gitling, espasyo at full/half-width. Papalitan ang parehong part number.<br>Nakatago ang PDF sa loob ng tablet, kaya magagamit kahit walang internet (offline).",
+    r_drop_t: "I-drag at i-drop ang PDF dito",
+    r_drop_s: "PDF file o buong folder / i-tap para pumili ng file",
+    r_pick: "Pumili ng PDF at i-import",
+    r_dir: "I-import ang buong folder",
+    r_clear: "Burahin lahat",
+    r_list: "Nakarehistro",
+    r_dlall: "⬇ I-save lahat (isa-isa)",
+    r_search_ph: "Hanapin ang part number",
+    r_total: "({n})",
+    r_making: "Ginagawa ang preview…",
+    r_key: "Check key",
+    r_view: "🔍 Tingnan",
+    r_save: "⬇ I-save",
+    r_edit: "✏ I-edit",
+    r_del: "🗑 Burahin",
+    r_nomatch: "Walang point table na tugma sa \"{q}\".",
+    r_none: "Wala pang nakarehistro. I-drag at i-drop ang PDF sa kahon sa itaas.",
+    r_thumb_err: "⚠ Hindi maipakita ang preview",
+    pv_title: "Point table",
+    pv_opening: "Binubuksan…",
+    pv_err: "⚠ Hindi mabuksan ang PDF na ito",
+    r_dl_none: "Walang point table na ise-save",
+    r_dl_confirm: "Ise-save ang {n} nang isa-isa bilang PDF.\nKapag nagtanong ang browser tungkol sa \"maraming download\", pindutin ang \"Allow\".",
+    r_dl_prog: "⬇ Sine-save… {i} / {n}",
+    r_dl_done: "Na-save ang {n}",
+    r_del_confirm: "Burahin ang point table na \"{name}\"?\nKapag binura, magiging NG (walang point table) ang kanban ng part number na ito.\n* Kung kailangan, i-\"⬇ I-save\" muna.",
+    r_deleted: "Nabura: {name}",
+    r_saved: "Na-save: {name}",
+    r_clear_confirm: "Burahin ang lahat ng nakarehistrong point table?",
+    r_ngstop_drop: "Hindi puwedeng mag-import habang NG. Buksan muna ang NG",
+    im_nopdf: "Walang PDF sa {n} file na natanggap",
+    im_nofile: "Walang natanggap na file",
+    im_prog: "Nag-i-import… {i} / {n}",
+    im_f_empty: " (walang pangalan ng file)",
+    im_f_notpdf: " (hindi PDF ang laman)",
+    im_f_read: " (hindi mabasa: {e})",
+    im_done: "Tapos ang import: bago <b>{a}</b>, pinalitan <b>{u}</b>",
+    im_ignored: " ({n} hindi PDF ang hindi pinansin)",
+    im_dup: "⚠ May mga file na pareho ang part number (ang huli ang ginamit): ",
+    im_fail: "⚠ {n} file ang hindi na-import: ",
+    im_drive_tip: "Para sa file ng Google Drive (PC), i-right-click → \"Available offline\", o kopyahin muna sa desktop.",
+    im_toast: "Tapos ang import: bago {a}, pinalitan {u}",
+    im_toast_fail: " (bigo {n})",
+    im_gd: "Kapag direktang dinrag mula sa <b>browser screen</b> ng Google Drive, link lang ang naipapasa, hindi ang file.<br>① Piliin ang PDF sa Drive at i-\"Download\" → ② i-drag dito ang na-download na PDF (o i-tap para pumili).",
+    im_link: "Link o text ang na-drop. I-drag ang mismong PDF file (mula sa Explorer o desktop).",
+    im_dir_fail_t: "⚠ Hindi mabasa ang laman ng folder",
+    im_dir_fail_s: "Buksan ang folder, piliin lahat ng PDF at i-drag, o gamitin ang button na \"I-import ang buong folder\".",
+    l_date: "Petsa",
+    l_csv: "I-save bilang CSV",
+    l_note: "Lahat ng resulta ay nakatala ayon sa petsa (nagpapalit ng araw sa 00:00). Puwedeng ilipat ang CSV sa Google Drive para itugma sa order data.",
+    l_all: "Bilang ng check",
+    l_th_time: "Oras",
+    l_th_res: "Resulta",
+    l_th_k: "Part number ng kanban",
+    l_th_p: "PDF ng point table",
+    l_th_why: "Dahilan",
+    l_th_unl: "Binuksan",
+    l_none: "Walang talaan sa araw na ito",
+    s_h: "Settings",
+    s_term: "Numero ng terminal (kasama sa pangalan ng CSV; iba-iba bawat tablet)",
+    s_sound: "Tunog",
+    s_on: "Bukas",
+    s_off: "Sarado",
+    s_save: "I-save",
+    s_chg_code: "Palitan ang NG unlock code",
+    s_chg_pw: "Palitan ang password ng settings",
+    s_note: "Ang default na NG unlock code ay <b>1234</b> at ang default na password ng settings ay <b>0000</b> (ginagamit sa pagbukas ng \"Irehistro ang Point Table\" at \"Settings\"). Palitan ito ng numerong alam lang ng leader/in-charge.<br>Camera: magagamit sa Chrome ng Android tablet/phone (scanner ang gamit sa PC).",
+    s_term_bad: "Numero ng terminal: 1–4 letra/numero",
+    s_saved: "Na-save",
+    pp_cur_code: "Ilagay ang kasalukuyang NG unlock code",
+    pp_new_code: "Bagong code (4–8 numero)",
+    pp_again: "Ilagay ulit para kumpirmahin",
+    pp_cur_pw: "Ilagay ang kasalukuyang password ng settings",
+    pp_new_pw: "Bagong password (4–8 numero)",
+    t_cur_code_bad: "Mali ang kasalukuyang code",
+    t_cur_pw_bad: "Mali ang kasalukuyang password",
+    t_digits: "Maglagay ng 4–8 numero",
+    t_mismatch: "Magkaiba ang una at pangalawa. Ulitin",
+    t_code_changed: "Napalitan ang unlock code (bagong code na ang gagamitin)",
+    t_pw_changed: "Napalitan ang password ng settings",
+    t_save_err: "Hindi na-save: {e}",
+    tp_h: "Gumawa ng point table (puwede sa phone)",
+    tp_editing: "✏ Ine-edit: ",
+    tp_edit_note: " (papalitan ng \"I-overwrite\" ang nakarehistrong point table)",
+    tp_edit_cancel: "Itigil ang pag-edit",
+    tp_note: "Ilagay ang litrato, part number, dami at mga punto, saka pindutin ang \"Irehistro\" — magagawa ang point table (PDF, pangalan = part number) at magagamit agad.<br>Para sa ibang tablet, i-\"I-save ang PDF\" at ilagay sa Google Drive.",
+    tp_photo: "Litrato (o PDF)",
+    req: "Kailangan",
+    tp_cnt: "{n} / {m}",
+    tp_drop_t: "I-drag at i-drop ang litrato/PDF (hanggang 4)",
+    tp_drop_s: "I-tap para pumili o kumuha ng litrato. Puwedeng marami nang sabay (puwede ring Ctrl+V)",
+    tp_add_t: "Magdagdag ng litrato ({n} pa)",
+    tp_add_s: "I-drag at i-drop / i-tap para pumili",
+    tp_pn: "Part number",
+    tp_pn_ph: "Hal.: 12345-67890",
+    tp_qty: "Dami sa lalagyan",
+    tp_qty_ph: "Hal.: 20",
+    tp_pcs: "piraso",
+    tp_pts: "Mga punto",
+    tp_pts_ph: "Isang punto bawat linya\nHal.: tingnan ang direksyon\nHal.: walang gasgas/yupi",
+    tp_save: "Irehistro",
+    tp_overwrite: "I-overwrite",
+    tp_dl: "I-save ang PDF",
+    tp_clear: "I-clear",
+    tp_prev: "Preview ng resulta",
+    tp_pdf_loading: "Binabasa ang PDF…",
+    tp_pdf_page1: "Ginamit ang pahina 1 (kabuuang {n} pahina)",
+    tp_pdf_err: "⚠ Hindi mabuksan ang PDF na ito ({f}). Hindi magagamit ang PDF na may password o sira.",
+    tp_max: "⚠ Hanggang 4 litrato lang. Para palitan, pindutin muna ang × sa hindi kailangan.",
+    tp_max_skip: "⚠ Hanggang 4 litrato lang, kaya hindi naisama ang {n}.",
+    tp_heic: "⚠ Hindi mabuksan sa PC na ito ang litrato ng iPhone (HEIC). Pumili mula sa phone, o i-save muna bilang JPEG.",
+    tp_img_err: "⚠ Hindi mabuksan ang litratong ito ({f}). Pumili ng JPEG o PNG.",
+    tp_not_img: "⚠ Hindi litrato o PDF ({f}). Maglagay ng litrato (JPEG/PNG) o PDF.",
+    tp_link: "⚠ Hindi natanggap ang litrato.<br>Kapag dinrag mula sa browser o app (Google Drive/Photos, email, chat), link lang ang naipapasa.<br>① I-save muna ang litrato sa PC (desktop atbp.) → ② i-drag ang file, o i-click ang kahon para pumili.<br>Kung kinopya ang larawan, pindutin ang <b>Ctrl+V</b> dito.",
+    tp_pick_bad: "⚠ Pumili ng litrato (JPEG/PNG) o PDF.",
+    tp_missing: "⚠ May kulang pa: ",
+    tp_f_photo: "litrato",
+    tp_f_pn: "part number",
+    tp_f_qty: "dami (numero 1 pataas)",
+    tp_f_pts: "mga punto",
+    tp_pn_check: "Tingnan ang part number",
+    tp_rename_confirm: "Pinalitan ang part number mula \"{a}\" hanggang \"{b}\".\nBuburahin ang luma at irerehistro sa bagong number. Ituloy?",
+    tp_exists_confirm: "Nakarehistro na ang point table na {pn} ({name}). I-overwrite?",
+    tp_done_save: "✓ Nairehistro: {name} (puwede nang gamitin)",
+    tp_done_over: "✓ Na-overwrite: {name} (puwede nang gamitin)",
+    tp_toast_save: "Nairehistro ang point table: {name}",
+    tp_toast_over: "Na-overwrite ang point table: {name}",
+    tp_nosrc: "ℹ Walang naitabing laman ang point table na ito, kaya ang orihinal na PDF ang ginawang litrato. Ilagay ang dami at mga punto, saka i-\"I-overwrite\".",
+    tp_cancel_confirm: "Itigil ang pag-edit? (Hindi magbabago ang nakarehistro)",
+    tp_clear_confirm: "I-clear ang lahat ng inilagay?",
+    tp_clear_edit: " (titigil din ang pag-edit)",
+    tp_rm: "Alisin ang litrato {n}",
+    cl_h: "Burahin ang check data",
+    cl_note: "Ebidensya ng kalidad ang mga talaan. Bago burahin, <b>i-save bilang CSV</b> sa tab na \"Talaan\".<br>Kailangan ang NG unlock code. Hindi na maibabalik ang nabura.",
+    cl_count: "Araw na ito: {d} / Lahat: {a}",
+    cl_day: "Burahin ang talaan ng araw na ito",
+    cl_all: "Burahin lahat ng talaan",
+    cl_note2: "Hindi nabubura ang mga point table (PDF). Burahin ang PDF sa tab na \"Irehistro ang Point Table\".",
+    cl_none_day: "Walang talaan sa {d}",
+    cl_conf_day: "Burahin ang {n} talaan ng {d}? Hindi na maibabalik.",
+    cl_done_day: "Nabura ang talaan ng {d} ({n})",
+    cl_none: "Walang talaang buburahin",
+    cl_conf_all: "Burahin ang lahat ng {n} talaan? Hindi na maibabalik.",
+    cl_done_all: "Nabura ang lahat ng talaan ({n})"
+  },
+  en: {
+    tab_check: "Check",
+    tab_pdf: "Register Point Tables",
+    tab_log: "Records",
+    tab_set: "Settings",
+    badge: "📄 Point tables: {n}",
+    lang_btn: "🌐 Language",
+    st1: "Kanban",
+    st2: "Point table",
+    st3: "Result",
+    wait_big: "Scan the kanban",
+    wait_msg: "Scan the QR code on the kanban",
+    chk_big: "Opening the point table",
+    chk_msg: "Opening the PDF with the same name as the part number…",
+    man_big: "Scan the point table QR",
+    man_msg: "Scan the QR code on the point table",
+    af_big: "Could not read the QR automatically",
+    af_msg: "Scan the point table QR with the scanner",
+    ok_msg: "Part number matches: {pn}",
+    ngstop: "NG — Stopped",
+    card_k: "Kanban",
+    card_p: "Point table (file name)",
+    qr_content: "QR content: ",
+    auto_read: " (read automatically from PDF)",
+    scanned: " (scanned)",
+    b_cam: "📷 Camera",
+    b_photo: "📸 Photo",
+    b_man: "⌨ Type",
+    b_reset: "↺ Reset",
+    sw_t: "Standard work",
+    sw1: "Scan the kanban QR (scanner / camera)",
+    sw2: "If a point table with the same part number exists → OK, if not → NG",
+    sw3: "OK (green, chime) → check the point table and work / next kanban",
+    sw4: "NG (red, buzzer) → stop work and call the leader. Only the unlock code can release it",
+    pdf_h: "Point table: ",
+    pdf_cnt: "Registered: {n}",
+    empty: "Scan a kanban and its point table opens here",
+    ng_noreg: "No point table for this part number (possible wrong part)",
+    ng_mis: "Part number does not match (possible wrong part)",
+    ng_multi: "The QR contains more than one point table part number",
+    ng_twice: "The same kanban was scanned again",
+    ng_open: "Cannot open the point table PDF",
+    d_k: "Kanban",
+    d_p: "Point table QR",
+    d_scanp: "Scan the point table QR",
+    ng_ask: "Stop work and call the leader. Enter the unlock code",
+    t_unlock: "Released. Scan the correct kanban again",
+    t_wrong: "Wrong code",
+    t_kana: "Input is in Japanese (kana) mode. Switch to normal letters/numbers",
+    t_first: "No point tables (PDF) registered yet. Contact the leader",
+    c_frame: "Put the QR inside the frame",
+    c_frame2: "Put the QR inside the frame and move closer from the front",
+    c_hint: "If it cannot be read, take a 📸 photo",
+    c_photo: "📸 Take a photo",
+    c_close: "✕ Close",
+    c_reading: "Reading the QR from the photo…",
+    c_fail: "Could not read the QR. Retake it: large, centered and in focus",
+    c_insecure: "Live camera is not available when opened this way, so a photo will be used",
+    c_nosup: "This browser does not support the live camera, so a photo will be used",
+    c_denied: "Camera permission is blocked. Tap 🔒 (site settings) → Camera → Allow",
+    c_notfound: "No camera found",
+    c_busy: "Another app is using the camera. Close that app",
+    c_other: "Cannot open the camera ({e})",
+    c_alt: ". You can also read it with a photo",
+    p_k: "Type the kanban QR content (part number)",
+    p_p: "Type the point table QR content",
+    sc_lbl: "Kanban scan field",
+    sc_hint: "Scan with the scanner / type here too",
+    sc_ph: "Scanned characters appear here",
+    sc_man_ph: "Type the part number and press Enter",
+    sc_ok: "OK",
+    sc_bad: "Could not read correctly. Scan again",
+    z_fit: "Fit",
+    pl_del: "Delete",
+    pl_title: "Registered point tables",
+    pl_search: "Search part number",
+    pl_none: "No matching point table",
+    pl_empty: "Nothing registered yet",
+    pl_cnt: "{n}",
+    pin_ok: "OK",
+    pin_cancel: "Cancel",
+    pin_set: "Enter the settings password",
+    pin_ng: "Enter the NG unlock code",
+    t_setpw: "Wrong password",
+    start_note: "Point tables registered: {n}",
+    start_err: "Startup error: {e}",
+    h_info: "Terminal {t} | Today {n} (NG {g})",
+    drop_all: "Release to import",
+    r_h: "Import point table PDFs",
+    r_note: "Import point table PDFs downloaded from Google Drive (any number at once).<br><b>File name = part number</b> (e.g. 12345-67890.pdf). Hyphens, spaces and full/half-width differences are ignored. The same part number is overwritten.<br>Imported PDFs are stored on the tablet, so it works without internet (offline).",
+    r_drop_t: "Drag & drop PDFs here",
+    r_drop_s: "PDF files or a whole folder / tap to choose files",
+    r_pick: "Choose PDFs to import",
+    r_dir: "Import a folder",
+    r_clear: "Delete all",
+    r_list: "Registered",
+    r_dlall: "⬇ Save all (one by one)",
+    r_search_ph: "Search part number",
+    r_total: "({n})",
+    r_making: "Making preview…",
+    r_key: "Match key",
+    r_view: "🔍 View",
+    r_save: "⬇ Save",
+    r_edit: "✏ Edit",
+    r_del: "🗑 Delete",
+    r_nomatch: "No point table matches \"{q}\".",
+    r_none: "Nothing registered yet. Drag & drop PDFs into the box above.",
+    r_thumb_err: "⚠ Cannot show preview",
+    pv_title: "Point table",
+    pv_opening: "Opening…",
+    pv_err: "⚠ Cannot open this PDF",
+    r_dl_none: "No point tables to save",
+    r_dl_confirm: "{n} files will be saved one by one as PDFs.\nIf the browser asks about \"multiple downloads\", tap \"Allow\".",
+    r_dl_prog: "⬇ Saving… {i} / {n}",
+    r_dl_done: "Saved {n} files",
+    r_del_confirm: "Delete point table \"{name}\"?\nAfter deleting, kanban for this part number will be NG (no point table).\n* If needed, \"⬇ Save\" it first.",
+    r_deleted: "Deleted: {name}",
+    r_saved: "Saved: {name}",
+    r_clear_confirm: "Delete all registered point tables?",
+    r_ngstop_drop: "Cannot import while stopped at NG. Release it first",
+    im_nopdf: "No PDF among the {n} files received",
+    im_nofile: "No file was received",
+    im_prog: "Importing… {i} / {n}",
+    im_f_empty: " (empty file name)",
+    im_f_notpdf: " (not a PDF inside)",
+    im_f_read: " (cannot read: {e})",
+    im_done: "Import done: new <b>{a}</b>, overwritten <b>{u}</b>",
+    im_ignored: " ({n} non-PDF files ignored)",
+    im_dup: "⚠ Some files have the same part number (the last one is used): ",
+    im_fail: "⚠ {n} files could not be imported: ",
+    im_drive_tip: "For Google Drive (PC) files, right-click → \"Available offline\", or copy them to the desktop first.",
+    im_toast: "Import done: new {a}, overwritten {u}",
+    im_toast_fail: " (failed {n})",
+    im_gd: "Dragging straight from the Google Drive <b>browser screen</b> only passes a link, not the file.<br>① Select the PDF in Drive and \"Download\" → ② drag the downloaded PDF here (or tap to choose).",
+    im_link: "A link or text was dropped. Drag the PDF file itself (from Explorer or the desktop).",
+    im_dir_fail_t: "⚠ Could not read the folder contents",
+    im_dir_fail_s: "Open the folder, select the PDFs and drag them, or use the \"Import a folder\" button.",
+    l_date: "Date",
+    l_csv: "Save as CSV",
+    l_note: "All results are kept by date (the day changes at 00:00). Move the CSV to Google Drive to match it with order data.",
+    l_all: "Checks",
+    l_th_time: "Time",
+    l_th_res: "Result",
+    l_th_k: "Kanban part no.",
+    l_th_p: "Point table PDF",
+    l_th_why: "Reason",
+    l_th_unl: "Released",
+    l_none: "No records for this day",
+    s_h: "Settings",
+    s_term: "Terminal number (used in the CSV file name; different for each tablet)",
+    s_sound: "Sound",
+    s_on: "On",
+    s_off: "Off",
+    s_save: "Save",
+    s_chg_code: "Change NG unlock code",
+    s_chg_pw: "Change settings password",
+    s_note: "The default NG unlock code is <b>1234</b> and the default settings password is <b>0000</b> (used to open \"Register Point Tables\" and \"Settings\"). Change them to numbers only the leader/person in charge knows.<br>Camera: works in Chrome on Android tablets/phones (use a scanner on PC).",
+    s_term_bad: "Terminal number: 1–4 letters/numbers",
+    s_saved: "Saved",
+    pp_cur_code: "Enter the current NG unlock code",
+    pp_new_code: "New code (4–8 digits)",
+    pp_again: "Enter it again to confirm",
+    pp_cur_pw: "Enter the current settings password",
+    pp_new_pw: "New password (4–8 digits)",
+    t_cur_code_bad: "The current code is wrong",
+    t_cur_pw_bad: "The current password is wrong",
+    t_digits: "Enter 4–8 digits",
+    t_mismatch: "The first and second entries differ. Try again",
+    t_code_changed: "Unlock code changed (use the new code from now on)",
+    t_pw_changed: "Settings password changed",
+    t_save_err: "Could not save: {e}",
+    tp_h: "Create a point table (works on phones too)",
+    tp_editing: "✏ Editing: ",
+    tp_edit_note: " (\"Overwrite\" replaces the registered point table)",
+    tp_edit_cancel: "Stop editing",
+    tp_note: "Enter photos, part number, quantity and points, then tap \"Register\" — a point table (PDF, file name = part number) is made and ready to use.<br>For other tablets, \"Save PDF\" and put it on Google Drive.",
+    tp_photo: "Photos (or PDF)",
+    req: "Required",
+    tp_cnt: "{n} / {m}",
+    tp_drop_t: "Drag & drop photos/PDF (up to 4)",
+    tp_drop_s: "Tap to choose files or take a photo. You can select several (copied images: Ctrl+V)",
+    tp_add_t: "Add photos ({n} more)",
+    tp_add_s: "Drag & drop / tap to choose",
+    tp_pn: "Part number",
+    tp_pn_ph: "e.g. 12345-67890",
+    tp_qty: "Quantity per box",
+    tp_qty_ph: "e.g. 20",
+    tp_pcs: "pcs",
+    tp_pts: "Points",
+    tp_pts_ph: "One point per line\ne.g. Check the direction\ne.g. No scratches or dents",
+    tp_save: "Register",
+    tp_overwrite: "Overwrite",
+    tp_dl: "Save PDF",
+    tp_clear: "Clear",
+    tp_prev: "Preview",
+    tp_pdf_loading: "Reading the PDF…",
+    tp_pdf_page1: "Used page 1 (of {n} pages)",
+    tp_pdf_err: "⚠ Cannot open this PDF ({f}). Password-protected or broken PDFs cannot be used.",
+    tp_max: "⚠ Up to 4 photos. To replace one, tap × on the photo you do not need first.",
+    tp_max_skip: "⚠ Only 4 photos allowed, so {n} were not added.",
+    tp_heic: "⚠ iPhone photos (HEIC) cannot be opened on this PC. Choose it from the phone, or save it as JPEG first.",
+    tp_img_err: "⚠ Cannot open this photo ({f}). Choose a JPEG or PNG.",
+    tp_not_img: "⚠ Not a photo or PDF ({f}). Add a photo (JPEG/PNG) or PDF.",
+    tp_link: "⚠ No photo file was received.<br>Dragging from a browser or app (Google Drive/Photos, email, chat) only passes a link.<br>① Save the photo to the PC (desktop etc.) → ② drag that file, or click the box to choose it.<br>If you copied an image, press <b>Ctrl+V</b> on this screen.",
+    tp_pick_bad: "⚠ Choose a photo (JPEG/PNG) or PDF.",
+    tp_missing: "⚠ Missing: ",
+    tp_f_photo: "photo",
+    tp_f_pn: "part number",
+    tp_f_qty: "quantity (number 1 or more)",
+    tp_f_pts: "points",
+    tp_pn_check: "Check the part number",
+    tp_rename_confirm: "Part number changed from \"{a}\" to \"{b}\".\nThe old point table will be deleted and registered under the new number. Continue?",
+    tp_exists_confirm: "Point table {pn} is already registered ({name}). Overwrite?",
+    tp_done_save: "✓ Registered: {name} (ready to use)",
+    tp_done_over: "✓ Overwritten: {name} (ready to use)",
+    tp_toast_save: "Point table registered: {name}",
+    tp_toast_over: "Point table overwritten: {name}",
+    tp_nosrc: "ℹ This point table has no saved inputs, so the original PDF was loaded as a photo. Enter quantity and points, then \"Overwrite\".",
+    tp_cancel_confirm: "Stop editing? (The registered point table does not change)",
+    tp_clear_confirm: "Clear everything you entered?",
+    tp_clear_edit: " (editing also stops)",
+    tp_rm: "Remove photo {n}",
+    cl_h: "Clear check records",
+    cl_note: "Check records are quality evidence. Before deleting, <b>save as CSV</b> from the \"Records\" tab.<br>The NG unlock code is required. Deleted data cannot be restored.",
+    cl_count: "This day: {d} / All: {a}",
+    cl_day: "Delete this day",
+    cl_all: "Delete all records",
+    cl_note2: "Registered point tables (PDF) are not deleted. Delete PDFs from the \"Register Point Tables\" tab.",
+    cl_none_day: "No records on {d}",
+    cl_conf_day: "Delete {n} records from {d}? This cannot be undone.",
+    cl_done_day: "Deleted records from {d} ({n})",
+    cl_none: "No records to delete",
+    cl_conf_all: "Delete all {n} records? This cannot be undone.",
+    cl_done_all: "All records deleted ({n})"
+  }
+};
+var LANG = 'ja';
+/** 訳を取り出す。{n} などは params で置きかえ。無い言語は日本語で表示 */
+function t(key, params) {
+  var s = (I18N[LANG] && I18N[LANG][key]) || I18N.ja[key] || key;
+  if (params) for (var k in params) s = s.split('{' + k + '}').join(params[k]);
+  return s;
+}
+/** 画面の [data-i18n] を今の言語に書きかえ */
+function applyLang() {
+  var im = document.getElementById('impMsg'); if (im && document.documentElement.lang !== LANG) im.textContent = '';
+  document.documentElement.lang = LANG;
+  document.querySelectorAll('[data-i18n]').forEach(function (el) { el.textContent = t(el.getAttribute('data-i18n')); });
+  document.querySelectorAll('[data-i18n-html]').forEach(function (el) { el.innerHTML = t(el.getAttribute('data-i18n-html')); });
+  document.querySelectorAll('[data-i18n-ph]').forEach(function (el) { el.placeholder = t(el.getAttribute('data-i18n-ph')); });
+  if (typeof tplRenderPhotos === 'function') { tplRenderPhotos(); if (TPL.editKey) $('tplSave').textContent = t('tp_overwrite'); }
+  if (typeof showPdfList === 'function' && document.getElementById('v-pdf').classList.contains('on')) showPdfList();
+  if (typeof showLogs === 'function' && document.getElementById('v-log').classList.contains('on')) showLogs();
+  if (typeof showClrCount === 'function' && document.getElementById('v-set').classList.contains('on')) showClrCount();
+  var ms = document.getElementById('manIn'); if (ms) ms.placeholder = t('sc_man_ph');
+  var pls = document.getElementById('plSearch'); if (pls) pls.placeholder = t('pl_search');
+  var ss = document.getElementById('scanShow'); if (ss && ss.classList.contains('empty') && typeof showScan === 'function') showScan('');
+  if (window.S) {
+    renderJudge(); renderCards();
+    if (S.state === 'ng' && NGVIEW) renderNg();
+  }
+  if (typeof updateHeader === 'function' && window.DB) updateHeader();
+}
+
+
+// ---------- マスコット「かんばんくん」（SVG・オフラインで表示） ----------
+// face: wait=待ち / think=確認・注意 / ok=OK / ng=NG
+function mascot(face) {
+  var body = { wait: '#C9B6FF', think: '#FFE27A', ok: '#7DF0C2', ng: '#FF9AAE' }[face] || '#C9B6FF';
+  var I = '#241A4A', eyes = '', mouth = '', extra = '';
+  if (face === 'ok') {
+    eyes = '<path d="M36 72q7-10 14 0M70 72q7-10 14 0" fill="none" stroke="' + I + '" stroke-width="5" stroke-linecap="round"/>';
+    mouth = '<path d="M45 84q15 18 30 0z" fill="' + I + '"/><path d="M52 90q8 5 16 0" fill="none" stroke="#FF6FA8" stroke-width="4" stroke-linecap="round"/>';
+    extra = '<path d="M8 30l3 8 8 3-8 3-3 8-3-8-8-3 8-3z" fill="#FFD23F" stroke="' + I + '" stroke-width="2.5" stroke-linejoin="round"/>' +
+            '<path d="M110 14l2.5 6 6 2.5-6 2.5-2.5 6-2.5-6-6-2.5 6-2.5z" fill="#fff" stroke="' + I + '" stroke-width="2.5" stroke-linejoin="round"/>';
+  } else if (face === 'ng') {
+    eyes = '<path d="M36 64l13 7-13 7M84 64l-13 7 13 7" fill="none" stroke="' + I + '" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>';
+    mouth = '<path d="M42 94q6-7 12 0t12 0 12 0" fill="none" stroke="' + I + '" stroke-width="5" stroke-linecap="round"/>';
+    extra = '<path d="M101 40q7 10 0 15-7-5 0-15z" fill="#7FD3FF" stroke="' + I + '" stroke-width="2.5"/>';
+  } else if (face === 'think') {
+    eyes = '<circle cx="44" cy="70" r="6.5" fill="' + I + '"/><circle cx="78" cy="70" r="6.5" fill="' + I + '"/><circle cx="46" cy="67" r="2.2" fill="#fff"/><circle cx="80" cy="67" r="2.2" fill="#fff"/>';
+    mouth = '<path d="M50 90h20" stroke="' + I + '" stroke-width="5" stroke-linecap="round"/>';
+    extra = '<text x="98" y="28" font-size="26" font-weight="900" fill="' + I + '" font-family="sans-serif">?</text>';
+  } else {
+    eyes = '<circle cx="44" cy="72" r="6.5" fill="' + I + '"/><circle cx="76" cy="72" r="6.5" fill="' + I + '"/><circle cx="46" cy="69" r="2.2" fill="#fff"/><circle cx="78" cy="69" r="2.2" fill="#fff"/>';
+    mouth = '<ellipse cx="60" cy="90" rx="5" ry="6" fill="' + I + '"/>';
+  }
+  return '<svg viewBox="-4 0 128 132" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">' +
+    '<path d="M60 4v14" stroke="' + I + '" stroke-width="4" stroke-linecap="round"/>' +
+    '<rect x="14" y="20" width="92" height="104" rx="22" fill="' + body + '" stroke="' + I + '" stroke-width="5"/>' +
+    '<circle cx="60" cy="31" r="5" fill="#F4F0FF" stroke="' + I + '" stroke-width="3"/>' +
+    '<rect x="28" y="42" width="64" height="12" rx="6" fill="#fff" stroke="' + I + '" stroke-width="3"/>' +
+    '<ellipse cx="32" cy="86" rx="7" ry="4.5" fill="#FF8FD1" opacity=".8"/><ellipse cx="88" cy="86" rx="7" ry="4.5" fill="#FF8FD1" opacity=".8"/>' +
+    eyes + mouth +
+    '<g fill="' + I + '"><rect x="82" y="104" width="7" height="7" rx="1.5"/><rect x="92" y="104" width="4" height="4"/><rect x="82" y="114" width="4" height="4"/><rect x="90" y="110" width="6" height="6" rx="1"/></g>' +
+    extra + '</svg>';
+}
+function paintMascots(root) {
+  (root || document).querySelectorAll('[data-mascot]').forEach(function (el) { el.innerHTML = mascot(el.getAttribute('data-mascot')); });
+}
+paintMascots();
+function esc(s) { return String(s == null ? '' : s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
+/** 照合キー：全角→半角、英字大文字、ハイフン・空白などを除去 */
+function norm(s) {
+  return String(s || '').normalize('NFKC').toUpperCase().replace(/\.PDF$/i, '').replace(/[\s\-‐‑‒–—―ー−_]/g, '');
+}
+/** 登録名を「,」などで区切った項目（品番と背番号を並べて登録した時） */
+function keyParts(k) { return String(k).split(/[,、，\/／+＋&＆]+/).filter(Boolean); }
+/** QRの中身を区切り（カンマ・タブ・空白など）で分けた候補一覧 */
+function fields(raw) {
+  var list = String(raw || '').normalize('NFKC').split(/[,\t;|\s]+/).filter(Boolean);
+  list.unshift(String(raw || ''));
+  return list;
+}
+function pad2(n) { return ('0' + n).slice(-2); }
+function today(d) { d = d || new Date(); return d.getFullYear() + '-' + pad2(d.getMonth() + 1) + '-' + pad2(d.getDate()); }
+function nowTime(d) { d = d || new Date(); return pad2(d.getHours()) + ':' + pad2(d.getMinutes()) + ':' + pad2(d.getSeconds()); }
+function toast(msg, ms) { var t = $('toast'); t.textContent = msg; t.style.display = 'block'; clearTimeout(toast.t); toast.t = setTimeout(function () { t.style.display = 'none'; }, ms || 2500); }
+
+// ---------- 音・バイブ ----------
+var AC = null;
+function tone(freq, start, dur, type, vol) {
+  if (!AC || CF.sound !== '1') return;
+  var o = AC.createOscillator(), g = AC.createGain();
+  o.type = type || 'sine'; o.frequency.value = freq; g.gain.value = vol || 0.3;
+  o.connect(g); g.connect(AC.destination);
+  o.start(AC.currentTime + start); o.stop(AC.currentTime + start + dur);
+}
+function soundOk() { tone(1320, 0, 0.15); tone(990, 0.17, 0.3); }
+function soundNg() { tone(160, 0, 1.2, 'square', 0.35); if (navigator.vibrate) navigator.vibrate([500, 200, 500, 200, 500]); }
+
+// ---------- IndexedDB（PDFと記録を端末内に保存） ----------
+var DB;
+function openDb() {
+  return new Promise(function (res, rej) {
+    var r = indexedDB.open('ptShogo', 2);
+    r.onupgradeneeded = function (ev) {
+      var db = r.result;
+      if (ev.oldVersion < 1) {
+        db.createObjectStore('pdfs', { keyPath: 'key' });
+        var l = db.createObjectStore('logs', { keyPath: 'id', autoIncrement: true });
+        l.createIndex('date', 'date');
+      }
+      if (ev.oldVersion < 2) db.createObjectStore('kv', { keyPath: 'k' });
+    };
+    r.onsuccess = function () { DB = r.result; res(); };
+    r.onerror = function () { rej(r.error); };
+  });
+}
+function tx(store, mode, fn) {
+  return new Promise(function (res, rej) {
+    var t = DB.transaction(store, mode), s = t.objectStore(store), out = fn(s);
+    t.oncomplete = function () { res(out && out.result !== undefined ? out.result : out); };
+    t.onerror = function () { rej(t.error); };
+  });
+}
+var PDF_INDEX = {}; // key → {key,name,size,at}（中身なしの一覧）
+function loadPdfIndex() {
+  return new Promise(function (res) {
+    PDF_INDEX = {};
+    var c = DB.transaction('pdfs').objectStore('pdfs').openCursor();
+    c.onsuccess = function () {
+      var cur = c.result;
+      if (cur) { var v = cur.value; PDF_INDEX[v.key] = { key: v.key, name: v.name, size: v.size, at: v.at }; cur.continue(); }
+      else res();
+    };
+  });
+}
+function getPdf(key) { return tx('pdfs', 'readonly', function (s) { return s.get(key); }); }
+
+// ---------- pdf.js（ファイル内に同梱。ネット不要） ----------
+var pdfjs = null;
+function b64Blob(id) {
+  var s = atob($(id).textContent.trim()), u = new Uint8Array(s.length);
+  for (var i = 0; i < s.length; i++) u[i] = s.charCodeAt(i);
+  return URL.createObjectURL(new Blob([u], { type: 'text/javascript' }));
+}
+async function loadPdfjs() {
+  pdfjs = await import(b64Blob('b64-pdfjs'));
+  pdfjs.GlobalWorkerOptions.workerSrc = b64Blob('b64-worker');
+}
+
+// ---------- 照合の状態 ----------
+// state: 'k' = かんばん待ち, 'p' = ポイント表QR待ち（手動・自動失敗時）, 'busy' = 処理中, 'done' = 判定済み, 'ng' = NG停止中
+var S = { state: 'k', kRaw: '', kKey: '', pdfName: '' };
+// 画面の表示内容は「言語キー」で持ち、言語を切り替えたら描き直す
+var J = { kind: 'wait', big: 'wait_big', msg: 'wait_msg', p: null };
+var CARD = { kPn: '―', kRaw: '', pPn: '―', pRaw: '', pHow: '' };
+var NGVIEW = null;
+
+function setSteps(n, allDone) {
+  ['st1', 'st2', 'st3'].forEach(function (id, i) {
+    var el = $(id); el.className = 'step' + (i + 1 < n || allDone ? ' done' : (i + 1 === n ? ' now' : ''));
+  });
+}
+function setJudge(kind, bigKey, msgKey, params) { J = { kind: kind, big: bigKey, msg: msgKey, p: params || null }; renderJudge(); }
+function renderJudge() {
+  var j = $('judge'); j.className = 'judge ' + J.kind;
+  $('jBig').textContent = t(J.big, J.p); $('jMsg').textContent = J.msg ? t(J.msg, J.p) : '';
+  var face = J.kind === 'ok' ? 'ok' : (J.kind === 'warn' ? 'think' : 'wait');
+  if (J.big === 'ngstop') face = 'ng';
+  $('jMascot').innerHTML = mascot(face);
+}
+function renderCards() {
+  $('kPn').textContent = CARD.kPn;
+  $('kRaw').textContent = CARD.kRaw ? t('qr_content') + CARD.kRaw : '';
+  $('pPn').textContent = CARD.pPn;
+  $('pRaw').textContent = '';
+  if ($('pdfbox').querySelector('.empty')) $('pdfbox').innerHTML = '<div class="empty">' + mascot('wait') + esc(t('empty')) + '</div>';
+}
+function resetView() {
+  S = { state: 'k', kRaw: '', kKey: '', pdfName: '' };
+  CARD = { kPn: '―', kRaw: '', pPn: '―', pRaw: '', pHow: '' };
+  setSteps(1); setJudge('wait', 'wait_big', 'wait_msg');
+  $('pdfName').textContent = '―'; $('zoomBar').hidden = true; ZM.z = 1;
+  $('pdfbox').innerHTML = '<div class="empty">' + mascot('wait') + esc(t('empty')) + '</div>';
+  renderCards();
+}
+
+/** スキャナー・カメラ・手入力の読取結果はすべてここに来る */
+function onScan(raw) {
+  raw = String(raw || '').replace(/[\r\n]+$/g, '').trim();
+  if (!raw) return;
+  if (S.state !== 'ng' && S.state !== 'busy') showScan(raw, 'done'); // 読んだ文字を読取欄に残す
+  if (S.state === 'ng' || S.state === 'busy') return; // NG中・処理中は受け付けない
+  return startKanban(raw); // 'k' または 'done'（次のかんばん）
+}
+
+async function startKanban(raw) {
+  resetView();
+  S.state = 'busy'; S.kRaw = raw;
+  // 照合は「かんばんQRの品番」と「ポイント表PDFのファイル名（＝品番）」で行う。PDFの中身は照合に使わない
+  // ⓪ トヨタ形式の品番（数字5桁-英数5桁［-2桁］）をQRの中から抜き取って、最初に照合する
+  //    例：…PA0U0P74043-60020Q32P017… → 74043-60020
+  var picked = [], re = /(\d{5})-([0-9A-Z]{5})(?:-([0-9A-Z]{2}))?/g, mm, up = String(raw).normalize('NFKC').toUpperCase();
+  while ((mm = re.exec(up))) { picked.push(mm[0]); if (mm[3]) picked.push(mm[1] + '-' + mm[2]); }
+  var cand = picked.concat(fields(raw)), key = '', shown = '', whole0 = norm(raw);
+  // ⓪' 品番と背番号などを「,」で並べて登録したポイント表（例：74043-60020,A0U0）
+  //     → 並べた項目が「全部」QRの中にあれば一致（品番が同じでも背番号が違えば別のかんばんとして扱う）
+  //     一番くわしい（項目が多い・長い）ものを優先。同じくわしさで2つ以上ならNGで止める
+  var combo = Object.keys(PDF_INDEX).map(function (k) {
+    var parts = keyParts(k); if (parts.length < 2) return null;
+    var len = parts.join('').length;
+    if (len < 5 || !parts.every(function (q) { return whole0.indexOf(q) >= 0; })) return null;
+    return { k: k, n: parts.length, len: len };
+  }).filter(Boolean).sort(function (a, b) { return b.n - a.n || b.len - a.len; });
+  if (combo.length) {
+    var best = combo.filter(function (c) { return c.n === combo[0].n && c.len === combo[0].len; });
+    if (best.length > 1) {
+      CARD.kPn = picked[0] || raw; renderCards(); setSteps(2);
+      return ng('ng_multi', { t: 'multi', k: picked[0] || raw, list: best.map(function (c) { return PDF_INDEX[c.k].name.replace(/\.pdf$/i, ''); }).join('、') }, { kRaw: raw, part: best.map(function (c) { return c.k; }).join('/') });
+    }
+    key = combo[0].k; shown = PDF_INDEX[key].name.replace(/\.pdf$/i, '');
+  }
+  // ① 抜き取った品番、または区切り（カンマ・空白など）で分けた項目が、そのまま品番と一致
+  if (!key) for (var i = 0; i < cand.length; i++) { var k = norm(cand[i]); if (k && PDF_INDEX[k]) { key = k; shown = cand[i]; break; } }
+  // ② 区切りのないQR（固定長など）：QRの中に登録済みの品番が含まれていれば一致とする
+  //    短すぎる品番は別の数字に偶然含まれるので5文字以上だけ。複数含まれる時は一番長い品番を採用
+  if (!key) {
+    var whole = whole0, hits = Object.keys(PDF_INDEX).filter(function (k) { return keyParts(k).length < 2 && k.length >= 5 && whole.indexOf(k) >= 0; });
+    if (hits.length) {
+      hits.sort(function (a, b) { return b.length - a.length; });
+      var top = hits.filter(function (k) { return k.length === hits[0].length; });
+      // 抜き取った品番の中にあるものを優先
+      var pk = picked.map(norm), pref = top.filter(function (k) { return pk.some(function (q) { return q.indexOf(k) >= 0; }); });
+      if (pref.length === 1) top = pref;
+      if (top.length > 1) { // 同じ長さで別の品番が2つ以上 → どちらか決められないので止める
+        CARD.kPn = raw; renderCards(); setSteps(2);
+        return ng('ng_multi', { t: 'multi', k: raw, list: top.map(function (k) { return PDF_INDEX[k].name.replace(/\.pdf$/i, ''); }).join('、') }, { kRaw: raw, part: top.join('/') });
+      }
+      key = top[0]; shown = PDF_INDEX[key].name.replace(/\.pdf$/i, '');
+    }
+  }
+  if (!shown) shown = picked[0] || raw; // 一致しない時も、抜き取れた品番があればそれを見せる
+  CARD.kPn = shown; CARD.kRaw = cand.length > 2 ? raw : ''; renderCards();
+  setSteps(2);
+  if (!key) {
+    CARD.kPn = shown; renderCards();
+    return ng('ng_noreg', { t: 'raw', k: shown }, { kRaw: raw, part: norm(shown) });
+  }
+  S.kKey = key; S.kShown = shown;
+  var rec = await getPdf(key);
+  S.pdfName = rec.name;
+  $('pdfName').textContent = rec.name;
+  CARD.pPn = rec.name; renderCards();
+  setJudge('wait', 'chk_big', 'chk_msg');
+  try { await renderPdf(rec.data); }
+  catch (e) { return ng('ng_open', { t: 'open', f: rec.name, e: (e && e.message || String(e)) }, { kRaw: raw, part: key, pdf: rec.name }); }
+  S.state = 'done';
+  setSteps(3, true);
+  setJudge('ok', 'OK', 'ok_msg', { pn: S.kShown });
+  soundOk();
+  addLog({ result: 'OK', reason: '', kRaw: S.kRaw, part: S.kKey, pdf: S.pdfName });
+}
+
+// ---------- NG：止める（アンドン） ----------
+var NGREC = null;
+function ng(whyKey, det, rec) {
+  S.state = 'ng';
+  NGVIEW = { why: whyKey, det: det };
+  setSteps(3); setJudge('warn', 'ngstop', whyKey);
+  renderNg();
+  codeBuf = ''; $('codeView').textContent = '';
+  $('ng').classList.add('on');
+  soundNg();
+  rec.result = 'NG'; rec.reason = I18N.ja[whyKey]; // 記録・CSVは日本語で残す
+  NGREC = rec;
+  addLog(rec).then(function (id) { NGREC.id = id; });
+}
+function renderNg() {
+  var d = NGVIEW.det || {}, txt = '';
+  if (d.t === 'raw') txt = t('d_k') + ': ' + d.k;
+  else if (d.t === 'mis') txt = t('d_k') + ': ' + d.k + '　／　' + t('d_p') + ': ' + d.p;
+  else if (d.t === 'twice') txt = t('d_scanp');
+  else if (d.t === 'open') txt = d.f + ': ' + d.e;
+  else if (d.t === 'multi') txt = t('d_k') + ': ' + d.k + '　／　' + d.list;
+  $('ngWhy').textContent = t(NGVIEW.why); $('ngDet').textContent = txt;
+}
+var codeBuf = '';
+(function buildPad() {
+  var keys = ['1', '2', '3', '4', '5', '6', '7', '8', '9', 'C', '0', 'OK'], p = $('pad');
+  keys.forEach(function (k) {
+    var b = document.createElement('button'); b.textContent = k; b.onclick = function () { padKey(k); }; p.appendChild(b);
+  });
+})();
+function padKey(k) {
+  if (k === 'C') codeBuf = '';
+  else if (k === 'OK') {
+    if (pinNorm(codeBuf) === pinNorm(CF.code)) {
+      $('ng').classList.remove('on');
+      if (NGREC && NGREC.id) updateLog(NGREC.id, { unlocked: nowTime() });
+      NGREC = null; codeBuf = '';
+      NGVIEW = null; resetView(); toast(t('t_unlock')); setTimeout(focusScan, 50);
+      return;
+    }
+    codeBuf = ''; toast(t('t_wrong')); soundNg();
+  } else if (codeBuf.length < 8) codeBuf += k;
+  $('codeView').textContent = codeBuf.replace(/./g, '●');
+}
+
+// ---------- PDF表示とQR自動読取 ----------
+// ---- ポイント表の表示と拡大（写真の細かい所まで見られるように） ----
+var ZM = { z: 1, fitW: 0 }, Z_MAX = 4;
+async function renderPdf(data) {
+  var doc = await pdfjs.getDocument({ data: data.slice(0), isEvalSupported: false }).promise;
+  var box = $('pdfbox'); box.innerHTML = '';
+  var pages = [], fitW = Math.max(300, box.clientWidth - 32), dpr = window.devicePixelRatio || 1;
+  ZM.z = 1; ZM.fitW = fitW;
+  for (var n = 1; n <= doc.numPages; n++) {
+    var page = await doc.getPage(n), vp0 = page.getViewport({ scale: 1 });
+    // 拡大してもぼやけないよう、画面の幅より高い解像度で描いておく（重くなりすぎないよう上限あり）
+    var renderW = Math.min(3200, fitW * dpr * 2.5), scale = renderW / vp0.width;
+    var vp = page.getViewport({ scale: scale }), cv = document.createElement('canvas');
+    cv.width = Math.round(vp.width); cv.height = Math.round(vp.height); cv.style.width = fitW + 'px';
+    box.appendChild(cv);
+    await page.render({ canvasContext: cv.getContext('2d'), viewport: vp }).promise;
+    pages.push({ page: page, canvas: cv });
+  }
+  $('zoomBar').hidden = false; zoomLabel();
+  return pages;
+}
+function zoomLabel() { $('zLbl').textContent = Math.round(ZM.z * 100) + '%'; }
+/** 倍率を変える。cx, cy（枠の中の位置）が拡大の中心になる */
+function setZoom(z, cx, cy) {
+  var box = $('pdfbox'); if (!ZM.fitW || !box.querySelector('canvas')) return;
+  z = Math.max(1, Math.min(Z_MAX, z));
+  if (cx === undefined) { cx = box.clientWidth / 2; cy = box.clientHeight / 2; }
+  var r = z / ZM.z, sx = box.scrollLeft + cx, sy = box.scrollTop + cy;
+  ZM.z = z;
+  box.querySelectorAll('canvas').forEach(function (cv) { cv.style.width = (ZM.fitW * z) + 'px'; });
+  box.scrollLeft = sx * r - cx; box.scrollTop = sy * r - cy;
+  zoomLabel();
+}
+$('zIn').onclick = function () { setZoom(ZM.z * 1.5); };
+$('zOut').onclick = function () { setZoom(ZM.z / 1.5); };
+$('zFit').onclick = function () { setZoom(1); $('pdfbox').scrollTop = 0; };
+(function zoomGestures() {
+  var box = $('pdfbox'), pinch = null, lastTap = 0, lastXY = null;
+  function rel(t) { var r = box.getBoundingClientRect(); return { x: t.clientX - r.left, y: t.clientY - r.top }; }
+  box.addEventListener('touchstart', function (e) {
+    if (e.touches.length === 2) { // 2本指でピンチ
+      var a = e.touches[0], b = e.touches[1];
+      pinch = { d: Math.hypot(a.clientX - b.clientX, a.clientY - b.clientY), z: ZM.z };
+    } else if (e.touches.length === 1) { // ダブルタップ：100% ⇔ 250%
+      var now = Date.now(), p = rel(e.touches[0]);
+      if (now - lastTap < 300 && lastXY && Math.hypot(p.x - lastXY.x, p.y - lastXY.y) < 40) {
+        e.preventDefault(); setZoom(ZM.z > 1.2 ? 1 : 2.5, p.x, p.y); lastTap = 0;
+      } else { lastTap = now; lastXY = p; }
+    }
+  }, { passive: false });
+  box.addEventListener('touchmove', function (e) {
+    if (!pinch || e.touches.length !== 2) return;
+    e.preventDefault();
+    var a = e.touches[0], b = e.touches[1], d = Math.hypot(a.clientX - b.clientX, a.clientY - b.clientY);
+    var m = rel({ clientX: (a.clientX + b.clientX) / 2, clientY: (a.clientY + b.clientY) / 2 });
+    setZoom(pinch.z * d / pinch.d, m.x, m.y);
+  }, { passive: false });
+  box.addEventListener('touchend', function (e) { if (e.touches.length < 2) pinch = null; });
+  box.addEventListener('dblclick', function (e) { var p = rel(e); setZoom(ZM.z > 1.2 ? 1 : 2.5, p.x, p.y); });
+  box.addEventListener('wheel', function (e) { // PC：Ctrl＋ホイール
+    if (!e.ctrlKey) return;
+    e.preventDefault(); var p = rel(e); setZoom(ZM.z * (e.deltaY < 0 ? 1.15 : 1 / 1.15), p.x, p.y);
+  }, { passive: false });
+})();
+/** PDFの各ページを画像化してQRを探す（読めなければ倍率を変えて再挑戦） */
+async function findQrInPages(pages) {
+  var hasBD = ('BarcodeDetector' in window);
+  var bd = null;
+  if (hasBD) { try { bd = new BarcodeDetector({ formats: ['qr_code'] }); } catch (e) { bd = null; } }
+  var widths = [1600, 2400, 1100, 3200];
+  for (var p = 0; p < pages.length; p++) {
+    var page = pages[p].page, vp1 = page.getViewport({ scale: 1 });
+    for (var w = 0; w < widths.length; w++) {
+      var scale = widths[w] / vp1.width, vp = page.getViewport({ scale: scale });
+      var cv = document.createElement('canvas'); cv.width = vp.width; cv.height = vp.height;
+      var ctx = cv.getContext('2d', { willReadFrequently: true });
+      ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, cv.width, cv.height);
+      await page.render({ canvasContext: ctx, viewport: vp }).promise;
+      if (bd) {
+        try { var r = await bd.detect(cv); if (r && r.length) return r[0].rawValue; } catch (e) {}
+      }
+      var img = ctx.getImageData(0, 0, cv.width, cv.height);
+      var txt = window.decodeQR(img.data, cv.width, cv.height, 4);
+      if (txt !== null) return txt;
+    }
+  }
+  return null;
+}
+
+// ---------- 記録 ----------
+function addLog(rec) {
+  var d = new Date();
+  rec.date = today(d); rec.time = nowTime(d); rec.term = CF.term;
+  return tx('logs', 'readwrite', function (s) { return s.add(rec); }).then(function (id) { updateHeader(); return id; });
+}
+function updateLog(id, patch) {
+  return tx('logs', 'readwrite', function (s) {
+    var g = s.get(id); g.onsuccess = function () { var v = g.result; if (v) { for (var k in patch) v[k] = patch[k]; s.put(v); } };
+  });
+}
+function getLogs(date) {
+  return new Promise(function (res) {
+    var out = [], r = DB.transaction('logs').objectStore('logs').index('date').openCursor(IDBKeyRange.only(date));
+    r.onsuccess = function () { var c = r.result; if (c) { out.push(c.value); c.continue(); } else res(out); };
+  });
+}
+/** 記録の理由（日本語で保存）を、選んだ言語で表示 */
+function reasonText(r) { if (!r) return ''; for (var k in I18N.ja) if (I18N.ja[k] === r) return t(k); return r; }
+async function showLogs() {
+  var d = $('logDate').value || today();
+  var rows = await getLogs(d), ok = rows.filter(function (r) { return r.result === 'OK'; }).length;
+  $('sAll').textContent = rows.length; $('sOk').textContent = ok; $('sNg').textContent = rows.length - ok;
+  $('logList').innerHTML = rows.slice().reverse().map(function (r) {
+    return '<tr><td>' + esc(r.time) + '</td><td><span class="tag ' + (r.result === 'OK' ? 'ok' : 'ng') + '">' + r.result + '</span></td><td class="mono">' + esc(r.kRaw) +
+      '</td><td class="mono">' + esc(r.pdf || '') + '</td><td>' + esc(reasonText(r.reason)) + '</td><td>' + esc(r.unlocked || '') + '</td></tr>';
+  }).join('') || '<tr><td colspan="6" class="note">' + esc(t('l_none')) + '</td></tr>';
+}
+async function exportCsv() {
+  var d = $('logDate').value || today(), rows = await getLogs(d);
+  if (!rows.length) return toast(t('l_none'));
+  var head = ['日付', '時刻', '端末', '判定', 'かんばんQR', '品番キー', 'ポイント表PDF', 'NG理由', 'NG解除時刻'];
+  var q = function (v) { v = String(v == null ? '' : v); return /[",\n]/.test(v) ? '"' + v.replace(/"/g, '""') + '"' : v; };
+  var lines = [head.join(',')].concat(rows.map(function (r) {
+    return [r.date, r.time, r.term, r.result, r.kRaw, r.part, r.pdf, r.reason, r.unlocked].map(q).join(',');
+  }));
+  var blob = new Blob(['﻿' + lines.join('\r\n')], { type: 'text/csv' });
+  // file:// で開いた時もファイル名が付くよう data URL で保存
+  var url = await new Promise(function (res) { var fr = new FileReader(); fr.onload = function () { res(fr.result); }; fr.readAsDataURL(blob); });
+  var a = document.createElement('a'); a.href = url;
+  // ファイル名は半角英数のみ（端末によって日本語名が消えるため）。端末番号で重複しない
+  a.download = 'pointcheck_T' + CF.term + '_' + d.replace(/-/g, '') + '.csv';
+  document.body.appendChild(a); a.click(); a.remove();
+}
+
+// ---------- ポイント表の登録 ----------
+/** PDFかどうか：拡張子 .pdf か、中身の先頭が %PDF */
+function looksPdf(f) { return /\.pdf$/i.test((f.name || '').trim()) || f.type === 'application/pdf'; }
+async function importFiles(files, note) {
+  files = Array.prototype.slice.call(files || []);
+  var list = files.filter(looksPdf), others = files.length - list.length;
+  if (!list.length) {
+    var why = files.length ? t('im_nopdf', { n: files.length }) : t('im_nofile');
+    $('impMsg').innerHTML = '<span style="color:var(--ng);font-weight:800">⚠ ' + why + '</span>' + (note ? '<br>' + note : '');
+    return toast(why, 4000);
+  }
+  var add = 0, upd = 0, dup = [], fail = [], readFail = 0, seen = {};
+  $('impMsg').textContent = t('im_prog', { i: 0, n: list.length });
+  for (var i = 0; i < list.length; i++) {
+    var f = list[i], name = (f.name || '').trim(), key = norm(name);
+    if (!key) { fail.push(name + t('im_f_empty')); continue; }
+    try {
+      var buf = await f.arrayBuffer();
+      var head = new Uint8Array(buf.slice(0, 5)), sig = String.fromCharCode.apply(null, head);
+      if (sig.indexOf('%PDF') < 0) { fail.push(name + t('im_f_notpdf')); continue; }
+      var rec = { key: key, name: name, size: buf.byteLength, at: today() + ' ' + nowTime(), data: buf };
+      await tx('pdfs', 'readwrite', function (st) { st.put(rec); });
+      if (seen[key]) dup.push(seen[key] + ' / ' + name);
+      seen[key] = name;
+      if (PDF_INDEX[key]) upd++; else add++;
+      PDF_INDEX[key] = { key: key, name: name, size: rec.size, at: rec.at };
+    } catch (e) {
+      // Googleドライブの「ストリーミング」ファイル（まだPCに無いファイル）などは読めない
+      readFail++; fail.push(name + t('im_f_read', { e: (e && e.name || e) }));
+    }
+    $('impMsg').textContent = t('im_prog', { i: i + 1, n: list.length });
+  }
+  await loadPdfIndex();
+  var msg = t('im_done', { a: add, u: upd }) + (others ? t('im_ignored', { n: others }) : '');
+  if (dup.length) msg += '<br><span style="color:var(--ng)">' + t('im_dup') + esc(dup.join(', ')) + '</span>';
+  if (fail.length) msg += '<br><span style="color:var(--ng);font-weight:800">' + t('im_fail', { n: fail.length }) + esc(fail.join(', ')) +
+    '</span>' + (readFail ? '<br><span class="note">' + t('im_drive_tip') + '</span>' : '');
+  $('impMsg').innerHTML = msg;
+  toast(t('im_toast', { a: add, u: upd }) + (fail.length ? t('im_toast_fail', { n: fail.length }) : ''), 3500);
+  showPdfList(); updateHeader();
+}
+// 一覧：各ポイント表の1ページ目を小さな見本にして並べる（見える化）。押すと大きく開く
+var THUMBS = {}, thumbObs = null;
+function showPdfList() {
+  var q = norm($('pdfSearch').value), keys = Object.keys(PDF_INDEX).sort();
+  $('pdfTotal').textContent = t('r_total', { n: keys.length });
+  var list = keys.filter(function (k) { return !q || k.indexOf(q) >= 0; });
+  $('pdfList').innerHTML = list.map(function (k) {
+    var v = PDF_INDEX[k];
+    return '<div class="pcard"><button class="pthumb" data-view="' + esc(k) + '" data-thumb="' + esc(k) + '" aria-label="' + esc(v.name) + '"><span>' + esc(t('r_making')) + '</span></button>' +
+      '<div class="pinfo"><b class="mono">' + esc(v.name.replace(/\.pdf$/i, '')) + '</b><div class="note">' + esc(t('r_key')) + ' ' + esc(k) + '</div><div class="note">' + Math.round(v.size / 1024) + ' KB・' + esc(v.at) + '</div></div>' +
+      '<div class="pacts"><button class="btn" data-view="' + esc(k) + '">' + esc(t('r_view')) + '</button><button class="btn" data-dl="' + esc(k) + '">' + esc(t('r_save')) + '</button><button class="btn" data-edit="' + esc(k) + '">' + esc(t('r_edit')) + '</button><button class="btn dng" data-del="' + esc(k) + '">' + esc(t('r_del')) + '</button></div></div>';
+  }).join('') || '<div class="pempty">' + (keys.length ? esc(t('r_nomatch', { q: $('pdfSearch').value })) : esc(t('r_none'))) + '</div>';
+  // 画面に見えた分だけ見本を作る（件数が多くても重くならない）
+  if (thumbObs) thumbObs.disconnect();
+  var els = $('pdfList').querySelectorAll('[data-thumb]');
+  if ('IntersectionObserver' in window) {
+    thumbObs = new IntersectionObserver(function (ents) {
+      ents.forEach(function (en) { if (en.isIntersecting) { thumbObs.unobserve(en.target); fillThumb(en.target); } });
+    }, { rootMargin: '200px' });
+    els.forEach(function (el) { thumbObs.observe(el); });
+  } else els.forEach(fillThumb);
+}
+async function fillThumb(el) {
+  var k = el.getAttribute('data-thumb'), v = PDF_INDEX[k]; if (!v) return;
+  var ck = k + '|' + v.at;
+  try {
+    if (!THUMBS[ck]) {
+      var rec = await getPdf(k);
+      var doc = await pdfjs.getDocument({ data: new Uint8Array(rec.data.slice(0)), isEvalSupported: false }).promise;
+      var page = await doc.getPage(1), vp1 = page.getViewport({ scale: 1 }), vp = page.getViewport({ scale: 420 / vp1.width });
+      var cv = document.createElement('canvas'); cv.width = Math.round(vp.width); cv.height = Math.round(vp.height);
+      var cx = cv.getContext('2d'); cx.fillStyle = '#fff'; cx.fillRect(0, 0, cv.width, cv.height);
+      await page.render({ canvasContext: cx, viewport: vp }).promise;
+      THUMBS[ck] = cv.toDataURL('image/jpeg', 0.8);
+      doc.destroy && doc.destroy();
+    }
+    el.innerHTML = '<img alt="" src="' + THUMBS[ck] + '">';
+  } catch (e) { el.innerHTML = '<span>' + esc(t('r_thumb_err')) + '</span>'; }
+}
+async function openPreview(k) {
+  var v = PDF_INDEX[k]; if (!v) return;
+  PV_KEY = k;
+  $('pvName').textContent = v.name; $('pvBody').innerHTML = '<p class="note">' + esc(t('pv_opening')) + '</p>'; $('pview').classList.add('on');
+  try {
+    var rec = await getPdf(k);
+    var doc = await pdfjs.getDocument({ data: new Uint8Array(rec.data.slice(0)), isEvalSupported: false }).promise;
+    $('pvBody').innerHTML = '';
+    var maxW = Math.max(300, $('pvBody').clientWidth - 28), dpr = window.devicePixelRatio || 1;
+    for (var n = 1; n <= doc.numPages; n++) {
+      var page = await doc.getPage(n), vp1 = page.getViewport({ scale: 1 }), sc = Math.min(2.5, maxW / vp1.width) * dpr, vp = page.getViewport({ scale: sc });
+      var cv = document.createElement('canvas'); cv.width = vp.width; cv.height = vp.height; cv.style.width = (vp.width / dpr) + 'px';
+      $('pvBody').appendChild(cv);
+      await page.render({ canvasContext: cv.getContext('2d'), viewport: vp }).promise;
+    }
+  } catch (e) { $('pvBody').innerHTML = '<p class="note">' + esc(t('pv_err')) + '</p>'; }
+}
+// ---- 上の「📄 ポイント表 ○件」を押すと、登録済みの一覧（見本つき）を開く（作業者も見られる・削除はできない）
+var plObs = null;
+function renderPlist() {
+  var q = norm($('plSearch').value), keys = Object.keys(PDF_INDEX).sort();
+  var list = keys.filter(function (k) { return !q || k.indexOf(q) >= 0; });
+  $('plCount').textContent = t('pl_cnt', { n: list.length });
+  $('plGrid').innerHTML = list.map(function (k) {
+    var v = PDF_INDEX[k];
+    return '<div class="pcard"><button class="pthumb" data-view="' + esc(k) + '" data-thumb="' + esc(k) + '" aria-label="' + esc(v.name) + '"><span>…</span></button>' +
+      '<div class="pinfo"><b class="mono">' + esc(v.name.replace(/\.pdf$/i, '')) + '</b><div class="note">' + esc(v.at) + '</div></div>' +
+      '<div class="pacts"><button class="btn" data-view="' + esc(k) + '">🔍</button><button class="btn" data-pledit="' + esc(k) + '">✏</button><button class="btn dng" data-pldel="' + esc(k) + '">🗑 ' + esc(t('pl_del')) + '</button></div></div>';
+  }).join('') || '<div class="pempty">' + esc(t(keys.length ? 'pl_none' : 'pl_empty')) + '</div>';
+  if (plObs) plObs.disconnect();
+  var els = $('plGrid').querySelectorAll('[data-thumb]');
+  if ('IntersectionObserver' in window) {
+    plObs = new IntersectionObserver(function (ents) { ents.forEach(function (en) { if (en.isIntersecting) { plObs.unobserve(en.target); fillThumb(en.target); } }); }, { rootMargin: '200px' });
+    els.forEach(function (el) { plObs.observe(el); });
+  } else els.forEach(fillThumb);
+}
+function openPlist() {
+  if (S.state === 'ng') return;
+  plUnlocked = false;
+  $('plSearch').value = ''; $('plist').classList.add('on'); renderPlist();
+}
+function closePlist() { $('plist').classList.remove('on'); $('plGrid').innerHTML = ''; setTimeout(focusScan, 50); }
+$('pCountBadge').onclick = openPlist;
+$('plClose').onclick = closePlist;
+$('plSearch').oninput = renderPlist;
+var plUnlocked = false; // 一覧を開いている間、パスワードは1回だけ
+$('plist').addEventListener('click', async function (e) {
+  if (e.target === $('plist')) return closePlist();
+  var vb = e.target.closest('[data-view]'); if (vb) return openPreview(vb.getAttribute('data-view'));
+  var db = e.target.closest('[data-pldel]'), edb = e.target.closest('[data-pledit]'); if (!db && !edb) return;
+  // 削除は班長・担当者のみ：設定パスワードを確認
+  if (!plUnlocked) {
+    var pw = await askPin(t('pin_set'));
+    if (pw === null) return;
+    if (pw !== pinNorm(CF.setpw)) { toast(t('t_setpw')); soundNg(); return; }
+    plUnlocked = true;
+  }
+  if (edb) { closePlist(); return editPdf(edb.getAttribute('data-pledit')); }
+  await deletePdf(db.getAttribute('data-pldel'));
+  renderPlist();
+});
+// ---- 登録したポイント表を、元のファイル名（＝品番）のPDFで端末に保存（1件ずつ） ----
+function pdfDataUrl(buf) {
+  return new Promise(function (res) { var fr = new FileReader(); fr.onload = function () { res(fr.result); }; fr.readAsDataURL(new Blob([buf], { type: 'application/pdf' })); });
+}
+async function savePdf(k) {
+  var rec = await getPdf(k); if (!rec) return;
+  var a = document.createElement('a'); a.href = await pdfDataUrl(rec.data); a.download = rec.name;
+  document.body.appendChild(a); a.click(); a.remove();
+}
+$('dlAll').onclick = async function () {
+  var q = norm($('pdfSearch').value), keys = Object.keys(PDF_INDEX).sort().filter(function (k) { return !q || k.indexOf(q) >= 0; });
+  if (!keys.length) return toast(t('r_dl_none'));
+  if (!confirm(t('r_dl_confirm', { n: keys.length }))) return;
+  var btn = this; btn.disabled = true;
+  for (var i = 0; i < keys.length; i++) {
+    btn.textContent = t('r_dl_prog', { i: i + 1, n: keys.length });
+    await savePdf(keys[i]);
+    await new Promise(function (r) { setTimeout(r, 400); }); // 続けて出しすぎるとブラウザが止めるので少し間をあける
+  }
+  btn.disabled = false; btn.textContent = t('r_dlall');
+  toast(t('r_dl_done', { n: keys.length }), 3000);
+};
+/** ポイント表を1件削除（確認つき） */
+async function deletePdf(k) {
+  var v = PDF_INDEX[k]; if (!v) return false;
+  if (!confirm(t('r_del_confirm', { name: v.name }))) return false;
+  await tx('pdfs', 'readwrite', function (s) { s.delete(k); });
+  await loadPdfIndex(); updateHeader();
+  toast(t('r_deleted', { name: v.name }), 3000);
+  return true;
+}
+var PV_KEY = null;
+$('pvSave').onclick = function () { if (PV_KEY) savePdf(PV_KEY); };
+function closePreview() { $('pview').classList.remove('on'); $('pvBody').innerHTML = ''; }
+$('pvClose').onclick = closePreview;
+$('pview').addEventListener('click', function (e) { if (e.target === $('pview')) closePreview(); });
+document.addEventListener('keydown', function (e) {
+  if (e.key !== 'Escape') return;
+  if ($('pview').classList.contains('on')) closePreview(); else if ($('plist').classList.contains('on')) closePlist();
+});
+$('pdfList').addEventListener('click', async function (e) {
+  var vb = e.target.closest('[data-view]'); if (vb) return openPreview(vb.getAttribute('data-view'));
+  var eb = e.target.closest('[data-edit]'); if (eb) return editPdf(eb.getAttribute('data-edit'));
+  var sb = e.target.closest('[data-dl]'); if (sb) { await savePdf(sb.getAttribute('data-dl')); return toast(t('r_saved', { name: PDF_INDEX[sb.getAttribute('data-dl')].name })); }
+  var db = e.target.closest('[data-del]'); if (!db) return;
+  await deletePdf(db.getAttribute('data-del'));
+  showPdfList();
+});
+$('clearPdf').onclick = async function () {
+  if (!confirm(t('r_clear_confirm'))) return;
+  await tx('pdfs', 'readwrite', function (s) { s.clear(); });
+  await loadPdfIndex(); showPdfList(); updateHeader();
+};
+$('fileIn').onchange = function () { importFiles(this.files); this.value = ''; };
+$('dirIn').onchange = function () { importFiles(this.files); this.value = ''; };
+
+// ---------- ドラッグ＆ドロップで取込（ファイルもフォルダもOK） ----------
+// 画面のどこに落としても取り込む。ブラウザがPDFを開いてアプリから離れてしまうのを防ぐ（ポカヨケ）
+$('dropZone').onclick = function () { $('fileIn').click(); };
+$('dropZone').onkeydown = function (e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); $('fileIn').click(); } };
+// ブラウザによってはドラッグ中に中身の種類が見えないので、「ファイルの可能性あり」も受け付ける
+function dragKind(e) {
+  var t = Array.prototype.slice.call((e.dataTransfer && e.dataTransfer.types) || []);
+  if (t.indexOf('Files') >= 0) return 'files';
+  if (t.indexOf('text/uri-list') >= 0 || t.indexOf('text/plain') >= 0 || t.indexOf('text/html') >= 0) return 'link';
+  return t.length ? 'other' : 'files';
+}
+var dragDepth = 0;
+function dragUi(on) { $('dropAll').classList.toggle('on', on); $('dropZone').classList.toggle('over', on); }
+// どんな物を落とされても、ブラウザがページを移動しないよう必ず止める
+window.addEventListener('dragenter', function (e) { e.preventDefault(); dragDepth++; if (inTpl()) { $('tplDrop').classList.add('over'); return; } if (S.state !== 'ng') dragUi(true); });
+window.addEventListener('dragleave', function (e) { dragDepth = Math.max(0, dragDepth - 1); if (!dragDepth) { dragUi(false); $('tplDrop').classList.remove('over'); } });
+window.addEventListener('dragover', function (e) { e.preventDefault(); if (e.dataTransfer) e.dataTransfer.dropEffect = S.state === 'ng' ? 'none' : 'copy'; });
+window.addEventListener('drop', function (e) {
+  e.preventDefault(); dragDepth = 0; dragUi(false); $('tplDrop').classList.remove('over');
+  // 設定画面（ポイント表をつくる）では、落とした写真をひな形の写真にする
+  if (inTpl()) { tplHandleDrop(e.dataTransfer); return; }
+  if (S.state === 'ng') return toast(t('r_ngstop_drop'));
+  var dt = e.dataTransfer, kind = dragKind(e);
+  // ★ドロップの中身はこの瞬間しか読めないので、先に同期で控えておく
+  var snapFiles = Array.prototype.slice.call((dt && dt.files) || []);
+  var entries = [];
+  try {
+    entries = Array.prototype.slice.call((dt && dt.items) || []).map(function (it) {
+      return it.kind === 'file' && it.webkitGetAsEntry ? it.webkitGetAsEntry() : null;
+    }).filter(Boolean);
+  } catch (err) { entries = []; }
+  var link = '';
+  try { link = dt.getData('text/uri-list') || dt.getData('text/plain') || ''; } catch (err) {}
+  // ドロップでの取込も登録と同じ扱い：登録画面以外で落とした時はパスワードを確認してから
+  (async function () {
+  if (!(await unlockFor('pdf'))) return;
+  gotoView('pdf'); // 結果が見えるよう登録画面へ
+  if (!snapFiles.length && !entries.length) {
+    var gd = /google\.com|drive\.google/i.test(link);
+    var note = gd
+      ? t('im_gd')
+      : (kind === 'link' ? t('im_link') : '');
+    $('impMsg').innerHTML = '<span style="color:var(--ng);font-weight:800">⚠ ' + esc(t('im_nofile')) + '</span><br>' + note;
+    toast(t('im_nofile'), 4000);
+    return;
+  }
+  collectDropped(entries, snapFiles).then(function (files) {
+    var hasDir = entries.some(function (en) { return en.isDirectory; });
+    if (hasDir && !files.some(looksPdf)) {
+      $('impMsg').innerHTML = '<span style="color:var(--ng);font-weight:800">' + esc(t('im_dir_fail_t')) + '</span><br>' + esc(t('im_dir_fail_s'));
+      return toast(t('im_dir_fail_t'), 4000);
+    }
+    importFiles(files.filter(function (f) { return !hasDir || f.size > 0 || looksPdf(f); }));
+  })
+    .catch(function (err) { importFiles(snapFiles); });
+  })();
+});
+async function collectDropped(entries, snapFiles) {
+  if (!entries.length) return snapFiles;
+  var out = await filesFromEntries(entries);
+  // フォルダを含まない普通のドロップで読み取りに失敗した分は、控えておいた一覧で補う
+  if (out.length < snapFiles.length && !entries.some(function (en) { return en.isDirectory; })) return snapFiles;
+  return out.length ? out : snapFiles;
+}
+/** フォルダの中まで探してファイル一覧にする（読めないファイルは飛ばす） */
+async function filesFromEntries(entries) {
+  var out = [];
+  async function walk(ent) {
+    if (ent.isFile) {
+      try { out.push(await new Promise(function (res, rej) { ent.file(res, rej); })); } catch (e) {}
+      return;
+    }
+    if (ent.isDirectory) {
+      var rd = ent.createReader(), batch;
+      do { // 100件ずつしか返らないので最後まで読む
+        try { batch = await new Promise(function (res, rej) { rd.readEntries(res, rej); }); } catch (e) { batch = []; }
+        for (var i = 0; i < batch.length; i++) await walk(batch[i]);
+      } while (batch.length);
+    }
+  }
+  for (var i = 0; i < entries.length; i++) await walk(entries[i]);
+  return out;
+}
+$('pdfSearch').oninput = showPdfList;
+
+async function updateHeader() {
+  var n = Object.keys(PDF_INDEX).length;
+  $('pdfCount').textContent = t('pdf_cnt', { n: n });
+  $('pCountTxt').textContent = t('badge', { n: n });
+  $('pCountNum').textContent = n;
+  $('pCountBadge').classList.toggle('zero', n === 0);
+  var rows = DB ? await getLogs(today()) : [], ng = rows.filter(function (r) { return r.result === 'NG'; }).length;
+  $('hinfo').textContent = t('h_info', { t: CF.term, n: rows.length, g: ng });
+}
+
+// ---------- 読取欄（スキャナー・手入力） ----------
+// gohin と同じ方式で半角英数に固定（2段構え）：
+//  ① 本当の入力欄は「パスワード欄」。Androidはパスワード欄でかな変換をしないので、日本語入力のままでも半角英数が入る
+//  ② 押されたキーの「位置」（KeyA、Digit1 など）からも文字を組み立て、日本語入力に横取りされても復元する
+// 読んだ文字は読取欄に大きく並べて見せる（パスワード欄の●ではなく実際の文字）。
+// Enter（またはスキャナーの入力が0.4秒止まる）で1件として確定。
+var scanInp = $('scanInput'), scanBuf = '', scanLast = 0, scanTimer = null, manualOn = false;
+var CODE_MAP = {
+  Digit1: ['1', '!'], Digit2: ['2', '@'], Digit3: ['3', '#'], Digit4: ['4', '$'], Digit5: ['5', '%'],
+  Digit6: ['6', '^'], Digit7: ['7', '&'], Digit8: ['8', '*'], Digit9: ['9', '('], Digit0: ['0', ')'],
+  Minus: ['-', '_'], Equal: ['=', '+'], BracketLeft: ['[', '{'], BracketRight: [']', '}'], Backslash: ['\\', '|'],
+  IntlYen: ['\\', '|'], IntlRo: ['\\', '_'], Semicolon: [';', ':'], Quote: ["'", '"'], Comma: [',', '<'],
+  Period: ['.', '>'], Slash: ['/', '?'], Backquote: ['`', '~'], Space: [' ', ' '],
+  Numpad0: ['0', '0'], Numpad1: ['1', '1'], Numpad2: ['2', '2'], Numpad3: ['3', '3'], Numpad4: ['4', '4'],
+  Numpad5: ['5', '5'], Numpad6: ['6', '6'], Numpad7: ['7', '7'], Numpad8: ['8', '8'], Numpad9: ['9', '9'],
+  NumpadDecimal: ['.', '.'], NumpadSubtract: ['-', '-'], NumpadAdd: ['+', '+'], NumpadMultiply: ['*', '*'], NumpadDivide: ['/', '/']
+};
+function charFromCode(e) {
+  var c = e.code || '';
+  if (/^Key[A-Z]$/.test(c)) {
+    var up = e.shiftKey !== (e.getModifierState && e.getModifierState('CapsLock'));
+    return up ? c.charAt(3) : c.charAt(3).toLowerCase();
+  }
+  var m = CODE_MAP[c]; return m ? m[e.shiftKey ? 1 : 0] : '';
+}
+function isAscii(v) { return /^[\x20-\x7E]*$/.test(v); }
+function toHalf(v) { return String(v).replace(/[！-～]/g, function (c) { return String.fromCharCode(c.charCodeAt(0) - 0xFEE0); }).replace(/　/g, ' '); }
+/** 読取欄の表示：live=読み取り中の文字、done=確定した文字、空=案内 */
+function showScan(v, mode) {
+  var el = $('scanShow');
+  if (!v) { el.className = 'scanShow mono empty'; el.textContent = t('sc_ph'); return; }
+  el.className = 'scanShow mono ' + (mode || 'live'); el.textContent = v;
+}
+function scanWarn(on) { $('scanWarn').textContent = on ? t('sc_bad') : ''; $('scanWarn').classList.toggle('on', !!on); }
+function scanFlush() {
+  clearTimeout(scanTimer);
+  // QRの区切り記号（GS・RS などの見えない制御文字）は空白に置きかえる
+  var fromField = toHalf(scanInp.value).replace(/[\x00-\x1F\x7F]+/g, ' '), fromCode = scanBuf;
+  scanInp.value = ''; scanBuf = '';
+  // 欄の文字が半角英数ならそれ、かなが混ざった・空のときはキー位置から組み立てた文字を使う
+  var okF = fromField.trim() && isAscii(fromField), okC = fromCode.trim() && isAscii(fromCode), v = '';
+  if (okF && okC) v = fromCode.length > fromField.length ? fromCode : fromField;
+  else if (okF) v = fromField;
+  else if (okC) v = fromCode;
+  if (!v) { if (fromField || fromCode) { scanWarn(true); showScan(''); } return; }
+  scanWarn(false);
+  onScan(v);
+}
+function armFlush() { clearTimeout(scanTimer); scanTimer = setTimeout(scanFlush, 400); }
+function scanReady() {
+  return $('v-check').classList.contains('on') && S.state !== 'ng' && !manualOn &&
+    $('start').style.display === 'none' && !$('pinDlg').classList.contains('on') && !$('cam').classList.contains('on') &&
+    !$('plist').classList.contains('on') && !$('pview').classList.contains('on');
+}
+function focusScan() { if (scanReady() && document.activeElement !== scanInp) { try { scanInp.focus({ preventScroll: true }); } catch (e) { scanInp.focus(); } } }
+document.addEventListener('keydown', function (e) {
+  if (!scanReady()) return;
+  var a = document.activeElement;
+  if (a && a !== scanInp && a !== document.body && /INPUT|SELECT|TEXTAREA/.test(a.tagName)) return;
+  if (e.key === 'Enter' || e.code === 'Enter' || e.code === 'NumpadEnter') { e.preventDefault(); if (scanInp.value || scanBuf) scanFlush(); return; }
+  if (e.key === 'Tab' || e.code === 'Tab') { e.preventDefault(); return; }
+  if (e.ctrlKey || e.altKey || e.metaKey) return;
+  var now = performance.now(); if (now - scanLast > 500) { scanBuf = ''; if (a !== scanInp) scanInp.value = ''; }
+  scanLast = now;
+  var ch = (e.key && e.key.length === 1 && /^[\x20-\x7E]$/.test(e.key)) ? e.key : charFromCode(e);
+  if (!ch && e.key && e.key.length === 1) ch = toHalf(e.key);
+  if (ch) { scanBuf += ch; showScan(scanBuf, 'live'); armFlush(); }
+  if (a !== scanInp) focusScan(); // 欄から外れていたら戻す（キー位置の記録で取りこぼしなし）
+});
+scanInp.addEventListener('input', function () { scanLast = performance.now(); armFlush(); });
+document.addEventListener('click', function (e) {
+  if (!/INPUT|SELECT|BUTTON|LABEL|TEXTAREA/.test(e.target.tagName) && !e.target.closest('button,label,.manRow')) setTimeout(focusScan, 0);
+});
+$('scanBox').addEventListener('click', function () { if (!manualOn) focusScan(); });
+
+// ---- 手入力：同じ読取欄の中で入力（キーボードを出す） ----
+function manualOpen() {
+  if (S.state === 'ng') return;
+  manualOn = true; $('scanBox').classList.add('manual'); $('manIn').value = '';
+  setTimeout(function () { $('manIn').focus(); }, 30);
+}
+function manualClose() { manualOn = false; $('scanBox').classList.remove('manual'); $('manIn').blur(); setTimeout(focusScan, 30); }
+function manualSubmit() {
+  var v = toHalf($('manIn').value).normalize('NFKC').trim();
+  if (!v) { $('manIn').focus(); return; }
+  manualClose(); onScan(v);
+}
+$('manIn').addEventListener('keydown', function (e) {
+  if (e.key === 'Enter' || e.code === 'Enter' || e.code === 'NumpadEnter') { e.preventDefault(); manualSubmit(); }
+  else if (e.key === 'Escape') manualClose();
+});
+$('manIn').addEventListener('input', function () { var v = $('manIn').value; showScan(toHalf(v), 'live'); });
+$('manOk').onclick = manualSubmit;
+$('manCancel').onclick = function () { manualClose(); showScan(S.kRaw || '', 'done'); };
+
+// ---------- カメラ読取 ----------
+// 2つの方式：
+//  ① ライブ読取 … カメラ映像から連続で読む（https で開いている時など、ブラウザが許す時）
+//  ② 写真で読む … スマホのカメラアプリで撮った写真から読む（どんな開き方でも使える予備手段）
+var camOn = false, stream = null, camBusy = false, lastCam = { v: '', t: 0 }, bdCam = null, camMsgT = 0;
+function liveCameraProblem() {
+  if (!window.isSecureContext) return 'insecure';
+  if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) return 'nosupport';
+  return '';
+}
+function camErrorText(e) {
+  var n = e && e.name;
+  if (n === 'NotAllowedError' || n === 'SecurityError') return t('c_denied');
+  if (n === 'NotFoundError' || n === 'OverconstrainedError') return t('c_notfound');
+  if (n === 'NotReadableError' || n === 'AbortError') return t('c_busy');
+  return t('c_other', { e: n || e });
+}
+async function getCameraStream() {
+  var tries = [
+    { video: { facingMode: { ideal: 'environment' }, width: { ideal: 1280 }, height: { ideal: 720 } }, audio: false },
+    { video: { facingMode: 'environment' }, audio: false },
+    { video: true, audio: false }
+  ], last;
+  for (var i = 0; i < tries.length; i++) {
+    try { return await navigator.mediaDevices.getUserMedia(tries[i]); }
+    catch (e) { last = e; if (e.name === 'NotAllowedError' || e.name === 'SecurityError') break; }
+  }
+  throw last;
+}
+async function camStart() {
+  var prob = liveCameraProblem();
+  if (prob) { // ライブ読取ができない開き方 → 写真で読むに自動で切替
+    toast(t(prob === 'insecure' ? 'c_insecure' : 'c_nosup'), 4000);
+    $('photoIn').click();
+    return;
+  }
+  try { stream = await getCameraStream(); }
+  catch (e) { toast(camErrorText(e) + t('c_alt'), 5000); showPhotoHint(); return; }
+  var v = $('video');
+  v.setAttribute('playsinline', ''); v.muted = true; v.srcObject = stream;
+  try { await v.play(); } catch (e) {}
+  // ピントを合わせ続ける（対応機種のみ）
+  try {
+    var tr = stream.getVideoTracks()[0], cap = tr.getCapabilities ? tr.getCapabilities() : {};
+    if (cap.focusMode && cap.focusMode.indexOf('continuous') >= 0) await tr.applyConstraints({ advanced: [{ focusMode: 'continuous' }] });
+  } catch (e) {}
+  bdCam = null;
+  if ('BarcodeDetector' in window) {
+    try {
+      var fm = BarcodeDetector.getSupportedFormats ? await BarcodeDetector.getSupportedFormats() : ['qr_code'];
+      if (fm.indexOf('qr_code') >= 0) bdCam = new BarcodeDetector({ formats: ['qr_code'] });
+    } catch (e) { bdCam = null; }
+  }
+  $('camLbl').textContent = t(bdCam ? 'c_frame' : 'c_frame2');
+  $('cam').classList.add('on'); camOn = true; $('camBtn').classList.add('on');
+  camMsgT = Date.now();
+  camLoop();
+}
+function camStop() {
+  camOn = false; $('cam').classList.remove('on'); $('camBtn').classList.remove('on');
+  if (stream) stream.getTracks().forEach(function (t) { t.stop(); }); stream = null;
+  setTimeout(focusScan, 50);
+}
+function showPhotoHint() { $('photoBtn').classList.add('hint'); setTimeout(function () { $('photoBtn').classList.remove('hint'); }, 4000); }
+var camCv = document.createElement('canvas');
+async function camLoop() {
+  if (!camOn) return;
+  var v = $('video');
+  if (!camBusy && v.readyState >= 2 && v.videoWidth) {
+    camBusy = true;
+    var val = null;
+    try {
+      if (bdCam) { var r = await bdCam.detect(v); if (r && r.length) val = r[0].rawValue; }
+      else {
+        // 枠の中（映像の中央）だけを大きめに切り出して読む＝速く・正確に
+        var vw = v.videoWidth, vh = v.videoHeight, side = Math.min(vw, vh) * 0.8;
+        var sx = (vw - side) / 2, sy = (vh - side) / 2, W = 640;
+        camCv.width = W; camCv.height = W;
+        var cx = camCv.getContext('2d', { willReadFrequently: true });
+        cx.drawImage(v, sx, sy, side, side, 0, 0, W, W);
+        val = window.decodeQR(cx.getImageData(0, 0, W, W).data, W, W, 4);
+      }
+    } catch (e) {}
+    camBusy = false;
+    var now = Date.now();
+    if (val && !(val === lastCam.v && now - lastCam.t < 3000)) {
+      lastCam = { v: val, t: now };
+      if (navigator.vibrate) navigator.vibrate(60);
+      onScan(val);
+    } else if (!val && now - camMsgT > 8000) { // 読めない時間が続いたら写真読取を案内
+      camMsgT = now; $('camLbl').textContent = t('c_hint');
+    }
+  }
+  setTimeout(camLoop, bdCam ? 150 : 120);
+}
+
+// ---------- 写真で読む（スマホのカメラアプリで撮影） ----------
+async function decodePhoto(file) {
+  var img;
+  try { img = await createImageBitmap(file); }
+  catch (e) {
+    img = await new Promise(function (res, rej) { var im = new Image(); im.onload = function () { res(im); }; im.onerror = rej; im.src = URL.createObjectURL(file); });
+  }
+  var iw = img.width, ih = img.height;
+  if ('BarcodeDetector' in window) {
+    try { var bd = new BarcodeDetector({ formats: ['qr_code'] }), r = await bd.detect(img); if (r && r.length) return r[0].rawValue; } catch (e) {}
+  }
+  // 大きさを変えて何回か挑戦（全体 → 中央を拡大）
+  var tries = [[1000, 1], [1400, 1], [800, 0.6], [1000, 0.6], [700, 1]];
+  for (var i = 0; i < tries.length; i++) {
+    var crop = tries[i][1], cw = iw * crop, ch = ih * crop, sc = Math.min(1, tries[i][0] / Math.max(cw, ch));
+    var W = Math.round(cw * sc), H = Math.round(ch * sc), cv = document.createElement('canvas');
+    cv.width = W; cv.height = H;
+    var cx = cv.getContext('2d', { willReadFrequently: true });
+    cx.drawImage(img, (iw - cw) / 2, (ih - ch) / 2, cw, ch, 0, 0, W, H);
+    var txt = window.decodeQR(cx.getImageData(0, 0, W, H).data, W, H, 4);
+    if (txt !== null) return txt;
+    await new Promise(function (r) { setTimeout(r, 0); }); // 画面を固めない
+  }
+  return null;
+}
+$('photoBtn').onclick = function () { if (S.state !== 'ng') $('photoIn').click(); };
+$('camPhoto').onclick = function () { camStop(); $('photoIn').click(); };
+$('camClose').onclick = camStop;
+$('photoIn').onchange = async function () {
+  var f = this.files && this.files[0]; this.value = '';
+  if (!f) return;
+  toast(t('c_reading'), 8000);
+  var val = null;
+  try { val = await decodePhoto(f); } catch (e) {}
+  if (val === null) { toast(t('c_fail'), 5000); return; }
+  $('toast').style.display = 'none';
+  if (navigator.vibrate) navigator.vibrate(60);
+  onScan(val);
+};
+$('camBtn').onclick = function () { camOn ? camStop() : camStart(); };
+$('manBtn').onclick = function () { manualOn ? manualClose() : manualOpen(); };
+$('resetBtn').onclick = function () { if (S.state !== 'ng') resetView(); };
+
+// ---------- 画面切替・設定 ----------
+function showView(v) {
+  document.querySelectorAll('.tab').forEach(function (x) { x.classList.toggle('on', x.dataset.v === v); });
+  document.querySelectorAll('.view').forEach(function (el) { el.classList.toggle('on', el.id === 'v-' + v); });
+}
+// 「ポイント表の登録」と「設定」は班長・担当者のみ：入るたびに設定パスワード（初期値 0000）を確認
+var LOCKED_VIEWS = ['pdf', 'set'];
+function isOn(v) { var b = document.querySelector('.tab[data-v=' + v + ']'); return !!(b && b.classList.contains('on')); }
+async function unlockFor(v) {
+  if (LOCKED_VIEWS.indexOf(v) < 0 || isOn(v)) return true;
+  var pw = await askPin(t('pin_set'));
+  if (pw === null) return false;
+  if (pw !== pinNorm(CF.setpw)) { toast(t('t_setpw')); soundNg(); return false; }
+  return true;
+}
+function gotoView(v) {
+  showView(v);
+  if (v === 'check') setTimeout(focusScan, 50);
+  if (v === 'pdf') showPdfList();
+  if (v === 'log') showLogs();
+  if (v === 'set') { $('cfTerm').value = CF.term; $('cfSound').value = CF.sound; if (!$('clrDate').value) $('clrDate').value = today(); showClrCount(); }
+}
+document.querySelectorAll('.tab').forEach(function (b) {
+  b.onclick = async function () {
+    if (S.state === 'ng') return;
+    if (!(await unlockFor(b.dataset.v))) return;
+    gotoView(b.dataset.v);
+  };
+});
+$('logDate').onchange = showLogs;
+$('csvBtn').onclick = exportCsv;
+$('saveCf').onclick = function () {
+  var t = $('cfTerm').value.normalize('NFKC').trim();
+  if (!/^[0-9A-Za-z]{1,4}$/.test(t)) return toast(t('s_term_bad'));
+  CF.term = t; CF.sound = $('cfSound').value; saveCfStore(); updateHeader(); toast(t('s_saved'));
+};
+$('chgCode').onclick = async function () {
+  var cur = await askPin(t('pp_cur_code')); if (cur === null) return;
+  if (cur !== pinNorm(CF.code)) return toast(t('t_cur_code_bad'));
+  var n = await askPin(t('pp_new_code')); if (n === null) return;
+  if (!/^[0-9]{4,8}$/.test(n)) return toast(t('t_digits'));
+  var n2 = await askPin(t('pp_again')); if (n2 === null) return;
+  if (n2 !== n) return toast(t('t_mismatch'));
+  CF.code = n;
+  try { await saveCfStore(); toast(t('t_code_changed'), 3500); }
+  catch (e) { toast(t('t_save_err', { e: (e && e.message || e) }), 5000); }
+};
+
+$('chgSetPw').onclick = async function () {
+  var cur = await askPin(t('pp_cur_pw')); if (cur === null) return;
+  if (cur !== pinNorm(CF.setpw)) return toast(t('t_cur_pw_bad'));
+  var n = await askPin(t('pp_new_pw')); if (n === null) return;
+  if (!/^[0-9]{4,8}$/.test(n)) return toast(t('t_digits'));
+  var n2 = await askPin(t('pp_again')); if (n2 === null) return;
+  if (n2 !== n) return toast(t('t_mismatch'));
+  CF.setpw = n;
+  try { await saveCfStore(); toast(t('t_pw_changed'), 3500); }
+  catch (e) { toast(t('t_save_err', { e: (e && e.message || e) }), 5000); }
+};
+
+// ---- 番号入力ダイアログ（テンキー） ----
+var pinResolve = null, pinBuf = '';
+function askPin(title) {
+  pinBuf = ''; $('pinTitle').textContent = title; $('pinView').textContent = '';
+  $('pinDlg').classList.add('on');
+  return new Promise(function (res) { pinResolve = res; });
+}
+function pinClose(v) { $('pinDlg').classList.remove('on'); var r = pinResolve; pinResolve = null; if (r) r(v); setTimeout(focusScan, 50); }
+(function buildPinPad() {
+  var p = $('pinPad');
+  ['1', '2', '3', '4', '5', '6', '7', '8', '9', 'C', '0', '⌫'].forEach(function (k) {
+    var b = document.createElement('button'); b.type = 'button'; b.textContent = k;
+    b.onclick = function () {
+      if (k === 'C') pinBuf = ''; else if (k === '⌫') pinBuf = pinBuf.slice(0, -1); else if (pinBuf.length < 8) pinBuf += k;
+      $('pinView').textContent = pinBuf.replace(/./g, '●');
+    };
+    p.appendChild(b);
+  });
+  $('pinOk').onclick = function () { pinClose(pinBuf); };
+  $('pinCancel').onclick = function () { pinClose(null); };
+})();
+
+// ---------- ポイント表をつくる（ひな形） ----------
+// 写真・品番・収容数・ポイントから A4横 のポイント表を作り、PDF（ファイル名＝品番）として登録する。
+// 文字は端末のフォントで画像に描くので、日本語もそのまま。外部ライブラリなし・オフラインで動く。
+var TPL = { imgs: [], editKey: null }, TPL_MAX = 4;
+function inTpl() { return $('v-set').classList.contains('on'); }
+function tplVal() {
+  return {
+    pn: toHalf($('tplPn').value).normalize('NFKC').trim(),
+    qty: toHalf($('tplQty').value).normalize('NFKC').trim(),
+    pts: $('tplPts').value.split(/\r?\n/).map(function (x) { return x.trim(); }).filter(Boolean)
+  };
+}
+function tplPhotoMsg(html) { var m = $('tplPhotoMsg'); m.innerHTML = html || ''; m.classList.toggle('on', !!html); }
+function isPdfFile(f) { return !!f && (f.type === 'application/pdf' || /\.pdf$/i.test(f.name || '')); }
+/** まわりの白い余白を切り落とす（何も描かれていなければそのまま） */
+function trimWhite(cv) {
+  var w = cv.width, h = cv.height, d = cv.getContext('2d').getImageData(0, 0, w, h).data;
+  var x0 = w, y0 = h, x1 = -1, y1 = -1;
+  for (var y = 0; y < h; y += 2) for (var x = 0; x < w; x += 2) {
+    var i = (y * w + x) * 4;
+    if (d[i] < 240 || d[i + 1] < 240 || d[i + 2] < 240) { if (x < x0) x0 = x; if (x > x1) x1 = x; if (y < y0) y0 = y; if (y > y1) y1 = y; }
+  }
+  if (x1 < 0) return cv;
+  var pad = 16; x0 = Math.max(0, x0 - pad); y0 = Math.max(0, y0 - pad); x1 = Math.min(w, x1 + pad); y1 = Math.min(h, y1 + pad);
+  var out = document.createElement('canvas'); out.width = x1 - x0; out.height = y1 - y0;
+  var ox = out.getContext('2d'); ox.fillStyle = '#fff'; ox.fillRect(0, 0, out.width, out.height);
+  ox.drawImage(cv, x0, y0, out.width, out.height, 0, 0, out.width, out.height);
+  return out;
+}
+/** PDFの1ページ目を画像にして、写真として使う（PDFの中身はそのまま絵として貼る） */
+async function tplSetPdf(file) {
+  tplPhotoMsg(t('tp_pdf_loading'));
+  try {
+    var doc = await pdfjs.getDocument({ data: new Uint8Array(await file.arrayBuffer()), isEvalSupported: false }).promise;
+    var page = await doc.getPage(1), vp1 = page.getViewport({ scale: 1 });
+    var sc = 1600 / Math.max(vp1.width, vp1.height), vp = page.getViewport({ scale: sc });
+    var cv = document.createElement('canvas'); cv.width = Math.round(vp.width); cv.height = Math.round(vp.height);
+    var cx = cv.getContext('2d'); cx.fillStyle = '#fff'; cx.fillRect(0, 0, cv.width, cv.height);
+    await page.render({ canvasContext: cx, viewport: vp }).promise;
+    cv = trimWhite(cv); // 余白を切り落として、中身を大きく見せる
+    var blob = await new Promise(function (res) { cv.toBlob(res, 'image/png'); });
+    await tplSetPhoto(new File([blob], (file.name || 'pdf') + '.png', { type: 'image/png' }), doc.numPages > 1 ? t('tp_pdf_page1', { n: doc.numPages }) : '');
+  } catch (e) {
+    tplPhotoMsg(esc(t('tp_pdf_err', { f: file.name || '' })));
+  }
+}
+function isImageFile(f) { return !!f && (/^image\//.test(f.type) || /\.(jpe?g|png|webp|gif|bmp|heic|heif)$/i.test(f.name || '')); }
+/** 写真を1枚追加（最大4枚）。note があれば知らせる */
+function tplSetPhoto(file, note) {
+  return new Promise(function (done) {
+  if (TPL.imgs.length >= TPL_MAX) { tplPhotoMsg(esc(t('tp_max'))); return done(); }
+  var url = URL.createObjectURL(file), im = new Image();
+  im.onload = function () {
+    if (TPL.imgs.length >= TPL_MAX) { tplPhotoMsg(esc(t('tp_max'))); return done(); }
+    TPL.imgs.push({ im: im, url: url });
+    tplRenderPhotos();
+    tplPhotoMsg(note ? 'ℹ ' + esc(note) : '');
+    tplDraw(); if (!tplMark(true).length) $('tplMsg').textContent = '';
+    done();
+  };
+  im.onerror = function () {
+    done();
+    var heic = /\.(heic|heif)$/i.test(file.name || '') || /heic|heif/i.test(file.type || '');
+    tplPhotoMsg(heic
+      ? esc(t('tp_heic'))
+      : esc(t('tp_img_err', { f: file.name || '' })));
+  };
+  im.src = url;
+  });
+}
+/** 何枚かまとめて追加（入りきらない分は知らせる） */
+function tplAddFiles(files) {
+  var ok = files.filter(function (f) { return isImageFile(f) || isPdfFile(f); }), room = TPL_MAX - TPL.imgs.length;
+  if (!ok.length) return false;
+  if (room <= 0) { tplPhotoMsg(esc(t('tp_max'))); return true; }
+  var use = ok.slice(0, room);
+  (async function () {
+    for (var i = 0; i < use.length; i++) {
+      if (isPdfFile(use[i])) await tplSetPdf(use[i]);
+      else await tplSetPhoto(use[i]);
+    }
+    if (ok.length > room) tplPhotoMsg(esc(t('tp_max_skip', { n: ok.length - room })));
+  })();
+  return true;
+}
+/** 入れた写真の小さな見本（番号つき・× で外す・← で順番を前へ） */
+function tplRenderPhotos() {
+  var n = TPL.imgs.length;
+  $('tplPhotos').innerHTML = TPL.imgs.map(function (p, i) {
+    return '<div class="tph"><img alt="" src="' + p.url + '"><span class="no">' + (i + 1) + '</span>' +
+      '<button class="x" data-rm="' + i + '" aria-label="' + esc(t('tp_rm', { n: i + 1 })) + '">×</button>' +
+      (i > 0 ? '<button class="mv" data-up="' + i + '" aria-label="←">←</button>' : '') + '</div>';
+  }).join('');
+  $('tplCnt').textContent = t('tp_cnt', { n: n, m: TPL_MAX }); $('tplCnt').classList.toggle('full', n >= TPL_MAX);
+  $('tplDrop').classList.toggle('full', n >= TPL_MAX);
+  $('tplDropTxt').innerHTML = n
+    ? '<div class="dropTtl">' + esc(t('tp_add_t', { n: TPL_MAX - n })) + '</div><div class="dropSub">' + esc(t('tp_add_s')) + '</div>'
+    : '<div class="dropTtl">' + esc(t('tp_drop_t')) + '</div><div class="dropSub">' + esc(t('tp_drop_s')) + '</div>';
+}
+$('tplPhotos').addEventListener('click', function (e) {
+  var rm = e.target.closest('[data-rm]'), up = e.target.closest('[data-up]');
+  if (rm) { var i = +rm.getAttribute('data-rm'); var p = TPL.imgs.splice(i, 1)[0]; try { URL.revokeObjectURL(p.url); } catch (x) {} tplPhotoMsg(''); }
+  else if (up) { var j = +up.getAttribute('data-up'); var t2 = TPL.imgs[j - 1]; TPL.imgs[j - 1] = TPL.imgs[j]; TPL.imgs[j] = t2; }
+  else return;
+  tplRenderPhotos(); tplDraw();
+});
+/** ドロップされた物から写真を取り出す（ファイル／画像そのもの／リンクを見分ける） */
+function tplHandleDrop(dt) {
+  if (!dt) return;
+  var files = Array.prototype.slice.call(dt.files || []);
+  if (!files.length) {
+    try { Array.prototype.slice.call(dt.items || []).forEach(function (it) { if (it.kind === 'file') { var f = it.getAsFile(); if (f) files.push(f); } }); } catch (e) {}
+  }
+  if (tplAddFiles(files)) return;
+  if (files.length) return tplPhotoMsg(esc(t('tp_not_img', { f: files[0].name || '' })));
+  // ブラウザの画面から画像をドラッグした場合：中身が data: 画像なら使える
+  var html = '', uri = '';
+  try { html = dt.getData('text/html') || ''; uri = dt.getData('text/uri-list') || dt.getData('text/plain') || ''; } catch (e) {}
+  var m = html.match(/<img[^>]+src="([^"]+)"/i), src = m ? m[1].replace(/&amp;/g, '&') : '';
+  if (!src && /^(data:image\/|https?:)/.test(uri.trim())) src = uri.trim().split(/\r?\n/)[0];
+  if (src) {
+    // data: 画像はそのまま。https の画像は、相手のサイトが許可していれば読み込める
+    fetch(src, { mode: 'cors' }).then(function (r) { if (!r.ok) throw 0; return r.blob(); }).then(function (b) {
+      if (!/^image\//.test(b.type)) throw 0;
+      tplSetPhoto(new File([b], 'photo', { type: b.type }));
+    }).catch(function () { tplPhotoMsg(LINK_MSG_F()); });
+    return;
+  }
+  tplPhotoMsg(LINK_MSG_F());
+}
+function LINK_MSG_F() { return t('tp_link'); }
+// コピーした画像の貼り付け（Ctrl+V・スクリーンショットなど）
+document.addEventListener('paste', function (e) {
+  if (!inTpl()) return;
+  var a = document.activeElement;
+  var items = Array.prototype.slice.call((e.clipboardData && e.clipboardData.items) || []);
+  var it = items.find(function (x) { return x.kind === 'file' && /^image\//.test(x.type); });
+  if (!it) return; // 文字の貼り付けはそのまま
+  e.preventDefault();
+  var f = it.getAsFile(); if (f) tplSetPhoto(f);
+});
+// 枠の上だけでなく画面のどこに落としてもよいが、枠の上は色を変えて分かりやすく
+['dragenter', 'dragover'].forEach(function (ev) { $('tplDrop').addEventListener(ev, function () { $('tplDrop').classList.add('over'); }); });
+$('tplDrop').addEventListener('dragleave', function () { $('tplDrop').classList.remove('over'); });
+$('tplDrop').onclick = function () { $('tplPhotoIn').click(); };
+$('tplDrop').onkeydown = function (e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); $('tplPhotoIn').click(); } };
+$('tplPhotoIn').onchange = function () { var fs = Array.prototype.slice.call(this.files || []); this.value = ''; if (fs.length && !tplAddFiles(fs)) tplPhotoMsg(esc(t('tp_pick_bad'))); };
+['tplPn', 'tplQty', 'tplPts'].forEach(function (id) { $(id).addEventListener('input', function () { tplDraw(); if (!tplMark(true).length) $('tplMsg').textContent = ''; }); });
+
+/** 日本語は単語の区切りがないので、1文字ずつ幅を測って折り返す */
+function wrapText(cx, text, maxW) {
+  var lines = [], cur = '';
+  for (var i = 0; i < text.length; i++) {
+    var c = text.charAt(i);
+    if (cx.measureText(cur + c).width > maxW && cur) { lines.push(cur); cur = c; } else cur += c;
+  }
+  if (cur) lines.push(cur);
+  return lines;
+}
+/** ひな形を描く（A4横・約144dpi：1684×1191） */
+function tplDraw() {
+  var cv = $('tplCanvas'), cx = cv.getContext('2d'), W = cv.width, H = cv.height, v = tplVal();
+  var F = '"Hiragino Kaku Gothic ProN","Yu Gothic UI","Meiryo","Noto Sans JP","Noto Sans CJK JP",sans-serif';
+  cx.fillStyle = '#fff'; cx.fillRect(0, 0, W, H);
+  var M = 70;
+  // 見出し帯
+  cx.fillStyle = '#241A4A'; cx.fillRect(M, M, W - 2 * M, 110);
+  cx.fillStyle = '#fff'; cx.font = '700 52px ' + F; cx.textBaseline = 'middle';
+  cx.fillText('ポイント表', M + 30, M + 55);
+  cx.textAlign = 'right'; cx.font = '700 30px ' + F; cx.fillText('作成日 ' + today(), W - M - 30, M + 55); cx.textAlign = 'left';
+  // 品番・収容数
+  var y0 = M + 140;
+  cx.strokeStyle = '#241A4A'; cx.lineWidth = 4;
+  cx.strokeRect(M, y0, W - 2 * M, 120);
+  cx.beginPath(); cx.moveTo(M + 1000, y0); cx.lineTo(M + 1000, y0 + 120); cx.stroke();
+  cx.fillStyle = '#6A5F8F'; cx.font = '700 28px ' + F; cx.fillText('品番', M + 24, y0 + 32); cx.fillText('収容数', M + 1024, y0 + 32);
+  cx.fillStyle = '#241A4A'; cx.font = '900 64px ' + F;
+  cx.fillText(v.pn || '―', M + 24, y0 + 84);
+  cx.fillText(v.qty ? v.qty + ' 個' : '―', M + 1024, y0 + 84);
+  // 写真（左）
+  var py = y0 + 150, ph = H - py - M, pw = 760;
+  cx.strokeRect(M, py, pw, ph);
+  if (TPL.imgs.length) {
+    // 枚数に合わせて並べ方を変える：1枚＝全面／2枚＝横長なら上下・縦長なら左右／3枚＝上2＋下1／4枚＝2×2
+    var ims = TPL.imgs.map(function (p) { return p.im; }), n = ims.length, cells = [], g = 12;
+    var X0 = M + g, Y0 = py + g, CW = pw - 2 * g, CH = ph - 2 * g;
+    if (n === 1) cells = [[X0, Y0, CW, CH]];
+    else if (n === 2) {
+      var wide = ims.reduce(function (a, im) { return a + im.naturalWidth / im.naturalHeight; }, 0) / 2 >= 1;
+      cells = wide ? [[X0, Y0, CW, (CH - g) / 2], [X0, Y0 + (CH + g) / 2, CW, (CH - g) / 2]]
+                   : [[X0, Y0, (CW - g) / 2, CH], [X0 + (CW + g) / 2, Y0, (CW - g) / 2, CH]];
+    } else {
+      var hw = (CW - g) / 2, hh = (CH - g) / 2;
+      cells = [[X0, Y0, hw, hh], [X0 + hw + g, Y0, hw, hh]];
+      cells.push(n === 3 ? [X0, Y0 + hh + g, CW, hh] : [X0, Y0 + hh + g, hw, hh]);
+      if (n === 4) cells.push([X0 + hw + g, Y0 + hh + g, hw, hh]);
+    }
+    cells.forEach(function (c, i) {
+      var im = ims[i], iw = im.naturalWidth, ih = im.naturalHeight, sc = Math.min(c[2] / iw, c[3] / ih), dw = iw * sc, dh = ih * sc;
+      var dx = c[0] + (c[2] - dw) / 2, dy = c[1] + (c[3] - dh) / 2;
+      cx.drawImage(im, dx, dy, dw, dh);
+      if (n > 1) { // 写真番号（説明で「写真2のように」と言える）
+        cx.fillStyle = '#241A4A'; cx.beginPath(); cx.arc(dx + 26, dy + 26, 20, 0, Math.PI * 2); cx.fill();
+        cx.fillStyle = '#fff'; cx.font = '900 24px ' + F; cx.textAlign = 'center'; cx.textBaseline = 'middle';
+        cx.fillText(String(i + 1), dx + 26, dy + 27); cx.textAlign = 'left';
+      }
+    });
+  } else {
+    cx.fillStyle = '#B9B0D6'; cx.font = '700 34px ' + F; cx.textAlign = 'center';
+    cx.fillText('写真', M + pw / 2, py + ph / 2); cx.textAlign = 'left';
+  }
+  // ポイント（右）
+  var bx = M + pw + 30, bw = W - M - bx;
+  cx.strokeRect(bx, py, bw, ph);
+  cx.fillStyle = '#FFD23F'; cx.fillRect(bx + 2, py + 2, bw - 4, 62);
+  cx.fillStyle = '#241A4A'; cx.font = '900 34px ' + F; cx.fillText('ポイント', bx + 24, py + 34);
+  var ly = py + 104, lh = 50, maxY = py + ph - 24;
+  cx.font = '700 36px ' + F;
+  if (!v.pts.length) { cx.fillStyle = '#B9B0D6'; cx.fillText('（ポイントを入力）', bx + 24, ly); }
+  for (var i = 0; i < v.pts.length && ly < maxY; i++) {
+    cx.fillStyle = '#241A4A';
+    cx.beginPath(); cx.arc(bx + 44, ly, 22, 0, Math.PI * 2); cx.fill();
+    cx.fillStyle = '#fff'; cx.font = '900 26px ' + F; cx.textAlign = 'center'; cx.fillText(String(i + 1), bx + 44, ly + 1); cx.textAlign = 'left';
+    cx.fillStyle = '#241A4A'; cx.font = '700 36px ' + F;
+    var lines = wrapText(cx, v.pts[i], bw - 110);
+    for (var k = 0; k < lines.length && ly < maxY; k++) { cx.fillText(lines[k], bx + 84, ly); ly += lh; }
+    ly += 14;
+  }
+  if (ly >= maxY && v.pts.length) { cx.fillStyle = '#FF3D5E'; cx.font = '700 24px ' + F; cx.fillText('※書ききれません。ポイントを短くしてください', bx + 24, py + ph - 14); }
+  cx.textBaseline = 'alphabetic';
+}
+/** 入っていない必須項目を赤くする（soft=入力中は消すだけ） */
+function tplMark(soft) {
+  var v = tplVal(), bad = [];
+  var chk = [['tplDrop', TPL.imgs.length > 0, t('tp_f_photo')], ['tplPn', !!v.pn, t('tp_f_pn')], ['tplQty', /^[1-9][0-9]*$/.test(v.qty), t('tp_f_qty')], ['tplPts', v.pts.length > 0, t('tp_f_pts')]];
+  chk.forEach(function (c) {
+    var item = $(c[0]).closest('.tplItem');
+    if (c[1]) item.classList.remove('bad'); else { bad.push(c[2]); if (!soft) item.classList.add('bad'); }
+  });
+  return bad;
+}
+/** キャンバス（JPEG）を1枚の画像だけのPDFにする */
+function jpegToPdf(jpeg, pxW, pxH) {
+  var enc = new TextEncoder(), parts = [], offs = [], len = 0;
+  function add(x) { var b = typeof x === 'string' ? enc.encode(x) : x; parts.push(b); len += b.length; }
+  var pw = 841.89, phh = 595.28, content = 'q ' + pw + ' 0 0 ' + phh + ' 0 0 cm /Im1 Do Q';
+  add('%PDF-1.4\n%\xE2\xE3\xCF\xD3\n'.replace(/[\u0080-ÿ]/g, '') + '%PTS\n');
+  function obj(n, body) { offs[n] = len; add(n + ' 0 obj\n'); body(); add('\nendobj\n'); }
+  obj(1, function () { add('<< /Type /Catalog /Pages 2 0 R >>'); });
+  obj(2, function () { add('<< /Type /Pages /Kids [3 0 R] /Count 1 >>'); });
+  obj(3, function () { add('<< /Type /Page /Parent 2 0 R /MediaBox [0 0 ' + pw + ' ' + phh + '] /Resources << /XObject << /Im1 5 0 R >> >> /Contents 4 0 R >>'); });
+  obj(4, function () { add('<< /Length ' + content.length + ' >>\nstream\n' + content + '\nendstream'); });
+  obj(5, function () { add('<< /Type /XObject /Subtype /Image /Width ' + pxW + ' /Height ' + pxH + ' /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length ' + jpeg.length + ' >>\nstream\n'); add(jpeg); add('\nendstream'); });
+  var xref = len, x = 'xref\n0 6\n0000000000 65535 f \n';
+  for (var i = 1; i <= 5; i++) x += ('0000000000' + offs[i]).slice(-10) + ' 00000 n \n';
+  add(x + 'trailer\n<< /Size 6 /Root 1 0 R >>\nstartxref\n' + xref + '\n%%EOF\n');
+  var out = new Uint8Array(len), p = 0;
+  parts.forEach(function (b) { out.set(b, p); p += b.length; });
+  return out;
+}
+async function tplBuild() {
+  var bad = tplMark(false);
+  if (bad.length) { $('tplMsg').innerHTML = '<span style="color:var(--ng);font-weight:800">' + esc(t('tp_missing')) + esc(bad.join(', ')) + '</span>'; soundNg(); return null; }
+  var v = tplVal(); tplDraw();
+  var cv = $('tplCanvas');
+  var blob = await new Promise(function (res) { cv.toBlob(res, 'image/jpeg', 0.88); });
+  var jpeg = new Uint8Array(await blob.arrayBuffer());
+  var name = v.pn.replace(/[\\/:*?"<>|]/g, '_') + '.pdf';
+  return { name: name, key: norm(name), pdf: jpegToPdf(jpeg, cv.width, cv.height) };
+}
+/** 後から編集できるよう、入力した内容（写真・品番・収容数・ポイント）もいっしょに保存する */
+function tplSource() {
+  var v = tplVal();
+  return {
+    pn: v.pn, qty: v.qty, pts: $('tplPts').value,
+    photos: TPL.imgs.map(function (p) {
+      var im = p.im, sc = Math.min(1, 1600 / Math.max(im.naturalWidth, im.naturalHeight));
+      var cv = document.createElement('canvas'); cv.width = Math.round(im.naturalWidth * sc); cv.height = Math.round(im.naturalHeight * sc);
+      var cx = cv.getContext('2d'); cx.fillStyle = '#fff'; cx.fillRect(0, 0, cv.width, cv.height); cx.drawImage(im, 0, 0, cv.width, cv.height);
+      return cv.toDataURL('image/jpeg', 0.85);
+    })
+  };
+}
+$('tplSave').onclick = async function () {
+  var r = await tplBuild(); if (!r) return;
+  if (!r.key) return toast(t('tp_pn_check'));
+  var ek = TPL.editKey;
+  if (ek && r.key !== ek) {
+    if (!confirm(t('tp_rename_confirm', { a: PDF_INDEX[ek].name.replace(/\.pdf$/i, ''), b: tplVal().pn }))) return;
+  }
+  if (PDF_INDEX[r.key] && r.key !== ek && !confirm(t('tp_exists_confirm', { pn: tplVal().pn, name: PDF_INDEX[r.key].name }))) return;
+  var rec = { key: r.key, name: r.name, size: r.pdf.length, at: today() + ' ' + nowTime(), data: r.pdf.buffer.slice(0), src: tplSource() };
+  await tx('pdfs', 'readwrite', function (st) { if (ek && ek !== r.key) st.delete(ek); st.put(rec); });
+  await loadPdfIndex(); updateHeader(); THUMBS = {};
+  var was = !!ek; tplEditEnd();
+  $('tplMsg').innerHTML = '<span style="color:var(--ok);font-weight:900">' + esc(t(was ? 'tp_done_over' : 'tp_done_save', { name: r.name })) + '</span>';
+  toast(t(was ? 'tp_toast_over' : 'tp_toast_save', { name: r.name }), 3000); soundOk();
+};
+
+// ---- 登録済みのポイント表を編集する ----
+function tplReset() {
+  TPL.imgs.forEach(function (p) { try { URL.revokeObjectURL(p.url); } catch (x) {} }); TPL.imgs = []; tplRenderPhotos();
+  tplPhotoMsg('');
+  $('tplPn').value = ''; $('tplQty').value = ''; $('tplPts').value = ''; $('tplMsg').textContent = '';
+  document.querySelectorAll('.tplItem.bad').forEach(function (el) { el.classList.remove('bad'); });
+  tplDraw();
+}
+function tplEditEnd() { TPL.editKey = null; $('editBar').hidden = true; $('tplSave').textContent = t('tp_save'); }
+/** ポイント表を「ポイント表をつくる」に読み込んで編集できる状態にする */
+async function editPdf(k) {
+  var rec = await getPdf(k); if (!rec) return;
+  gotoView('set');
+  tplReset();
+  TPL.editKey = k; $('editName').textContent = rec.name.replace(/\.pdf$/i, ''); $('editBar').hidden = false; $('tplSave').textContent = t('tp_overwrite');
+  if (rec.src) { // このアプリで作ったもの：入力した内容をそのまま戻す
+    $('tplPn').value = rec.src.pn || ''; $('tplQty').value = rec.src.qty || ''; $('tplPts').value = rec.src.pts || '';
+    for (var i = 0; i < (rec.src.photos || []).length; i++) {
+      var b = await (await fetch(rec.src.photos[i])).blob();
+      await tplSetPhoto(new File([b], 'photo' + (i + 1) + '.jpg', { type: 'image/jpeg' }));
+    }
+    tplPhotoMsg('');
+  } else { // 取り込んだPDFや前の版で作ったもの：元のPDFを写真1枚として読み込む
+    $('tplPn').value = rec.name.replace(/\.pdf$/i, '');
+    await tplSetPdf(new File([rec.data], rec.name, { type: 'application/pdf' }));
+    tplPhotoMsg(esc(t('tp_nosrc')));
+  }
+  tplDraw();
+  setTimeout(function () { $('tplCard').scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 50);
+}
+$('editCancel').onclick = function () {
+  if (!confirm(t('tp_cancel_confirm'))) return;
+  tplEditEnd(); tplReset();
+};
+$('tplDl').onclick = async function () {
+  var r = await tplBuild(); if (!r) return;
+  var url = await new Promise(function (res) { var fr = new FileReader(); fr.onload = function () { res(fr.result); }; fr.readAsDataURL(new Blob([r.pdf], { type: 'application/pdf' })); });
+  var a = document.createElement('a'); a.href = url; a.download = r.name; document.body.appendChild(a); a.click(); a.remove();
+};
+$('tplClear').onclick = function () {
+  if (!confirm(t('tp_clear_confirm') + (TPL.editKey ? t('tp_clear_edit') : ''))) return;
+  tplEditEnd(); tplReset();
+};
+tplDraw();
+
+// ---------- 照合データのクリア（班長・担当者のみ：解除番号で保護） ----------
+function countAllLogs() { return tx('logs', 'readonly', function (s) { return s.count(); }); }
+async function showClrCount() {
+  var d = $('clrDate').value || today(), day = (await getLogs(d)).length, all = await countAllLogs();
+  $('clrCount').textContent = t('cl_count', { d: day, a: all });
+}
+async function askCode() {
+  var c = await askPin(t('pin_ng'));
+  if (c === null) return false;
+  if (c !== pinNorm(CF.code)) { toast(t('t_wrong')); return false; }
+  return true;
+}
+$('clrDate').onchange = showClrCount;
+$('clrDay').onclick = async function () {
+  var d = $('clrDate').value || today(), rows = await getLogs(d);
+  if (!rows.length) return toast(t('cl_none_day', { d: d }));
+  if (!(await askCode())) return;
+  if (!confirm(t('cl_conf_day', { d: d, n: rows.length }))) return;
+  await tx('logs', 'readwrite', function (s) { rows.forEach(function (r) { s.delete(r.id); }); });
+  toast(t('cl_done_day', { d: d, n: rows.length })); showClrCount(); updateHeader();
+};
+$('clrAll').onclick = async function () {
+  var n = await countAllLogs();
+  if (!n) return toast(t('cl_none'));
+  if (!(await askCode())) return;
+  if (!confirm(t('cl_conf_all', { n: n }))) return;
+  await tx('logs', 'readwrite', function (s) { s.clear(); });
+  toast(t('cl_done_all', { n: n })); showClrCount(); updateHeader();
+};
+
+// ---------- 起動 ----------
+(async function init() {
+  try {
+    await openDb(); await loadCfDb(); await loadPdfIndex(); await loadPdfjs();
+    $('logDate').value = today(); updateHeader(); resetView();
+    LANG = I18N[CF.lang] ? CF.lang : 'ja'; applyLang(); showScan('');
+    document.querySelectorAll('.langBtn').forEach(function (b) { b.classList.toggle('last', b.dataset.lang === LANG); });
+    $('startNote').textContent = t('start_note', { n: Object.keys(PDF_INDEX).length });
+  } catch (e) {
+    $('startNote').textContent = t('start_err', { e: (e && e.message || e) });
+  }
+})();
+// タイトル画面：言語ボタンを押すと、その言語で開始
+document.querySelectorAll('.langBtn').forEach(function (b) {
+  b.onclick = function () {
+    if (!AC) { try { AC = new (window.AudioContext || window.webkitAudioContext)(); } catch (e) {} }
+    try { AC && AC.resume(); } catch (e) {}
+    LANG = b.dataset.lang; CF.lang = LANG; saveCfStore(); applyLang();
+    $('start').style.display = 'none';
+    if (S.state !== 'ng') showView('check');
+    if (!Object.keys(PDF_INDEX).length) toast(t('t_first'), 4000);
+    setTimeout(focusScan, 50);
+  };
+});
+// 🌐 ボタン：言語選択（タイトル画面）に戻る
+$('langSw').onclick = function () {
+  if (S.state === 'ng') return;
+  document.querySelectorAll('.langBtn').forEach(function (b) { b.classList.toggle('last', b.dataset.lang === LANG); });
+  $('start').style.display = 'flex';
+};
+// 0時をまたいだらヘッダーの件数を切替
+setInterval(updateHeader, 60000);
+</script>
+</body>
+</html>

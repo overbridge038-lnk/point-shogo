@@ -1,0 +1,11 @@
+{
+  "name": "point-shogo-dev",
+  "private": true,
+  "description": "ポイント表照合（開発用）。build.py が pdfjs-dist を1ファイルに埋め込む",
+  "scripts": {
+    "build": "python build.py",
+    "test": "node tests/run-all.js"
+  },
+  "dependencies": { "pdfjs-dist": "6.2.108" },
+  "devDependencies": { "playwright": "^1.48.0" }
+}
