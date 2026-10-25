@@ -15,6 +15,12 @@ await scan('Toyota QR (A0U0)', R);
 await scan('Toyota QR but 背番号 B999', R.replace('PA0U0','PB999'));
 await scan('Toyota QR 背番号 C123 (none)', R.replace('PA0U0','PC123'));
 await scan('plain 12345-67890', '12345-67890');
+// カンマ区切りの登録名は、どれか1つ（3文字以上）を読んだだけでも一致
+await scan('only 背番号 A0U0', 'A0U0');
+await scan('only 背番号 b999 (lower)', 'b999');
+await scan('only 品番 (2 combos -> NG)', '74043-60020');
+await scan('too short A0 (NG)', 'A0');
+await scan('Toyota QR C123 still NG', R.replace('PA0U0','PC123'));
 // template with comma name
 await p.click('.tab[data-v=set]'); await pin('0000');
 await p.setInputFiles('#tplPhotoIn',[S+'/ph1.jpg']); await p.waitForTimeout(500);

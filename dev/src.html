@@ -1899,6 +1899,20 @@ async function startKanban(raw) {
   }
   // ① 抜き取った品番、または区切り（カンマ・空白など）で分けた項目が、そのまま品番と一致
   if (!key) for (var i = 0; i < cand.length; i++) { var k = norm(cand[i]); if (k && PDF_INDEX[k]) { key = k; shown = cand[i]; break; } }
+  // ①' 品番と背番号などを「,」で並べて登録したポイント表は、並べた項目の「どれか1つ」を読んだだけでも一致（各項目3文字以上）
+  //     読んだ文字の中から区切りで分けた項目が、ぴったり同じ時だけ。長いQRの中に含まれているだけでは一致にしない（誤品防止）
+  //     2つ以上の表に当たる時（例：同じ品番で背番号ちがいを品番だけ読んだ）は、決められないのでNGで止める
+  if (!key) {
+    var toks = fields(raw).map(norm).filter(Boolean);
+    var phit = Object.keys(PDF_INDEX).filter(function (k) {
+      var ps = keyParts(k); return ps.length >= 2 && ps.some(function (q) { return q.length >= 3 && toks.indexOf(q) >= 0; });
+    });
+    if (phit.length === 1) { key = phit[0]; shown = PDF_INDEX[key].name.replace(/\.pdf$/i, ''); }
+    else if (phit.length > 1) {
+      CARD.kPn = raw; renderCards(); setSteps(2);
+      return ng('ng_multi', { t: 'multi', k: raw, list: phit.map(function (k) { return PDF_INDEX[k].name.replace(/\.pdf$/i, ''); }).join('、') }, { kRaw: raw, part: phit.join('/') });
+    }
+  }
   // ② 区切りのないQR（固定長など）：QRの中に登録済みの品番が含まれていれば一致とする
   //    短すぎる品番は別の数字に偶然含まれるので5文字以上だけ。複数含まれる時は一番長い品番を採用
   if (!key) {
