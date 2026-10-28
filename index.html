@@ -3662,7 +3662,8 @@ $('tplSave').onclick = async function () {
   var rec = { key: r.key, name: r.name, size: r.pdf.length, at: today() + ' ' + nowTime(), data: r.pdf.buffer.slice(0), src: tplSource() };
   await tx('pdfs', 'readwrite', function (st) { if (ek && ek !== r.key) st.delete(ek); st.put(rec); });
   await loadPdfIndex(); updateHeader(); THUMBS = {};
-  var was = !!ek; tplEditEnd();
+  // 登録・上書きのあとは入力欄をまっさらに戻す（登録したのか上書きなのか、次の入力と見分けがつかなくなるため）。結果は下のメッセージで知らせる
+  var was = !!ek; tplEditEnd(); tplReset(); $('tplTrBox').open = false;
   $('tplMsg').innerHTML = '<span style="color:var(--ok);font-weight:900">' + esc(t(was ? 'tp_done_over' : 'tp_done_save', { name: r.name })) + '</span>';
   toast(t(was ? 'tp_toast_over' : 'tp_toast_save', { name: r.name }), 3000); soundOk();
 };
