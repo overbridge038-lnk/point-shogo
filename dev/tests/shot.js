@@ -22,6 +22,7 @@ const { chromium } = require('playwright'); const S = process.argv[2];
   await p.fill('#tplPn', '11111-22222'); await p.fill('#tplQty', '5'); await p.fill('#tplPts', '撮影テスト'); await p.click('#tplSave'); await p.waitForFunction(() => /登録しました/.test(document.getElementById('tplMsg').textContent), null, { timeout: 15000 });
   console.log('msg:', await p.textContent('#tplMsg'));
   console.log('saved:', await p.evaluate(() => Object.keys(PDF_INDEX).join(',')), '| src photos:', await p.evaluate(async () => (await getPdf('1111122222')).src.photos.length));
+  console.log('form cleared:', JSON.stringify({ pn: await p.inputValue('#tplPn'), qty: await p.inputValue('#tplQty'), pts: await p.inputValue('#tplPts'), photos: await n(), msg: (await p.textContent('#tplMsg')).slice(0, 12) }));
   console.log('pageerrors:', errs.length ? errs : 'none');
   await b.close();
 })();
