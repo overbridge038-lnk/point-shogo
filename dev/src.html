@@ -2587,13 +2587,30 @@ function scanReady() {
     !$('plist').classList.contains('on') && !$('pview').classList.contains('on');
 }
 function focusScan() { if (scanReady() && document.activeElement !== scanInp) { try { scanInp.focus({ preventScroll: true }); } catch (e) { scanInp.focus(); } } }
+// QRの中の見えない制御文字（GS・RS・EOT など）を、スキャナーは「Ctrl＋キー」で送ってくる（GS＝Ctrl+]、EOT＝Ctrl+D など）。
+// ブラウザに渡すと Ctrl+E・Ctrl+K・Ctrl+L（アドレスバーで検索）などとして動き、照合画面から離れてしまう（高木新城のQRで発生）。
+// 照合画面では Ctrl・Alt 付きのキーをブラウザに渡さず止める（ポカヨケ）。制御文字は区切りの空白として読取に入れる。
+function scanScreen() {
+  var a = document.activeElement;
+  return $('v-check').classList.contains('on') && !manualOn &&
+    !(a && a !== scanInp && a !== document.body && /INPUT|SELECT|TEXTAREA/.test(a.tagName));
+}
+function modKey(e) { return e.key === 'Control' || e.key === 'Alt' || e.key === 'AltGraph' || e.key === 'Shift' || e.key === 'Meta'; }
+document.addEventListener('keyup', function (e) { if (e.key === 'Alt' && scanScreen()) e.preventDefault(); }); // Altを離した時にブラウザのメニューへ移らない
 document.addEventListener('keydown', function (e) {
+  if ((e.ctrlKey || e.altKey) && scanScreen()) {
+    e.preventDefault();
+    if (!e.ctrlKey || e.altKey || modKey(e) || !scanReady()) return;
+    if (e.code === 'KeyM' || e.code === 'KeyJ') { if (scanInp.value || scanBuf) scanFlush(); return; } // CR・LF（Ctrl+M・Ctrl+J）は Enter と同じ
+    if (scanBuf) { scanBuf += ' '; scanLast = performance.now(); armFlush(); }
+    return;
+  }
   if (!scanReady()) return;
   var a = document.activeElement;
   if (a && a !== scanInp && a !== document.body && /INPUT|SELECT|TEXTAREA/.test(a.tagName)) return;
   if (e.key === 'Enter' || e.code === 'Enter' || e.code === 'NumpadEnter') { e.preventDefault(); if (scanInp.value || scanBuf) scanFlush(); return; }
   if (e.key === 'Tab' || e.code === 'Tab') { e.preventDefault(); return; }
-  if (e.ctrlKey || e.altKey || e.metaKey) return;
+  if (e.metaKey) return;
   var now = performance.now(); if (now - scanLast > 500) { scanBuf = ''; if (a !== scanInp) scanInp.value = ''; }
   scanLast = now;
   var ch = (e.key && e.key.length === 1 && /^[\x20-\x7E]$/.test(e.key)) ? e.key : charFromCode(e);
