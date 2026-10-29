@@ -413,7 +413,7 @@ html[lang=tl] .tab,html[lang=id] .tab{font-size:14px}
       <div class="dropSub" data-i18n="r_drop_s">PDFファイルでもフォルダごとでもOK／タップするとファイルを選べます</div></div>
     </div>
     <div class="btnrow">
-      <label class="btn pri"><span data-i18n="r_pick">PDFを選んで取込</span><input type="file" id="fileIn" accept="application/pdf,.pdf" multiple hidden></label>
+      <label class="btn pri"><span data-i18n="r_pick">PDFを選んで取込</span><input type="file" id="fileIn" accept="application/pdf,.pdf,.xlsx,.xlsm" multiple hidden></label>
       <label class="btn"><span data-i18n="r_dir">フォルダごと取込</span><input type="file" id="dirIn" webkitdirectory multiple hidden></label>
       <button class="btn dng" id="clearPdf" data-i18n="r_clear">全部削除</button>
     </div>
@@ -725,11 +725,11 @@ var I18N = {
     start_err: "起動エラー：{e}",
     h_info: "端末{t}｜本日 {n}件（NG {g}）",
     drop_all: "はなすと取り込みます",
-    r_h: "ポイント表PDFを取り込む",
+    r_h: "ポイント表（PDF・Excel）を取り込む",
     r_note: "Googleドライブからダウンロードしたポイント表PDFを取り込みます（何件でもまとめてOK）。<br><b>ファイル名＝品番</b>（例：12345-67890.pdf）。ハイフン・空白・全角半角の違いは無視して照合します。同じ品番は上書きされます。<br>取り込んだPDFは端末内に保存されるので、普段はネットなし（オフライン）で使えます。",
-    r_drop_t: "ここにPDFをドラッグ＆ドロップ",
-    r_drop_s: "PDFファイルでもフォルダごとでもOK／タップするとファイルを選べます",
-    r_pick: "PDFを選んで取込",
+    r_drop_t: "ここにPDF・Excelをドラッグ＆ドロップ",
+    r_drop_s: "PDF・Excel(.xlsx)ファイルでもフォルダごとでもOK／タップするとファイルを選べます",
+    r_pick: "PDF・Excelを選んで取込",
     r_dir: "フォルダごと取込",
     r_clear: "全部削除",
     r_list: "登録済み",
@@ -757,11 +757,12 @@ var I18N = {
     r_saved: "保存しました：{name}",
     r_clear_confirm: "登録済みのポイント表をすべて削除しますか？",
     r_ngstop_drop: "NG停止中は取り込めません。先に解除してください",
-    im_nopdf: "受け取った {n} 件の中にPDFがありませんでした",
+    im_nopdf: "受け取った {n} 件の中にPDF・Excelがありませんでした",
     im_nofile: "ファイルを受け取れませんでした",
     im_prog: "取り込み中… {i} / {n}",
     im_f_empty: "（ファイル名が空）",
     im_f_notpdf: "（PDFの中身ではありません）",
+    im_f_notxl: "（Excelとして読めません。.xlsx で保存したものを使ってください）",
     im_f_read: "（読み込めません：{e}）",
     im_done: "取込完了：新規 <b>{a}</b> 件、上書き <b>{u}</b> 件",
     im_ignored: "（PDF以外の {n} 件は無視）",
@@ -1018,11 +1019,11 @@ var I18N = {
     start_err: "Gagal memulai: {e}",
     h_info: "Terminal {t} | Hari ini {n} (NG {g})",
     drop_all: "Lepaskan untuk mengimpor",
-    r_h: "Impor PDF tabel poin",
+    r_h: "Impor tabel poin (PDF / Excel)",
     r_note: "Impor PDF tabel poin yang diunduh dari Google Drive (boleh banyak sekaligus).<br><b>Nama file = nomor part</b> (contoh: 12345-67890.pdf). Tanda hubung, spasi, huruf lebar/sempit diabaikan saat dicek. Nomor part yang sama akan ditimpa.<br>PDF disimpan di dalam tablet, jadi bisa dipakai tanpa internet (offline).",
-    r_drop_t: "Seret & lepas PDF di sini",
-    r_drop_s: "Boleh file PDF atau satu folder / ketuk untuk memilih file",
-    r_pick: "Pilih PDF & impor",
+    r_drop_t: "Seret & lepas PDF / Excel di sini",
+    r_drop_s: "Boleh file PDF / Excel (.xlsx) atau satu folder / ketuk untuk memilih file",
+    r_pick: "Pilih PDF / Excel & impor",
     r_dir: "Impor satu folder",
     r_clear: "Hapus semua",
     r_list: "Terdaftar",
@@ -1050,11 +1051,12 @@ var I18N = {
     r_saved: "Disimpan: {name}",
     r_clear_confirm: "Hapus semua tabel poin yang terdaftar?",
     r_ngstop_drop: "Tidak bisa impor saat NG. Buka NG dulu",
-    im_nopdf: "Tidak ada PDF di antara {n} file yang diterima",
+    im_nopdf: "Tidak ada PDF / Excel di antara {n} file yang diterima",
     im_nofile: "File tidak diterima",
     im_prog: "Mengimpor… {i} / {n}",
     im_f_empty: " (nama file kosong)",
     im_f_notpdf: " (isinya bukan PDF)",
+    im_f_notxl: " (tidak bisa dibaca sebagai Excel. Pakai file .xlsx)",
     im_f_read: " (tidak bisa dibaca: {e})",
     im_done: "Impor selesai: baru <b>{a}</b>, ditimpa <b>{u}</b>",
     im_ignored: " ({n} file bukan PDF diabaikan)",
@@ -1311,11 +1313,11 @@ var I18N = {
     start_err: "Error sa pagsisimula: {e}",
     h_info: "Terminal {t} | Ngayon {n} (NG {g})",
     drop_all: "Bitawan para i-import",
-    r_h: "I-import ang PDF ng point table",
+    r_h: "I-import ang point table (PDF / Excel)",
     r_note: "I-import ang mga PDF ng point table na na-download mula sa Google Drive (puwedeng marami nang sabay).<br><b>Pangalan ng file = part number</b> (hal. 12345-67890.pdf). Hindi pinapansin ang gitling, espasyo at full/half-width. Papalitan ang parehong part number.<br>Nakatago ang PDF sa loob ng tablet, kaya magagamit kahit walang internet (offline).",
-    r_drop_t: "I-drag at i-drop ang PDF dito",
-    r_drop_s: "PDF file o buong folder / i-tap para pumili ng file",
-    r_pick: "Pumili ng PDF at i-import",
+    r_drop_t: "I-drag at i-drop ang PDF / Excel dito",
+    r_drop_s: "PDF / Excel (.xlsx) file o buong folder / i-tap para pumili ng file",
+    r_pick: "Pumili ng PDF / Excel at i-import",
     r_dir: "I-import ang buong folder",
     r_clear: "Burahin lahat",
     r_list: "Nakarehistro",
@@ -1343,11 +1345,12 @@ var I18N = {
     r_saved: "Na-save: {name}",
     r_clear_confirm: "Burahin ang lahat ng nakarehistrong point table?",
     r_ngstop_drop: "Hindi puwedeng mag-import habang NG. Buksan muna ang NG",
-    im_nopdf: "Walang PDF sa {n} file na natanggap",
+    im_nopdf: "Walang PDF / Excel sa {n} file na natanggap",
     im_nofile: "Walang natanggap na file",
     im_prog: "Nag-i-import… {i} / {n}",
     im_f_empty: " (walang pangalan ng file)",
     im_f_notpdf: " (hindi PDF ang laman)",
+    im_f_notxl: " (hindi mabasa bilang Excel. Gamitin ang .xlsx file)",
     im_f_read: " (hindi mabasa: {e})",
     im_done: "Tapos ang import: bago <b>{a}</b>, pinalitan <b>{u}</b>",
     im_ignored: " ({n} hindi PDF ang hindi pinansin)",
@@ -1604,11 +1607,11 @@ var I18N = {
     start_err: "Startup error: {e}",
     h_info: "Terminal {t} | Today {n} (NG {g})",
     drop_all: "Release to import",
-    r_h: "Import point table PDFs",
+    r_h: "Import point tables (PDF / Excel)",
     r_note: "Import point table PDFs downloaded from Google Drive (any number at once).<br><b>File name = part number</b> (e.g. 12345-67890.pdf). Hyphens, spaces and full/half-width differences are ignored. The same part number is overwritten.<br>Imported PDFs are stored on the tablet, so it works without internet (offline).",
-    r_drop_t: "Drag & drop PDFs here",
-    r_drop_s: "PDF files or a whole folder / tap to choose files",
-    r_pick: "Choose PDFs to import",
+    r_drop_t: "Drag & drop PDF / Excel files here",
+    r_drop_s: "PDF / Excel (.xlsx) files or a whole folder / tap to choose files",
+    r_pick: "Choose PDF / Excel files to import",
     r_dir: "Import a folder",
     r_clear: "Delete all",
     r_list: "Registered",
@@ -1636,11 +1639,12 @@ var I18N = {
     r_saved: "Saved: {name}",
     r_clear_confirm: "Delete all registered point tables?",
     r_ngstop_drop: "Cannot import while stopped at NG. Release it first",
-    im_nopdf: "No PDF among the {n} files received",
+    im_nopdf: "No PDF / Excel among the {n} files received",
     im_nofile: "No file was received",
     im_prog: "Importing… {i} / {n}",
     im_f_empty: " (empty file name)",
     im_f_notpdf: " (not a PDF inside)",
+    im_f_notxl: " (cannot be read as Excel. Use a .xlsx file)",
     im_f_read: " (cannot read: {e})",
     im_done: "Import done: new <b>{a}</b>, overwritten <b>{u}</b>",
     im_ignored: " ({n} non-PDF files ignored)",
@@ -1880,7 +1884,7 @@ paintMascots();
 function esc(s) { return String(s == null ? '' : s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
 /** 照合キー：全角→半角、英字大文字、ハイフン・空白などを除去 */
 function norm(s) {
-  return String(s || '').normalize('NFKC').toUpperCase().replace(/\.PDF$/i, '').replace(/[\s\-‐‑‒–—―ー−_]/g, '');
+  return String(s || '').normalize('NFKC').toUpperCase().replace(/\.(PDF|XLSX|XLSM)$/i, '').replace(/[\s\-‐‑‒–—―ー−_]/g, '');
 }
 /** 登録名を「,」などで区切った項目（品番と背番号を並べて登録した時） */
 function keyParts(k) { return String(k).split(/[,、，\/／+＋&＆]+/).filter(Boolean); }
@@ -1939,7 +1943,7 @@ function loadPdfIndex() {
     var c = DB.transaction('pdfs').objectStore('pdfs').openCursor();
     c.onsuccess = function () {
       var cur = c.result;
-      if (cur) { var v = cur.value; PDF_INDEX[v.key] = { key: v.key, name: v.name, size: v.size, at: v.at }; cur.continue(); }
+      if (cur) { var v = cur.value; PDF_INDEX[v.key] = { key: v.key, name: v.name, size: v.size, at: v.at, kind: v.kind }; cur.continue(); }
       else res();
     };
   });
@@ -2004,7 +2008,7 @@ function resetView() {
   S = { state: 'k', kRaw: '', kKey: '', pdfName: '' };
   CARD = { kPn: '―', kRaw: '', pPn: '―', pRaw: '', pHow: '' };
   setSteps(1); setJudge('wait', 'wait_big', 'wait_msg');
-  $('pdfName').textContent = '―'; $('zoomBar').hidden = true; ZM.z = 1; TRREC = null; renderTrans();
+  $('pdfName').textContent = '―'; $('zoomBar').hidden = true; ZM.z = 1; TRREC = null; renderTrans(); if (XLCUR) { XV.release(XLCUR); XLCUR = null; }
   $('pdfbox').innerHTML = '<div class="empty">' + mascot('wait') + esc(t('empty')) + '</div>';
   renderCards();
 }
@@ -2040,9 +2044,9 @@ async function startKanban(raw) {
     var best = combo.filter(function (c) { return c.n === combo[0].n && c.len === combo[0].len; });
     if (best.length > 1) {
       CARD.kPn = picked[0] || raw; renderCards(); setSteps(2);
-      return ng('ng_multi', { t: 'multi', k: picked[0] || raw, list: best.map(function (c) { return PDF_INDEX[c.k].name.replace(/\.pdf$/i, ''); }).join('、') }, { kRaw: raw, part: best.map(function (c) { return c.k; }).join('/') });
+      return ng('ng_multi', { t: 'multi', k: picked[0] || raw, list: best.map(function (c) { return PDF_INDEX[c.k].name.replace(/\.(pdf|xlsx|xlsm)$/i, ''); }).join('、') }, { kRaw: raw, part: best.map(function (c) { return c.k; }).join('/') });
     }
-    key = combo[0].k; shown = PDF_INDEX[key].name.replace(/\.pdf$/i, '');
+    key = combo[0].k; shown = PDF_INDEX[key].name.replace(/\.(pdf|xlsx|xlsm)$/i, '');
   }
   // ① 抜き取った品番、または区切り（カンマ・空白など）で分けた項目が、そのまま品番と一致
   if (!key) for (var i = 0; i < cand.length; i++) { var k = norm(cand[i]); if (k && PDF_INDEX[k]) { key = k; shown = cand[i]; break; } }
@@ -2054,10 +2058,10 @@ async function startKanban(raw) {
     var phit = Object.keys(PDF_INDEX).filter(function (k) {
       var ps = keyParts(k); return ps.length >= 2 && ps.some(function (q) { return q.length >= 3 && toks.indexOf(q) >= 0; });
     });
-    if (phit.length === 1) { key = phit[0]; shown = PDF_INDEX[key].name.replace(/\.pdf$/i, ''); }
+    if (phit.length === 1) { key = phit[0]; shown = PDF_INDEX[key].name.replace(/\.(pdf|xlsx|xlsm)$/i, ''); }
     else if (phit.length > 1) {
       CARD.kPn = raw; renderCards(); setSteps(2);
-      return ng('ng_multi', { t: 'multi', k: raw, list: phit.map(function (k) { return PDF_INDEX[k].name.replace(/\.pdf$/i, ''); }).join('、') }, { kRaw: raw, part: phit.join('/') });
+      return ng('ng_multi', { t: 'multi', k: raw, list: phit.map(function (k) { return PDF_INDEX[k].name.replace(/\.(pdf|xlsx|xlsm)$/i, ''); }).join('、') }, { kRaw: raw, part: phit.join('/') });
     }
   }
   // ② 区切りのないQR（固定長など）：QRの中に登録済みの品番が含まれていれば一致とする
@@ -2072,9 +2076,9 @@ async function startKanban(raw) {
       if (pref.length === 1) top = pref;
       if (top.length > 1) { // 同じ長さで別の品番が2つ以上 → どちらか決められないので止める
         CARD.kPn = raw; renderCards(); setSteps(2);
-        return ng('ng_multi', { t: 'multi', k: raw, list: top.map(function (k) { return PDF_INDEX[k].name.replace(/\.pdf$/i, ''); }).join('、') }, { kRaw: raw, part: top.join('/') });
+        return ng('ng_multi', { t: 'multi', k: raw, list: top.map(function (k) { return PDF_INDEX[k].name.replace(/\.(pdf|xlsx|xlsm)$/i, ''); }).join('、') }, { kRaw: raw, part: top.join('/') });
       }
-      key = top[0]; shown = PDF_INDEX[key].name.replace(/\.pdf$/i, '');
+      key = top[0]; shown = PDF_INDEX[key].name.replace(/\.(pdf|xlsx|xlsm)$/i, '');
     }
   }
   if (!shown) shown = picked[0] || raw; // 一致しない時も、抜き取れた品番があればそれを見せる
@@ -2090,7 +2094,7 @@ async function startKanban(raw) {
   $('pdfName').textContent = rec.name;
   CARD.pPn = rec.name; renderCards();
   setJudge('wait', 'chk_big', 'chk_msg');
-  try { await renderPdf(rec.data); TRREC = rec.src || null; renderTrans(); }
+  try { await (rec.kind === 'xlsx' ? renderXlsx(rec.data) : renderPdf(rec.data)); TRREC = rec.src || null; renderTrans(); }
   catch (e) { return ng('ng_open', { t: 'open', f: rec.name, e: (e && e.message || String(e)) }, { kRaw: raw, part: key, pdf: rec.name }); }
   S.state = 'done';
   setSteps(3, true);
@@ -2146,7 +2150,7 @@ function padKey(k) {
 
 // ---------- PDF表示とQR自動読取 ----------
 // ---- ポイント表の表示と拡大（写真の細かい所まで見られるように） ----
-var ZM = { z: 1, fitW: 0 }, Z_MAX = 4;
+var ZM = { z: 1, fitW: 0, xl: 1 }, Z_MAX = 4;
 async function renderPdf(data) {
   var doc = await pdfjs.getDocument({ data: data.slice(0), isEvalSupported: false }).promise;
   var box = $('pdfbox'); box.innerHTML = '';
@@ -2165,15 +2169,28 @@ async function renderPdf(data) {
   $('zoomBar').hidden = false; zoomLabel();
   return pages;
 }
+/** Excel(.xlsx)を照合画面に出す。幅に合わせて縮め、ズームは同じボタン・ピンチ・ダブルタップで */
+var XLCUR = null;
+async function renderXlsx(data) {
+  var sheets = await XV.parse(data.slice(0)), box = $('pdfbox');
+  if (XLCUR) XV.release(XLCUR); XLCUR = sheets;
+  box.innerHTML = ''; XV.render(sheets, box);
+  var fitW = Math.max(300, box.clientWidth - 32), wmax = 0;
+  box.querySelectorAll('.xlwrap').forEach(function (e) { wmax = Math.max(wmax, +e.getAttribute('data-w') + 4); });
+  ZM.z = 1; ZM.fitW = fitW; ZM.xl = Math.min(2, fitW / (wmax || fitW));
+  box.querySelectorAll('.xlwrap').forEach(function (e) { e.style.zoom = ZM.xl; });
+  $('zoomBar').hidden = false; zoomLabel();
+}
 function zoomLabel() { $('zLbl').textContent = Math.round(ZM.z * 100) + '%'; }
 /** 倍率を変える。cx, cy（枠の中の位置）が拡大の中心になる */
 function setZoom(z, cx, cy) {
-  var box = $('pdfbox'); if (!ZM.fitW || !box.querySelector('canvas')) return;
+  var box = $('pdfbox'); if (!ZM.fitW || !box.querySelector('canvas, .xlwrap')) return;
   z = Math.max(1, Math.min(Z_MAX, z));
   if (cx === undefined) { cx = box.clientWidth / 2; cy = box.clientHeight / 2; }
   var r = z / ZM.z, sx = box.scrollLeft + cx, sy = box.scrollTop + cy;
   ZM.z = z;
   box.querySelectorAll('canvas').forEach(function (cv) { cv.style.width = (ZM.fitW * z) + 'px'; });
+  box.querySelectorAll('.xlwrap').forEach(function (e) { e.style.zoom = ZM.xl * z; });
   box.scrollLeft = sx * r - cx; box.scrollTop = sy * r - cy;
   zoomLabel();
 }
@@ -2280,7 +2297,8 @@ async function exportCsv() {
 
 // ---------- ポイント表の登録 ----------
 /** PDFかどうか：拡張子 .pdf か、中身の先頭が %PDF */
-function looksPdf(f) { return /\.pdf$/i.test((f.name || '').trim()) || f.type === 'application/pdf'; }
+function isXlsx(f) { return /\.(xlsx|xlsm)$/i.test((f.name || '').trim()); }
+function looksPdf(f) { return /\.pdf$/i.test((f.name || '').trim()) || f.type === 'application/pdf' || isXlsx(f); } // PDF と Excel(.xlsx) を取り込める
 async function importFiles(files, note) {
   files = Array.prototype.slice.call(files || []);
   var list = files.filter(looksPdf), others = files.length - list.length;
@@ -2296,9 +2314,11 @@ async function importFiles(files, note) {
     if (!key) { fail.push(name + t('im_f_empty')); continue; }
     try {
       var buf = await f.arrayBuffer();
-      var head = new Uint8Array(buf.slice(0, 5)), sig = String.fromCharCode.apply(null, head);
-      if (sig.indexOf('%PDF') < 0) { fail.push(name + t('im_f_notpdf')); continue; }
+      var head = new Uint8Array(buf.slice(0, 5)), sig = String.fromCharCode.apply(null, head), xl = isXlsx(f);
+      if (xl ? sig.slice(0, 2) !== 'PK' : sig.indexOf('%PDF') < 0) { fail.push(name + t(xl ? 'im_f_notxl' : 'im_f_notpdf')); continue; }
+      if (xl) { try { var sh0 = await XV.parse(buf); XV.release(sh0); } catch (e2) { fail.push(name + t('im_f_notxl')); continue; } } // Excelとして読めるか確かめる
       var rec = { key: key, name: name, size: buf.byteLength, at: today() + ' ' + nowTime(), data: buf };
+      if (xl) rec.kind = 'xlsx';
       await tx('pdfs', 'readwrite', function (st) { st.put(rec); });
       if (seen[key]) dup.push(seen[key] + ' / ' + name);
       seen[key] = name;
@@ -2328,8 +2348,8 @@ function showPdfList() {
   $('pdfList').innerHTML = list.map(function (k) {
     var v = PDF_INDEX[k];
     return '<div class="pcard"><button class="pthumb" data-view="' + esc(k) + '" data-thumb="' + esc(k) + '" aria-label="' + esc(v.name) + '"><span>' + esc(t('r_making')) + '</span></button>' +
-      '<div class="pinfo"><b class="mono">' + esc(v.name.replace(/\.pdf$/i, '')) + '</b><div class="note">' + esc(t('r_key')) + ' ' + esc(k) + '</div><div class="note">' + Math.round(v.size / 1024) + ' KB・' + esc(v.at) + '</div></div>' +
-      '<div class="pacts"><button class="btn" data-view="' + esc(k) + '">' + esc(t('r_view')) + '</button><button class="btn" data-dl="' + esc(k) + '">' + esc(t('r_save')) + '</button><button class="btn" data-edit="' + esc(k) + '">' + esc(t('r_edit')) + '</button><button class="btn dng" data-del="' + esc(k) + '">' + esc(t('r_del')) + '</button></div></div>';
+      '<div class="pinfo"><b class="mono">' + esc(v.name.replace(/\.(pdf|xlsx|xlsm)$/i, '')) + '</b><div class="note">' + esc(t('r_key')) + ' ' + esc(k) + '</div><div class="note">' + Math.round(v.size / 1024) + ' KB・' + esc(v.at) + '</div></div>' +
+      '<div class="pacts"><button class="btn" data-view="' + esc(k) + '">' + esc(t('r_view')) + '</button><button class="btn" data-dl="' + esc(k) + '">' + esc(t('r_save')) + '</button>' + (v.kind === 'xlsx' ? '' : '<button class="btn" data-edit="' + esc(k) + '">' + esc(t('r_edit')) + '</button>') + '<button class="btn dng" data-del="' + esc(k) + '">' + esc(t('r_del')) + '</button></div></div>';
   }).join('') || '<div class="pempty">' + (keys.length ? esc(t('r_nomatch', { q: $('pdfSearch').value })) : esc(t('r_none'))) + '</div>';
   // 画面に見えた分だけ見本を作る（件数が多くても重くならない）
   if (thumbObs) thumbObs.disconnect();
@@ -2344,6 +2364,7 @@ function showPdfList() {
 async function fillThumb(el) {
   var k = el.getAttribute('data-thumb'), v = PDF_INDEX[k]; if (!v) return;
   var ck = k + '|' + v.at;
+  if (v.kind === 'xlsx') { el.innerHTML = '<span style="font-size:44px">📊</span><span style="font-weight:900">Excel</span>'; return; }
   try {
     if (!THUMBS[ck]) {
       var rec = await getPdf(k);
@@ -2358,12 +2379,21 @@ async function fillThumb(el) {
     el.innerHTML = '<img alt="" src="' + THUMBS[ck] + '">';
   } catch (e) { el.innerHTML = '<span>' + esc(t('r_thumb_err')) + '</span>'; }
 }
+var PVXL = null;
 async function openPreview(k) {
   var v = PDF_INDEX[k]; if (!v) return;
   PV_KEY = k;
   $('pvName').textContent = v.name; $('pvBody').innerHTML = '<p class="note">' + esc(t('pv_opening')) + '</p>'; $('pview').classList.add('on');
   try {
     var rec = await getPdf(k);
+    if (rec.kind === 'xlsx') { // Excel：幅に合わせて縮めて出す
+      var sh = await XV.parse(rec.data.slice(0)); if (PVXL) XV.release(PVXL); PVXL = sh;
+      $('pvBody').innerHTML = ''; XV.render(sh, $('pvBody'));
+      var fw = Math.max(300, $('pvBody').clientWidth - 28), wm = 0;
+      $('pvBody').querySelectorAll('.xlwrap').forEach(function (e) { wm = Math.max(wm, +e.getAttribute('data-w') + 4); });
+      $('pvBody').querySelectorAll('.xlwrap').forEach(function (e) { e.style.zoom = Math.min(2, fw / (wm || fw)); });
+      return;
+    }
     var doc = await pdfjs.getDocument({ data: new Uint8Array(rec.data.slice(0)), isEvalSupported: false }).promise;
     $('pvBody').innerHTML = '';
     var maxW = Math.max(300, $('pvBody').clientWidth - 28), dpr = window.devicePixelRatio || 1;
@@ -2384,8 +2414,8 @@ function renderPlist() {
   $('plGrid').innerHTML = list.map(function (k) {
     var v = PDF_INDEX[k];
     return '<div class="pcard"><button class="pthumb" data-view="' + esc(k) + '" data-thumb="' + esc(k) + '" aria-label="' + esc(v.name) + '"><span>…</span></button>' +
-      '<div class="pinfo"><b class="mono">' + esc(v.name.replace(/\.pdf$/i, '')) + '</b><div class="note">' + esc(v.at) + '</div></div>' +
-      '<div class="pacts"><button class="btn" data-view="' + esc(k) + '">🔍</button><button class="btn" data-pledit="' + esc(k) + '">✏</button><button class="btn dng" data-pldel="' + esc(k) + '">🗑 ' + esc(t('pl_del')) + '</button></div></div>';
+      '<div class="pinfo"><b class="mono">' + esc(v.name.replace(/\.(pdf|xlsx|xlsm)$/i, '')) + '</b><div class="note">' + esc(v.at) + '</div></div>' +
+      '<div class="pacts"><button class="btn" data-view="' + esc(k) + '">🔍</button>' + (v.kind === 'xlsx' ? '' : '<button class="btn" data-pledit="' + esc(k) + '">✏</button>') + '<button class="btn dng" data-pldel="' + esc(k) + '">🗑 ' + esc(t('pl_del')) + '</button></div></div>';
   }).join('') || '<div class="pempty">' + esc(t(keys.length ? 'pl_none' : 'pl_empty')) + '</div>';
   if (plObs) plObs.disconnect();
   var els = $('plGrid').querySelectorAll('[data-thumb]');
@@ -2420,12 +2450,12 @@ $('plist').addEventListener('click', async function (e) {
   renderPlist();
 });
 // ---- 登録したポイント表を、元のファイル名（＝品番）のPDFで端末に保存（1件ずつ） ----
-function pdfDataUrl(buf) {
-  return new Promise(function (res) { var fr = new FileReader(); fr.onload = function () { res(fr.result); }; fr.readAsDataURL(new Blob([buf], { type: 'application/pdf' })); });
+function pdfDataUrl(buf, type) {
+  return new Promise(function (res) { var fr = new FileReader(); fr.onload = function () { res(fr.result); }; fr.readAsDataURL(new Blob([buf], { type: type || 'application/pdf' })); });
 }
 async function savePdf(k) {
   var rec = await getPdf(k); if (!rec) return;
-  var a = document.createElement('a'); a.href = await pdfDataUrl(rec.data); a.download = rec.name;
+  var a = document.createElement('a'); a.href = await pdfDataUrl(rec.data, rec.kind === 'xlsx' ? 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' : 'application/pdf'); a.download = rec.name;
   document.body.appendChild(a); a.click(); a.remove();
 }
 $('dlAll').onclick = async function () {
@@ -2459,7 +2489,7 @@ $('pkOut').onclick = async function () {
     var items = [], parts = [];
     for (var i = 0; i < keys.length; i++) {
       var rec = await getPdf(keys[i]); if (!rec) continue;
-      items.push({ key: rec.key, name: rec.name, at: rec.at, size: rec.data.byteLength, src: rec.src || null }); parts.push(rec.data);
+      items.push({ key: rec.key, name: rec.name, at: rec.at, size: rec.data.byteLength, src: rec.src || null, kind: rec.kind || null }); parts.push(rec.data);
     }
     var hdr = new TextEncoder().encode(JSON.stringify({ v: 1, term: CF.term, at: today() + ' ' + nowTime(), items: items }));
     var top = new Uint8Array(12); top.set(new TextEncoder().encode('PTPACK1\n'), 0);
@@ -2480,7 +2510,7 @@ $('pkIn').onchange = async function () {
     var buf = await f.arrayBuffer();
     if (buf.byteLength < 12 || new TextDecoder().decode(buf.slice(0, 8)) !== 'PTPACK1\n') throw 0;
     var hl = new DataView(buf).getUint32(8), meta = JSON.parse(new TextDecoder().decode(buf.slice(12, 12 + hl))), off = 12 + hl, items = [];
-    meta.items.forEach(function (m) { items.push({ key: m.key, name: m.name, at: m.at, src: m.src || null, data: buf.slice(off, off + m.size) }); off += m.size; });
+    meta.items.forEach(function (m) { items.push({ key: m.key, name: m.name, at: m.at, src: m.src || null, kind: m.kind || null, data: buf.slice(off, off + m.size) }); off += m.size; });
     if (off > buf.byteLength) throw 0;
     PK = { meta: meta, items: items };
   } catch (e) { PK = null; return toast(t('pk_bad'), 4000); }
@@ -2508,7 +2538,7 @@ $('pkApply').onclick = async function () {
   await tx('pdfs', 'readwrite', function (st) {
     PK.items.forEach(function (it) {
       if (it.st === 's') return;
-      st.put({ key: it.key, name: it.name, size: it.data.byteLength, at: it.at, data: it.data, src: it.src || undefined });
+      st.put({ key: it.key, name: it.name, size: it.data.byteLength, at: it.at, data: it.data, src: it.src || undefined, kind: it.kind || undefined });
       if (it.st === 'a') a++; else u++;
     });
     PK.del.forEach(function (k) { st.delete(k); });
@@ -3383,7 +3413,7 @@ $('tplSave').onclick = async function () {
   if (!r.key) return toast(t('tp_pn_check'));
   var ek = TPL.editKey;
   if (ek && r.key !== ek) {
-    if (!confirm(t('tp_rename_confirm', { a: PDF_INDEX[ek].name.replace(/\.pdf$/i, ''), b: tplVal().pn }))) return;
+    if (!confirm(t('tp_rename_confirm', { a: PDF_INDEX[ek].name.replace(/\.(pdf|xlsx|xlsm)$/i, ''), b: tplVal().pn }))) return;
   }
   if (PDF_INDEX[r.key] && r.key !== ek && !confirm(t('tp_exists_confirm', { pn: tplVal().pn, name: PDF_INDEX[r.key].name }))) return;
   var rec = { key: r.key, name: r.name, size: r.pdf.length, at: today() + ' ' + nowTime(), data: r.pdf.buffer.slice(0), src: tplSource() };
@@ -3407,10 +3437,10 @@ function tplReset() {
 function tplEditEnd() { TPL.editKey = null; $('editBar').hidden = true; $('tplSave').textContent = t('tp_save'); }
 /** ポイント表を「ポイント表をつくる」に読み込んで編集できる状態にする */
 async function editPdf(k) {
-  var rec = await getPdf(k); if (!rec) return;
+  var rec = await getPdf(k); if (!rec || rec.kind === 'xlsx') return;
   gotoView('set');
   tplReset();
-  TPL.editKey = k; $('editName').textContent = rec.name.replace(/\.pdf$/i, ''); $('editBar').hidden = false; $('tplSave').textContent = t('tp_overwrite');
+  TPL.editKey = k; $('editName').textContent = rec.name.replace(/\.(pdf|xlsx|xlsm)$/i, ''); $('editBar').hidden = false; $('tplSave').textContent = t('tp_overwrite');
   if (rec.src) { // このアプリで作ったもの：入力した内容をそのまま戻す
     $('tplPn').value = rec.src.pn || ''; $('tplQty').value = rec.src.qty || ''; $('tplPts').value = rec.src.pts || '';
     var rtr = rec.src.tr || {}; ['en', 'id', 'tl'].forEach(function (l) { $('tplTr_' + l).value = rtr[l] || ''; });
@@ -3422,7 +3452,7 @@ async function editPdf(k) {
     }
     tplPhotoMsg('');
   } else { // 取り込んだPDFや前の版で作ったもの：元のPDFを写真1枚として読み込む
-    $('tplPn').value = rec.name.replace(/\.pdf$/i, '');
+    $('tplPn').value = rec.name.replace(/\.(pdf|xlsx|xlsm)$/i, '');
     await tplSetPdf(new File([rec.data], rec.name, { type: 'application/pdf' }));
     tplPhotoMsg(esc(t('tp_nosrc')));
   }

@@ -1,7 +1,7 @@
 # ポイント表照合（point-shogo）
 
 製造現場のタブレットで使う、誤品防止のオフラインツール。
-かんばんのQRを読む → **ファイル名＝品番** のポイント表PDFを探す → あれば OK（PDFを表示）、なければ NG で止める。
+かんばんのQRを読む → **ファイル名＝品番（または資料名）** のポイント表（PDF または Excel）を探す → あれば OK（表示）、なければ NG で止める。
 NG はブザーと赤画面で止まり、**解除番号でしか戻れない**。
 
 - 公開URL（GitHub Pages）：https://overbridge038-lnk.github.io/point-shogo/
@@ -26,7 +26,7 @@ index.html            … GitHub Pages で配信する本体（dev/build.py が�
 manifest.webmanifest, sw.js, icon-*.png … PWA（sw.js はネットワーク優先＋キャッシュ）
 dev/src.html          … ★編集するのはこれ（HTML/CSS/JS すべて）
 dev/qrdecode.js       … 自作のQRデコーダ（カメラ・写真・PDF内のQR読取）
-dev/xlsxview.js      … 自作のExcel(.xlsx)読み取り部品（ZIP展開は DecompressionStream。文字と、行に貼った写真を取り出す）
+dev/xlsxview.js      … 自作のExcel(.xlsx)読み取り・表示部品（ZIP展開は DecompressionStream。セル・図形・矢印・回転した写真を描く）
 dev/sample/          … 利用者に渡すExcelのひな形
 dev/build.py          … src.html に pdf.js・qrdecode.js・xlsxview.js を埋め込んでビルド
 dev/tests/*.js        … Playwright の回帰テスト（fixtures/ にテスト用PDF・写真）
@@ -48,12 +48,14 @@ npm test                         # すべての回帰テスト（e2e の "log su
 - 言語：`I18N = { ja, id, tl, en }`、`t(key, params)`（`{n}` などを置換）、`applyLang()` が
   `data-i18n`（文字）、`data-i18n-html`（HTML）、`data-i18n-ph`（placeholder）を更新。キーは4言語すべてにそろえる。
 - 照合キー：`norm()`（全角→半角・大文字・ハイフン/空白除去・.pdf除去）。
+  - ファイル名は品番に限らず**資料名**でもよい（例 `かんばん回収.xlsx` ← QRの中身が `かんばん回収`）。`.pdf/.xlsx/.xlsm` は照合から除く。
   - トヨタ形式の長いQR文字列から品番（例 `74043-60020`）を抜き取る（`fields()`）。
   - 「品番,背番号」の組み合わせ登録（例 `74043-60020,A0U0.pdf`）に対応（`keyParts()`）。
     - 長いQRの中では「並べた項目が全部そろった時だけ」一致。短い読取（例 `A0U0` だけ）は、並べた項目の**どれか1つ**とぴったり同じなら一致（各項目**3文字以上**）。2枚以上に当たる時はNG。長いQRに含まれるだけでは一致にしない（誤品防止）。
   - 長い文字列の中に登録品番が含まれていれば一致（**5文字以上**。利用者が4→5に戻した）。2件以上当たったら `ng_multi` でNG。
 - 主な処理：`onScan()` → `startKanban()` → OK表示 / `ng()`。記録は `addLog()`、CSVは `exportCsv()`。
-- 登録タブ：PDFの取込（ドラッグ＆ドロップ・フォルダごと）、一覧、プレビュー、保存、削除、**編集**（`editPdf()`）。
+- 登録タブ：PDFと**Excel(.xlsx)**の取込（ドラッグ＆ドロップ・フォルダごと）、一覧、プレビュー、保存、削除、**編集**（`editPdf()`。Excelは編集ボタンなし＝PC側で直して入れ直す）。
+  Excelは `rec.kind='xlsx'` でファイルをそのまま保存し、`renderXlsx()`／`XV.render()` で照合画面・プレビューに描く（ズームは `ZM.xl`＋CSS `zoom`）。計算式は保存されている結果を表示。`.xls` は不可。受け渡し(.ptpack)にも `kind` を含む。テストは `tests/xlview.js`（基準はLibreOfficeで変換した画像と見比べた）。
 - 設定タブ：端末番号、音、解除番号・パスワード変更、**ポイント表をつくる**（写真4枚まで＋品番・収容数・ポイント → PDF生成 `tplBuild()`。「📷 写真を撮る」でこの画面のままカメラ撮影→写真に追加。続けて撮れて4枚で自動で閉じる。ライブ映像が使えない開き方・許可なしは端末のカメラアプリに切替。`shotStop()`、テストは `tests/shot.js`。**登録・上書きのあとは入力欄をまっさらに戻し**（`tplReset()`）、結果は「✓ 登録しました／上書き保存しました」のメッセージで知らせる）、
   **翻訳（任意）**（ポイントの文を英・インドネシア・タガログで入力→`rec.src.tr` に保存。日本語以外を選んだ端末で、照合画面のPDFの上に `renderTrans()` が大きく表示。対象は「つくる」で作った表のみ。取り込んだPDFは翻訳なし。日本語から自動で入れる「自動翻訳」ボタンはオンラインのときだけ動く（`trOne()`、失敗時は何も変えない、既存の翻訳は確認してから上書き）。テストは `tests/trans.js`・`tests/trauto.js`（翻訳サービスは偽物に差し替え）。実サービスでの動作は未確認）、
   **Excelの一覧から、まとめてポイント表を作る**（`xlRead()`。1行目が見出し：品番・収容数・ポイント（1セル改行 or ポイント1,2…）・英語・インドネシア語・タガログ語。その行に貼った画像（4枚まで）が写真。同じ品番は上書き。登録前に一覧で確認、エラー行（品番なし・収容数が数字でない・ポイントなし・品番の重複）は飛ばす。描画は `tplPaint()` を共用。テストは `tests/xl.js`。.xls は不可）、
