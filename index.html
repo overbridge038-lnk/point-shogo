@@ -1286,10 +1286,10 @@ html[lang=tl] .tab,html[lang=id] .tab{font-size:14px}
   async function readSheet(z, path, doc, name, styles, sst, theme) {
     var root = doc.documentElement, fmt = kid(root, 'sheetFormatPr');
     var defH = fmt && fmt.getAttribute('defaultRowHeight') ? parseFloat(fmt.getAttribute('defaultRowHeight')) * 96 / 72 : 20;
-    var defW = fmt && fmt.getAttribute('defaultColWidth') ? parseFloat(fmt.getAttribute('defaultColWidth')) * 7 + 5 : 64;
+    var defW = fmt && fmt.getAttribute('defaultColWidth') ? parseFloat(fmt.getAttribute('defaultColWidth')) * 7 : 64; // 列幅(文字数)×7px（保存されている幅には、すき間ぶんがすでに入っている）
     var cols = {}, rows = {}, cells = {}, maxR = 0, maxC = 0, extR = 0, extC = 0, merges = [];
     kids(kid(root, 'cols'), 'col').forEach(function (c) {
-      var hid = c.getAttribute('hidden') === '1', w = c.getAttribute('width') ? parseFloat(c.getAttribute('width')) * 7 + 5 : defW;
+      var hid = c.getAttribute('hidden') === '1', w = c.getAttribute('width') ? parseFloat(c.getAttribute('width')) * 7 : defW;
       for (var i = +c.getAttribute('min'); i <= Math.min(+c.getAttribute('max'), 200); i++) cols[i] = hid ? 0 : w;
     });
     kids(kid(root, 'sheetData'), 'row').forEach(function (r) {
@@ -1369,21 +1369,23 @@ html[lang=tl] .tab,html[lang=id] .tab{font-size:14px}
         l: +attr(bp, 'lIns', 91440) / EMU, t: +attr(bp, 'tIns', 45720) / EMU, r: +attr(bp, 'rIns', 91440) / EMU, b: +attr(bp, 'bIns', 45720) / EMU };
     }
     // 位置：図形自身の xfrm（絶対位置）を優先。グループの中は、グループの座標から変換する
-    async function readItem(el, m, anchor) {
+    async function readItem(el, m, anchor, inGrp, top) {
       var kind = el.localName; if (kind !== 'sp' && kind !== 'pic' && kind !== 'cxnSp' && kind !== 'grpSp') return;
       var pr = kid(el, kind === 'grpSp' ? 'grpSpPr' : 'spPr'), xf = pr && kid(pr, 'xfrm');
       if (kind === 'grpSp') {
         var off = kid(xf, 'off'), ext = kid(xf, 'ext'), co = kid(xf, 'chOff'), ce = kid(xf, 'chExt'); if (!off || !ext || !co || !ce) return;
         var sx = +ext.getAttribute('cx') / (+ce.getAttribute('cx') || 1), sy = +ext.getAttribute('cy') / (+ce.getAttribute('cy') || 1);
         var m2 = { sx: m.sx * sx, sy: m.sy * sy, ox: m.ox + m.sx * (+off.getAttribute('x') - +co.getAttribute('x') * sx), oy: m.oy + m.sy * (+off.getAttribute('y') - +co.getAttribute('y') * sy) };
-        for (var c = el.firstElementChild; c; c = c.nextElementSibling) await readItem(c, m2, anchor);
+        var top2 = top || { x: +off.getAttribute('x'), y: +off.getAttribute('y'), cx: +ext.getAttribute('cx') || 1, cy: +ext.getAttribute('cy') || 1 }; // いちばん外のグループの枠（保存された位置）
+        for (var c = el.firstElementChild; c; c = c.nextElementSibling) await readItem(c, m2, anchor, true, top2);
         return;
       }
       var o = xf && kid(xf, 'off'), e = xf && kid(xf, 'ext'), x, y, w, h;
       if (o && e) { x = (m.ox + +o.getAttribute('x') * m.sx) / EMU; y = (m.oy + +o.getAttribute('y') * m.sy) / EMU; w = +e.getAttribute('cx') * m.sx / EMU; h = +e.getAttribute('cy') * m.sy / EMU; }
       else if (anchor) { x = anchor.x; y = anchor.y; w = anchor.w; h = anchor.h; }
       else return;
-      var st = kid(el, 'style'), it = { kind: kind, x: x, y: y, w: w, h: h, rot: xf ? +attr(xf, 'rot', 0) / 60000 : 0, flipH: !!xf && xf.getAttribute('flipH') === '1', flipV: !!xf && xf.getAttribute('flipV') === '1' };
+      var st = kid(el, 'style'), it = { grp: !!inGrp, kind: kind, x: x, y: y, w: w, h: h, rot: xf ? +attr(xf, 'rot', 0) / 60000 : 0, flipH: !!xf && xf.getAttribute('flipH') === '1', flipV: !!xf && xf.getAttribute('flipV') === '1' };
+      if (inGrp && top) it.frac = { x: (x * EMU - top.x) / top.cx, y: (y * EMU - top.y) / top.cy, w: w * EMU / top.cx, h: h * EMU / top.cy }; // グループの枠の中での位置（割合）
       var geom = pr && kid(pr, 'prstGeom'); it.geom = geom ? geom.getAttribute('prst') : 'rect';
       if (kind === 'pic') {
         var blip = el.getElementsByTagNameNS('*', 'blip')[0]; if (!blip) return;
@@ -1522,9 +1524,18 @@ html[lang=tl] .tab,html[lang=id] .tab{font-size:14px}
     for (i = 1; i <= maxR + 1; i++) rowY[i] = rowY[i - 1] + (sh.rows[i] !== undefined ? sh.rows[i] : sh.defH);
     var items = sh.shapes.map(function (it) {
       var o = {}; for (var k in it) o[k] = it[k];
-      if (!(o.w || o.h) && o.anchor && o.anchor.cell) { // xfrm がないとき：貼ってあるセルから位置と大きさを決める
-        var an = o.anchor; o.x = colX[an.cell.c] + an.cell.co / EMU; o.y = rowY[an.cell.r] + an.cell.ro / EMU;
-        o.w = an.to ? colX[an.to.c] + an.to.co / EMU - o.x : an.w; o.h = an.to ? rowY[an.to.r] + an.to.ro / EMU - o.y : an.h;
+      // 位置は、貼ってあるセルを基準にする（表の枠と、ずれないように）。回転した図形は、セルで決めた枠の中心に置く。大きさは図形自身の値
+      if (o.grp && o.frac && o.anchor && o.anchor.cell && o.anchor.to) {
+        var ga = o.anchor, gx = (colX[ga.cell.c] || 0) + ga.cell.co / EMU, gy = (rowY[ga.cell.r] || 0) + ga.cell.ro / EMU;
+        var gw = (colX[ga.to.c] || 0) + ga.to.co / EMU - gx, gh = (rowY[ga.to.r] || 0) + ga.to.ro / EMU - gy;
+        o.x = gx + o.frac.x * gw; o.y = gy + o.frac.y * gh; o.w = o.frac.w * gw; o.h = o.frac.h * gh;
+      } else if (o.anchor && o.anchor.cell && !o.grp) {
+        var an = o.anchor, fx = (colX[an.cell.c] || 0) + an.cell.co / EMU, fy = (rowY[an.cell.r] || 0) + an.cell.ro / EMU;
+        var tx = an.to ? (colX[an.to.c] || 0) + an.to.co / EMU : fx + (o.w || an.w), ty = an.to ? (rowY[an.to.r] || 0) + an.to.ro / EMU : fy + (o.h || an.h);
+        if (!(o.w || o.h)) { o.w = tx - fx; o.h = ty - fy; }
+        if (o.rot) { o.x = (fx + tx) / 2 - o.w / 2; o.y = (fy + ty) / 2 - o.h / 2; }
+        else if (an.to && an.to.c > 0 || an.to && an.to.r > 0) { o.x = fx; o.y = fy; o.w = Math.max(1, tx - fx); o.h = Math.max(1, ty - fy); }
+        else { o.x = fx; o.y = fy; }
       }
       return o;
     });
