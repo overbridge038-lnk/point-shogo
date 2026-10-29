@@ -34,6 +34,11 @@ const { chromium } = require('playwright'); const S = process.argv[2];
   p.once('dialog', d => { console.log('asdoc confirm:', d.message().split('\n')[0]); d.accept(); });
   await p.setInputFiles('#xlIn', S + '/かんばん回収.xlsx'); await p.waitForFunction(() => /PDFに変換して登録/.test(document.getElementById('xlMsg').textContent), null, { timeout: 60000 });
   console.log('as document:', (await p.locator('#xlMsg').innerText()).replace(/\n/g, ' / '), '| keys', await keys());
+  // 書類の項目名に「品番」「収容数」があるだけのExcel：一覧と間違えず、資料として扱う
+  await p.evaluate(() => { document.getElementById('xlIn').value = ''; });
+  p.once('dialog', d => { console.log('form-like confirm:', d.message().split('\n')[0]); d.accept(); });
+  await p.setInputFiles('#xlIn', S + '/form.xlsx'); await p.waitForFunction(() => /PDFに変換して登録/.test(document.getElementById('xlMsg').textContent), null, { timeout: 60000 });
+  console.log('form-like registered:', await keys());
   // 確認で「やめる」を選ぶと、登録しない
   await p.evaluate(() => { document.getElementById('xlIn').value = ''; });
   p.once('dialog', d => d.dismiss()); await p.setInputFiles('#xlIn', S + '/かんばん回収.xlsx'); await p.waitForFunction(() => /見つかりません/.test(document.getElementById('xlMsg').textContent), null, { timeout: 30000 });
