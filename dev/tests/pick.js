@@ -26,6 +26,16 @@ const { chromium } = require('playwright'); const S = process.argv[2]; const fs 
   await p.click('#pickCancel'); await p.waitForFunction(() => document.getElementById('ng').classList.contains('on'));
   console.log('cancel -> NG:', await p.textContent('#ngWhy'));
   for (const k of '1234') await p.click(`#pad button:text-is("${k}")`); await p.click('#pad button:text-is("OK")'); await p.waitForTimeout(300);
+  // 3.5) 背番だけ（a0ak）：元とコピーが当たるので、NGにもOKにもせず、選ばせる（コピーは名前が「 - コピー」で別の名前に見えても）
+  await p.evaluate(() => { onScan('a0ak'); }); await p.waitForFunction(() => document.getElementById('pick').classList.contains('on'));
+  console.log('a0ak chooser:', await p.locator('#pickGrid .pcard .mono').allInnerTexts()); await p.click('#pickCancel'); await p.waitForFunction(() => document.getElementById('ng').classList.contains('on'));
+  for (const k of '1234') await p.click(`#pad button:text-is("${k}")`); await p.click('#pad button:text-is("OK")'); await p.waitForTimeout(300);
+  // 3.6) コピーがある単独の名前（99999-11111 と 99999-11111 (1)）
+  await p.click('.tab[data-v=pdf]'); if (await p.locator('#pinPad').isVisible()) { for (const k of '0000') await p.click(`#pinPad button:text-is("${k}")`); await p.click('#pinOk'); } await p.setInputFiles('#fileIn', [{ name: '99999-11111.pdf', mimeType: 'application/pdf', buffer: src }, { name: '99999-11111 (1).pdf', mimeType: 'application/pdf', buffer: src }]);
+  await p.waitForFunction(() => Object.keys(PDF_INDEX).length === 5); await p.click('.tab[data-v=check]');
+  await p.evaluate(() => { onScan('99999-11111'); }); await p.waitForFunction(() => document.getElementById('pick').classList.contains('on'));
+  console.log('single name + (1) copy chooser:', await p.locator('#pickGrid .pcard .mono').allInnerTexts()); await p.click('#pickCancel'); await p.waitForFunction(() => document.getElementById('ng').classList.contains('on'));
+  for (const k of '1234') await p.click(`#pad button:text-is("${k}")`); await p.click('#pad button:text-is("OK")'); await p.waitForTimeout(300);
   // 4) 1つに決まる読み取りは、選ばずにそのまま OK
   await p.evaluate(() => onScan('17850-V1010,B999')); await p.waitForFunction(() => document.getElementById('jBig').textContent === 'OK', null, { timeout: 30000 });
   console.log('single match:', await p.textContent('#pdfName'), '| chooser shown:', await shown());

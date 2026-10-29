@@ -1962,6 +1962,8 @@ function norm(s) {
   return String(s || '').normalize('NFKC').toUpperCase().replace(/\.(PDF|XLSX|XLSM)$/i, '').replace(/[\s\-‐‑‒–—―ー−_]/g, '');
 }
 /** 登録名を「,」などで区切った項目（品番と背番号を並べて登録した時） */
+/** 名前の最後の「コピー」「(1)」「 - Copy」などを取り除いた形（コピーされたファイルを、元と同じものとして見つける。norm 済みの名前に使う：「ー」「-」「空白」は消えている） */
+function stripCopy(k) { return String(k).replace(/(の)?(コピ|COPY)?(\(\d+\)|（\d+）)?$/, ''); }
 function keyParts(k) { return String(k).split(/[,、，\/／+＋&＆]+/).filter(Boolean); }
 /** QRの中身を区切り（カンマ・タブ・空白など）で分けた候補一覧 */
 function fields(raw) {
@@ -2161,6 +2163,16 @@ async function startKanban(raw) {
         PICKED = true; top = [ck3];
       }
       key = top[0]; shown = PDF_INDEX[key].name.replace(/\.(pdf|xlsx|xlsm)$/i, '');
+    }
+  }
+  // ③ 一致した表に「コピー」がある時（名前の最後が「 - コピー」「(1)」「 - Copy」など）は、同じ表が複数あるので、どれを使うか選ばせる
+  if (key && !PICKED) {
+    var base = stripCopy(key), dups = Object.keys(PDF_INDEX).filter(function (k2) { return k2 !== key && stripCopy(k2) === base; });
+    if (dups.length) {
+      CARD.kPn = shown || picked[0] || raw; renderCards(); setSteps(2);
+      var all = [key].concat(dups).sort(), ck4 = await pickDoc(all);
+      if (!ck4) return ng('ng_multi', { t: 'multi', k: shown || raw, list: all.map(function (k) { return PDF_INDEX[k].name.replace(/\.(pdf|xlsx|xlsm)$/i, ''); }).join('、') }, { kRaw: raw, part: all.join('/') });
+      PICKED = true; key = ck4; shown = PDF_INDEX[key].name.replace(/\.(pdf|xlsx|xlsm)$/i, '');
     }
   }
   if (!shown) shown = picked[0] || raw; // 一致しない時も、抜き取れた品番があればそれを見せる
