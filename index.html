@@ -346,11 +346,11 @@ html[lang=tl] .tab,html[lang=id] .tab{font-size:14px}
     <button class="btn langBtn" data-lang="en"><span class="flag">🇬🇧</span>English</button>
   </div>
   <p id="startNote" style="font-size:13px">準備中…</p>
-  <p class="ver" style="font-size:12px;opacity:.85">ver.2026.10.29 20:02 (#49)</p>
+  <p class="ver" style="font-size:12px;opacity:.85">ver.2026.10.29 20:17 (#51)</p>
 </div>
 
 <header>
-  <h1><i class="logo" data-mascot="ok"></i><span>ポイント表照合</span><small class="ver" title="版（ビルドした日時）">ver.2026.10.29 20:02 (#49)</small></h1>
+  <h1><i class="logo" data-mascot="ok"></i><span>ポイント表照合</span><small class="ver" title="版（ビルドした日時）">ver.2026.10.29 20:17 (#51)</small></h1>
   <div class="tabs">
     <button class="tab on" data-v="check" data-i18n="tab_check">照合</button>
     <button class="tab" data-v="pdf" data-i18n="tab_pdf">ポイント表の登録</button>
@@ -602,7 +602,7 @@ html[lang=tl] .tab,html[lang=id] .tab{font-size:14px}
 </div>
 <div id="pview" role="dialog" aria-modal="true">
   <div class="pvbox">
-    <div class="pvhead"><div><div class="note" style="margin:0" data-i18n="pv_title">ポイント表</div><b class="mono" id="pvName"></b></div><span style="flex:1"></span><button class="btn" id="pvSave" data-i18n="r_save">⬇ 保存</button><button class="btn" id="pvClose" data-i18n="c_close">✕ 閉じる</button></div>
+    <div class="pvhead"><div><div class="note" style="margin:0" data-i18n="pv_title">ポイント表</div><b class="mono" id="pvName"></b></div><span style="flex:1"></span><button class="btn" id="pvClose" data-i18n="c_close">✕ 閉じる</button></div>
     <div class="pvbody" id="pvBody"></div>
   </div>
 </div>
@@ -3798,7 +3798,6 @@ async function deletePdf(k) {
   return true;
 }
 var PV_KEY = null;
-$('pvSave').onclick = function () { if (PV_KEY) savePdf(PV_KEY); };
 function closePreview() { $('pview').classList.remove('on'); $('pvBody').innerHTML = ''; }
 $('pvClose').onclick = closePreview;
 $('pview').addEventListener('click', function (e) { if (e.target === $('pview')) closePreview(); });
