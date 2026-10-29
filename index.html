@@ -1422,7 +1422,7 @@ html[lang=tl] .tab,html[lang=id] .tab{font-size:14px}
   var BW = { thin: 1, hair: 1, medium: 2, dashed: 1, dotted: 1, double: 3, thick: 3, mediumDashed: 2, dashDot: 1, dotDash: 1 };
   function bcss(b) { return b ? (BW[b.style] || 1) + 'px ' + (/dash|dot/.test(b.style) ? (b.style === 'dotted' || b.style === 'hair' ? 'dotted' : 'dashed') : b.style === 'double' ? 'double' : 'solid') + ' ' + b.color : 'none'; }
   function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
-  var FONT = '"Hiragino Maru Gothic ProN","Hiragino Kaku Gothic ProN","Yu Gothic UI","Yu Gothic","Meiryo","Noto Sans JP","Noto Sans CJK JP",sans-serif';
+  var FONT = "'Hiragino Maru Gothic ProN','Hiragino Kaku Gothic ProN','Yu Gothic UI','Yu Gothic','Meiryo','Noto Sans JP','Noto Sans CJK JP',sans-serif";
 
   function renderTable(sh, colX, rowY, W) {
     var S = sh.styles, mergeAt = {}, skip = {}, r, c;
@@ -1540,6 +1540,8 @@ html[lang=tl] .tab,html[lang=id] .tab{font-size:14px}
   }
   /** 入れ物に全シートを縦に並べて描く（シートが2枚以上なら見出しをつける） */
   function render(sheets, box) {
+    var shown = sheets.filter(function (sh) { return Object.keys(sh.cells).length || sh.shapes.length; }); // 中身が空のシートは出さない
+    if (shown.length) sheets = shown;
     sheets.forEach(function (sh) {
       var part = document.createElement('div');
       part.className = 'xlwrap'; part.style.cssText = 'display:inline-block;text-align:left;margin:0 auto 12px;vertical-align:top;border:2px solid #241A4A;border-radius:8px;overflow:hidden;background:#fff';
@@ -1717,6 +1719,8 @@ var I18N = {
     im_f_empty: "（ファイル名が空）",
     im_f_notpdf: "（PDFの中身ではありません）",
     im_f_notxl: "（Excelとして読めません。.xlsx で保存したものを使ってください）",
+    im_xl_busy: "ExcelをPDFに変換中… {name}",
+    im_xl_note: "Excel {n} 件を、PDFに変換して登録しました（直すときはPCで直して入れ直してください）",
     im_f_read: "（読み込めません：{e}）",
     im_done: "取込完了：新規 <b>{a}</b> 件、上書き <b>{u}</b> 件",
     im_ignored: "（PDF以外の {n} 件は無視）",
@@ -1805,7 +1809,7 @@ var I18N = {
     xl_done: "登録しました：新規 {a} 件、上書き {u} 件（登録できない行 {e} 件）",
     xl_old: "古い形式（.xls）は読めません。Excelで「名前を付けて保存」から「.xlsx」で保存し直してください",
     xl_nobrowser: "このブラウザではExcelを読めません。Chromeを新しい版にしてください",
-    xl_nohead: "1行目の見出しに「品番」の列が見つかりません",
+    xl_nohead: "1行目の見出しに「品番」の列が見つかりません。これは一覧ではなく、Excelをそのまま表示したいときは「ポイント表の登録」タブで取り込んでください",
     xl_bad: "Excelとして読めませんでした",
     xl_norows: "読める行がありませんでした",
     tp_shot: "📷 写真を撮る",
@@ -2011,6 +2015,8 @@ var I18N = {
     im_f_empty: " (nama file kosong)",
     im_f_notpdf: " (isinya bukan PDF)",
     im_f_notxl: " (tidak bisa dibaca sebagai Excel. Pakai file .xlsx)",
+    im_xl_busy: "Mengonversi Excel ke PDF… {name}",
+    im_xl_note: "{n} file Excel dikonversi ke PDF dan didaftarkan (untuk mengubah, perbaiki di PC lalu impor ulang)",
     im_f_read: " (tidak bisa dibaca: {e})",
     im_done: "Impor selesai: baru <b>{a}</b>, ditimpa <b>{u}</b>",
     im_ignored: " ({n} file bukan PDF diabaikan)",
@@ -2099,7 +2105,7 @@ var I18N = {
     xl_done: "Terdaftar: baru {a}, ditimpa {u} (baris tidak bisa didaftarkan: {e})",
     xl_old: "Format lama (.xls) tidak bisa dibaca. Simpan ulang sebagai \".xlsx\" di Excel",
     xl_nobrowser: "Browser ini tidak bisa membaca Excel. Perbarui Chrome",
-    xl_nohead: "Kolom \"品番\" tidak ditemukan di baris judul",
+    xl_nohead: "Kolom \"品番\" tidak ditemukan di baris judul. Jika ingin menampilkan Excel apa adanya, impor lewat tab \"Daftar Tabel Poin\"",
     xl_bad: "Tidak bisa dibaca sebagai Excel",
     xl_norows: "Tidak ada baris yang bisa dibaca",
     tp_shot: "📷 Ambil foto",
@@ -2305,6 +2311,8 @@ var I18N = {
     im_f_empty: " (walang pangalan ng file)",
     im_f_notpdf: " (hindi PDF ang laman)",
     im_f_notxl: " (hindi mabasa bilang Excel. Gamitin ang .xlsx file)",
+    im_xl_busy: "Kino-convert ang Excel sa PDF… {name}",
+    im_xl_note: "{n} Excel file ang na-convert sa PDF at nairehistro (para magbago, ayusin sa PC at i-import ulit)",
     im_f_read: " (hindi mabasa: {e})",
     im_done: "Tapos ang import: bago <b>{a}</b>, pinalitan <b>{u}</b>",
     im_ignored: " ({n} hindi PDF ang hindi pinansin)",
@@ -2393,7 +2401,7 @@ var I18N = {
     xl_done: "Nairehistro: bago {a}, pinalitan {u} (mga row na hindi mairehistro: {e})",
     xl_old: "Hindi mababasa ang lumang format (.xls). I-save ulit bilang \".xlsx\" sa Excel",
     xl_nobrowser: "Hindi mababasa ng browser na ito ang Excel. I-update ang Chrome",
-    xl_nohead: "Walang column na \"品番\" sa heading row",
+    xl_nohead: "Walang column na \"品番\" sa heading row. Kung gusto mong ipakita ang Excel nang walang pagbabago, i-import ito sa tab na \"Irehistro ang Point Table\"",
     xl_bad: "Hindi mabasa bilang Excel",
     xl_norows: "Walang row na mababasa",
     tp_shot: "📷 Kumuha ng litrato",
@@ -2599,6 +2607,8 @@ var I18N = {
     im_f_empty: " (empty file name)",
     im_f_notpdf: " (not a PDF inside)",
     im_f_notxl: " (cannot be read as Excel. Use a .xlsx file)",
+    im_xl_busy: "Converting Excel to PDF… {name}",
+    im_xl_note: "{n} Excel file(s) were converted to PDF and registered (to change one, fix it on the PC and import it again)",
     im_f_read: " (cannot read: {e})",
     im_done: "Import done: new <b>{a}</b>, overwritten <b>{u}</b>",
     im_ignored: " ({n} non-PDF files ignored)",
@@ -2687,7 +2697,7 @@ var I18N = {
     xl_done: "Registered: new {a}, overwritten {u} (rows not registered: {e})",
     xl_old: "The old format (.xls) cannot be read. In Excel, use Save As and save it as \".xlsx\"",
     xl_nobrowser: "This browser cannot read Excel. Please update Chrome",
-    xl_nohead: "No \"品番\" column was found in the heading row",
+    xl_nohead: "No \"品番\" column was found in the heading row. To show an Excel file as it is, import it from the \"Register Point Tables\" tab",
     xl_bad: "Could not read this as an Excel file",
     xl_norows: "No readable rows were found",
     tp_shot: "📷 Take a photo",
@@ -2897,7 +2907,7 @@ function loadPdfIndex() {
     var c = DB.transaction('pdfs').objectStore('pdfs').openCursor();
     c.onsuccess = function () {
       var cur = c.result;
-      if (cur) { var v = cur.value; PDF_INDEX[v.key] = { key: v.key, name: v.name, size: v.size, at: v.at, kind: v.kind }; cur.continue(); }
+      if (cur) { var v = cur.value; PDF_INDEX[v.key] = { key: v.key, name: v.name, size: v.size, at: v.at, kind: v.kind, xl: v.xl }; cur.continue(); }
       else res();
     };
   });
@@ -3261,7 +3271,7 @@ async function importFiles(files, note) {
     $('impMsg').innerHTML = '<span style="color:var(--ng);font-weight:800">⚠ ' + why + '</span>' + (note ? '<br>' + note : '');
     return toast(why, 4000);
   }
-  var add = 0, upd = 0, dup = [], fail = [], readFail = 0, seen = {};
+  var add = 0, upd = 0, dup = [], fail = [], readFail = 0, seen = {}, xlDone = 0;
   $('impMsg').textContent = t('im_prog', { i: 0, n: list.length });
   for (var i = 0; i < list.length; i++) {
     var f = list[i], name = (f.name || '').trim(), key = norm(name);
@@ -3270,14 +3280,19 @@ async function importFiles(files, note) {
       var buf = await f.arrayBuffer();
       var head = new Uint8Array(buf.slice(0, 5)), sig = String.fromCharCode.apply(null, head), xl = isXlsx(f);
       if (xl ? sig.slice(0, 2) !== 'PK' : sig.indexOf('%PDF') < 0) { fail.push(name + t(xl ? 'im_f_notxl' : 'im_f_notpdf')); continue; }
-      if (xl) { try { var sh0 = await XV.parse(buf); XV.release(sh0); } catch (e2) { fail.push(name + t('im_f_notxl')); continue; } } // Excelとして読めるか確かめる
       var rec = { key: key, name: name, size: buf.byteLength, at: today() + ' ' + nowTime(), data: buf };
-      if (xl) rec.kind = 'xlsx';
+      if (xl) { // Excelは、PDFに変換して登録する（読めないExcelはここで弾く）。変換だけ失敗した時は、Excelのまま保存して画面に直接描く
+        try { await XV.release(await XV.parse(buf.slice(0))); } catch (e2) { fail.push(name + t('im_f_notxl')); continue; }
+        try {
+          $('impMsg').textContent = t('im_xl_busy', { name: name });
+          var pdfb = await xlsxToPdf(buf); rec = { key: key, name: name.replace(/\.(xlsx|xlsm)$/i, '') + '.pdf', size: pdfb.length, at: rec.at, data: pdfb.buffer, xl: true }; xlDone++;
+        } catch (e3) { rec.kind = 'xlsx'; }
+      }
       await tx('pdfs', 'readwrite', function (st) { st.put(rec); });
       if (seen[key]) dup.push(seen[key] + ' / ' + name);
       seen[key] = name;
       if (PDF_INDEX[key]) upd++; else add++;
-      PDF_INDEX[key] = { key: key, name: name, size: rec.size, at: rec.at };
+      PDF_INDEX[key] = { key: key, name: rec.name, size: rec.size, at: rec.at, kind: rec.kind, xl: rec.xl };
     } catch (e) {
       // Googleドライブの「ストリーミング」ファイル（まだPCに無いファイル）などは読めない
       readFail++; fail.push(name + t('im_f_read', { e: (e && e.name || e) }));
@@ -3285,7 +3300,7 @@ async function importFiles(files, note) {
     $('impMsg').textContent = t('im_prog', { i: i + 1, n: list.length });
   }
   await loadPdfIndex();
-  var msg = t('im_done', { a: add, u: upd }) + (others ? t('im_ignored', { n: others }) : '');
+  var msg = t('im_done', { a: add, u: upd }) + (others ? t('im_ignored', { n: others }) : '') + (xlDone ? '<br>' + esc(t('im_xl_note', { n: xlDone })) : '');
   if (dup.length) msg += '<br><span style="color:var(--ng)">' + t('im_dup') + esc(dup.join(', ')) + '</span>';
   if (fail.length) msg += '<br><span style="color:var(--ng);font-weight:800">' + t('im_fail', { n: fail.length }) + esc(fail.join(', ')) +
     '</span>' + (readFail ? '<br><span class="note">' + t('im_drive_tip') + '</span>' : '');
@@ -3303,7 +3318,7 @@ function showPdfList() {
     var v = PDF_INDEX[k];
     return '<div class="pcard"><button class="pthumb" data-view="' + esc(k) + '" data-thumb="' + esc(k) + '" aria-label="' + esc(v.name) + '"><span>' + esc(t('r_making')) + '</span></button>' +
       '<div class="pinfo"><b class="mono">' + esc(v.name.replace(/\.(pdf|xlsx|xlsm)$/i, '')) + '</b><div class="note">' + esc(t('r_key')) + ' ' + esc(k) + '</div><div class="note">' + Math.round(v.size / 1024) + ' KB・' + esc(v.at) + '</div></div>' +
-      '<div class="pacts"><button class="btn" data-view="' + esc(k) + '">' + esc(t('r_view')) + '</button><button class="btn" data-dl="' + esc(k) + '">' + esc(t('r_save')) + '</button>' + (v.kind === 'xlsx' ? '' : '<button class="btn" data-edit="' + esc(k) + '">' + esc(t('r_edit')) + '</button>') + '<button class="btn dng" data-del="' + esc(k) + '">' + esc(t('r_del')) + '</button></div></div>';
+      '<div class="pacts"><button class="btn" data-view="' + esc(k) + '">' + esc(t('r_view')) + '</button><button class="btn" data-dl="' + esc(k) + '">' + esc(t('r_save')) + '</button>' + ((v.kind === 'xlsx' || v.xl) ? '' : '<button class="btn" data-edit="' + esc(k) + '">' + esc(t('r_edit')) + '</button>') + '<button class="btn dng" data-del="' + esc(k) + '">' + esc(t('r_del')) + '</button></div></div>';
   }).join('') || '<div class="pempty">' + (keys.length ? esc(t('r_nomatch', { q: $('pdfSearch').value })) : esc(t('r_none'))) + '</div>';
   // 画面に見えた分だけ見本を作る（件数が多くても重くならない）
   if (thumbObs) thumbObs.disconnect();
@@ -3369,7 +3384,7 @@ function renderPlist() {
     var v = PDF_INDEX[k];
     return '<div class="pcard"><button class="pthumb" data-view="' + esc(k) + '" data-thumb="' + esc(k) + '" aria-label="' + esc(v.name) + '"><span>…</span></button>' +
       '<div class="pinfo"><b class="mono">' + esc(v.name.replace(/\.(pdf|xlsx|xlsm)$/i, '')) + '</b><div class="note">' + esc(v.at) + '</div></div>' +
-      '<div class="pacts"><button class="btn" data-view="' + esc(k) + '">🔍</button>' + (v.kind === 'xlsx' ? '' : '<button class="btn" data-pledit="' + esc(k) + '">✏</button>') + '<button class="btn dng" data-pldel="' + esc(k) + '">🗑 ' + esc(t('pl_del')) + '</button></div></div>';
+      '<div class="pacts"><button class="btn" data-view="' + esc(k) + '">🔍</button>' + ((v.kind === 'xlsx' || v.xl) ? '' : '<button class="btn" data-pledit="' + esc(k) + '">✏</button>') + '<button class="btn dng" data-pldel="' + esc(k) + '">🗑 ' + esc(t('pl_del')) + '</button></div></div>';
   }).join('') || '<div class="pempty">' + esc(t(keys.length ? 'pl_none' : 'pl_empty')) + '</div>';
   if (plObs) plObs.disconnect();
   var els = $('plGrid').querySelectorAll('[data-thumb]');
@@ -3443,7 +3458,7 @@ $('pkOut').onclick = async function () {
     var items = [], parts = [];
     for (var i = 0; i < keys.length; i++) {
       var rec = await getPdf(keys[i]); if (!rec) continue;
-      items.push({ key: rec.key, name: rec.name, at: rec.at, size: rec.data.byteLength, src: rec.src || null, kind: rec.kind || null }); parts.push(rec.data);
+      items.push({ key: rec.key, name: rec.name, at: rec.at, size: rec.data.byteLength, src: rec.src || null, kind: rec.kind || null, xl: rec.xl || null }); parts.push(rec.data);
     }
     var hdr = new TextEncoder().encode(JSON.stringify({ v: 1, term: CF.term, at: today() + ' ' + nowTime(), items: items }));
     var top = new Uint8Array(12); top.set(new TextEncoder().encode('PTPACK1\n'), 0);
@@ -3464,7 +3479,7 @@ $('pkIn').onchange = async function () {
     var buf = await f.arrayBuffer();
     if (buf.byteLength < 12 || new TextDecoder().decode(buf.slice(0, 8)) !== 'PTPACK1\n') throw 0;
     var hl = new DataView(buf).getUint32(8), meta = JSON.parse(new TextDecoder().decode(buf.slice(12, 12 + hl))), off = 12 + hl, items = [];
-    meta.items.forEach(function (m) { items.push({ key: m.key, name: m.name, at: m.at, src: m.src || null, kind: m.kind || null, data: buf.slice(off, off + m.size) }); off += m.size; });
+    meta.items.forEach(function (m) { items.push({ key: m.key, name: m.name, at: m.at, src: m.src || null, kind: m.kind || null, xl: m.xl || null, data: buf.slice(off, off + m.size) }); off += m.size; });
     if (off > buf.byteLength) throw 0;
     PK = { meta: meta, items: items };
   } catch (e) { PK = null; return toast(t('pk_bad'), 4000); }
@@ -3492,7 +3507,7 @@ $('pkApply').onclick = async function () {
   await tx('pdfs', 'readwrite', function (st) {
     PK.items.forEach(function (it) {
       if (it.st === 's') return;
-      st.put({ key: it.key, name: it.name, size: it.data.byteLength, at: it.at, data: it.data, src: it.src || undefined, kind: it.kind || undefined });
+      st.put({ key: it.key, name: it.name, size: it.data.byteLength, at: it.at, data: it.data, src: it.src || undefined, kind: it.kind || undefined, xl: it.xl || undefined });
       if (it.st === 'a') a++; else u++;
     });
     PK.del.forEach(function (k) { st.delete(k); });
@@ -4338,6 +4353,52 @@ function tplMark(soft) {
   return bad;
 }
 /** キャンバス（JPEG）を1枚の画像だけのPDFにする */
+/** 画像（JPEG）を1枚ずつ1ページにした複数ページPDFを作る。ページの大きさは画像の縦横比に合わせる */
+function jpegsToPdf(pages) {
+  var enc = new TextEncoder(), parts = [], offs = [], len = 0, n = pages.length;
+  function add(x) { var b = typeof x === 'string' ? enc.encode(x) : x; parts.push(b); len += b.length; }
+  function obj(i, body) { offs[i] = len; add(i + ' 0 obj\n'); body(); add('\nendobj\n'); }
+  add('%PDF-1.4\n%PTS\n');
+  obj(1, function () { add('<< /Type /Catalog /Pages 2 0 R >>'); });
+  obj(2, function () { add('<< /Type /Pages /Kids [' + pages.map(function (x, i) { return (3 + i * 3) + ' 0 R'; }).join(' ') + '] /Count ' + n + ' >>'); });
+  pages.forEach(function (pg, i) {
+    var a = 3 + i * 3, pw = 800, ph = Math.round(800 * pg.h / pg.w * 100) / 100, content = 'q ' + pw + ' 0 0 ' + ph + ' 0 0 cm /Im1 Do Q';
+    obj(a, function () { add('<< /Type /Page /Parent 2 0 R /MediaBox [0 0 ' + pw + ' ' + ph + '] /Resources << /XObject << /Im1 ' + (a + 2) + ' 0 R >> >> /Contents ' + (a + 1) + ' 0 R >>'); });
+    obj(a + 1, function () { add('<< /Length ' + content.length + ' >>\nstream\n' + content + '\nendstream'); });
+    obj(a + 2, function () { add('<< /Type /XObject /Subtype /Image /Width ' + pg.w + ' /Height ' + pg.h + ' /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length ' + pg.jpeg.length + ' >>\nstream\n'); add(pg.jpeg); add('\nendstream'); });
+  });
+  var xref = len, total = 3 + n * 3, x = 'xref\n0 ' + total + '\n0000000000 65535 f \n';
+  for (var i = 1; i < total; i++) x += ('0000000000' + offs[i]).slice(-10) + ' 00000 n \n';
+  add(x + 'trailer\n<< /Size ' + total + ' /Root 1 0 R >>\nstartxref\n' + xref + '\n%%EOF\n');
+  var out = new Uint8Array(len), p = 0;
+  parts.forEach(function (b) { out.set(b, p); p += b.length; });
+  return out;
+}
+function blobToDataUrl(b) { return new Promise(function (res) { var fr = new FileReader(); fr.onload = function () { res(fr.result); }; fr.readAsDataURL(b); }); }
+/** Excel(.xlsx)をPDFに変換する。シートを画面と同じ絵に描いて（図形・矢印・写真・罫線も）、1シート＝1ページの画像PDFにする */
+async function xlsxToPdf(buf) {
+  var sheets = await XV.parse(buf.slice(0)), host = document.createElement('div');
+  try {
+    host.style.cssText = 'position:fixed;left:-30000px;top:0;visibility:hidden;width:max-content';
+    document.body.appendChild(host); XV.render(sheets, host);
+    var pages = [], els = host.querySelectorAll('.xlwrap');
+    for (var i = 0; i < els.length; i++) {
+      var el = els[i], imgs = el.querySelectorAll('img');
+      for (var k = 0; k < imgs.length; k++) if (/^blob:/.test(imgs[k].src)) imgs[k].src = await blobToDataUrl(await (await fetch(imgs[k].src)).blob()); // SVGの中では外のURLが使えないので、写真は文字列にして埋め込む
+      await Promise.all(Array.prototype.map.call(imgs, function (im) { return im.decode ? im.decode().catch(function () {}) : null; }));
+      var r = el.getBoundingClientRect(), w = Math.ceil(r.width), h = Math.ceil(r.height);
+      var svg = '<svg xmlns="http://www.w3.org/2000/svg" width="' + w + '" height="' + h + '"><foreignObject width="100%" height="100%">' + new XMLSerializer().serializeToString(el) + '</foreignObject></svg>';
+      var im = await new Promise(function (res, rej) { var x = new Image(); x.onload = function () { res(x); }; x.onerror = function () { rej(new Error('svg')); }; x.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg); });
+      var sc = Math.min(2.5, 3600 / w, 8000 / h), cv = document.createElement('canvas'); cv.width = Math.max(1, Math.round(w * sc)); cv.height = Math.max(1, Math.round(h * sc));
+      var cx = cv.getContext('2d'); cx.fillStyle = '#fff'; cx.fillRect(0, 0, cv.width, cv.height); cx.drawImage(im, 0, 0, cv.width, cv.height);
+      var blob = await new Promise(function (res) { cv.toBlob(res, 'image/jpeg', 0.9); });
+      if (!blob) throw new Error('jpeg');
+      pages.push({ jpeg: new Uint8Array(await blob.arrayBuffer()), w: cv.width, h: cv.height });
+    }
+    if (!pages.length) throw new Error('empty');
+    return jpegsToPdf(pages);
+  } finally { host.remove(); XV.release(sheets); }
+}
 function jpegToPdf(jpeg, pxW, pxH) {
   var enc = new TextEncoder(), parts = [], offs = [], len = 0;
   function add(x) { var b = typeof x === 'string' ? enc.encode(x) : x; parts.push(b); len += b.length; }
@@ -4411,7 +4472,7 @@ function tplReset() {
 function tplEditEnd() { TPL.editKey = null; $('editBar').hidden = true; $('tplSave').textContent = t('tp_save'); }
 /** ポイント表を「ポイント表をつくる」に読み込んで編集できる状態にする */
 async function editPdf(k) {
-  var rec = await getPdf(k); if (!rec || rec.kind === 'xlsx') return;
+  var rec = await getPdf(k); if (!rec || rec.kind === 'xlsx' || rec.xl) return;
   gotoView('set');
   tplReset();
   TPL.editKey = k; $('editName').textContent = rec.name.replace(/\.(pdf|xlsx|xlsm)$/i, ''); $('editBar').hidden = false; $('tplSave').textContent = t('tp_overwrite');
