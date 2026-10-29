@@ -11,6 +11,6 @@ await drop(S+'/two.pdf'); console.log('2-page pdf drop:', await res());
 await p.setInputFiles('#tplPhotoIn', S+'/in/12345-67890.pdf'); await p.waitForTimeout(1500); console.log('pdf via file select:', await res());
 await p.fill('#tplPn','55555-66666'); await p.fill('#tplQty','12'); await p.fill('#tplPts','ポイント表PDFを写真として使用');
 await p.locator('#tplCanvas').screenshot({path:S+'/tplpdf_canvas.png'});
-await p.click('#tplSave'); await p.waitForTimeout(500); console.log('save:', await p.textContent('#tplMsg'));
+await p.click('#tplSave'); await p.waitForFunction(()=>/登録しました/.test(document.getElementById('tplMsg').textContent),null,{timeout:30000}); console.log('save:', await p.textContent('#tplMsg'));
 await p.click('.tab[data-v=check]'); await p.evaluate(()=>onScan('55555-66666')); await p.waitForFunction(()=>document.getElementById('jBig').textContent==='OK'); console.log('scan OK:', await p.textContent('#pdfName'));
 await b.close();})();

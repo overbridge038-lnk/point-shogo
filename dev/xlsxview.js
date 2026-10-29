@@ -335,7 +335,7 @@
   var BW = { thin: 1, hair: 1, medium: 2, dashed: 1, dotted: 1, double: 3, thick: 3, mediumDashed: 2, dashDot: 1, dotDash: 1 };
   function bcss(b) { return b ? (BW[b.style] || 1) + 'px ' + (/dash|dot/.test(b.style) ? (b.style === 'dotted' || b.style === 'hair' ? 'dotted' : 'dashed') : b.style === 'double' ? 'double' : 'solid') + ' ' + b.color : 'none'; }
   function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
-  var FONT = '"Hiragino Maru Gothic ProN","Hiragino Kaku Gothic ProN","Yu Gothic UI","Yu Gothic","Meiryo","Noto Sans JP","Noto Sans CJK JP",sans-serif';
+  var FONT = "'Hiragino Maru Gothic ProN','Hiragino Kaku Gothic ProN','Yu Gothic UI','Yu Gothic','Meiryo','Noto Sans JP','Noto Sans CJK JP',sans-serif";
 
   function renderTable(sh, colX, rowY, W) {
     var S = sh.styles, mergeAt = {}, skip = {}, r, c;
@@ -453,6 +453,8 @@
   }
   /** 入れ物に全シートを縦に並べて描く（シートが2枚以上なら見出しをつける） */
   function render(sheets, box) {
+    var shown = sheets.filter(function (sh) { return Object.keys(sh.cells).length || sh.shapes.length; }); // 中身が空のシートは出さない
+    if (shown.length) sheets = shown;
     sheets.forEach(function (sh) {
       var part = document.createElement('div');
       part.className = 'xlwrap'; part.style.cssText = 'display:inline-block;text-align:left;margin:0 auto 12px;vertical-align:top;border:2px solid #241A4A;border-radius:8px;overflow:hidden;background:#fff';

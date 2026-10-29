@@ -29,6 +29,15 @@ const { chromium } = require('playwright'); const S = process.argv[2];
   await p.evaluate(() => { document.getElementById('xlIn').value = ''; }); await p.setInputFiles('#xlIn', S + '/list.xlsx'); await p.waitForFunction(() => document.getElementById('xlSum').textContent.length > 0);
   console.log('again:', await p.locator('#xlSum').innerText());
   p.once('dialog', d => { console.log('confirm:', d.message()); d.accept(); }); await p.click('#xlGo'); await p.waitForFunction(() => /上書き 3/.test(document.getElementById('xlMsg').textContent), null, { timeout: 60000 });
+  // 品番の列がないExcel（資料）：確認のあと、PDFに変換して登録される
+  await p.evaluate(() => { document.getElementById('xlIn').value = ''; });
+  p.once('dialog', d => { console.log('asdoc confirm:', d.message().split('\n')[0]); d.accept(); });
+  await p.setInputFiles('#xlIn', S + '/かんばん回収.xlsx'); await p.waitForFunction(() => /PDFに変換して登録/.test(document.getElementById('xlMsg').textContent), null, { timeout: 60000 });
+  console.log('as document:', (await p.locator('#xlMsg').innerText()).replace(/\n/g, ' / '), '| keys', await keys());
+  // 確認で「やめる」を選ぶと、登録しない
+  await p.evaluate(() => { document.getElementById('xlIn').value = ''; });
+  p.once('dialog', d => d.dismiss()); await p.setInputFiles('#xlIn', S + '/かんばん回収.xlsx'); await p.waitForFunction(() => /見つかりません/.test(document.getElementById('xlMsg').textContent), null, { timeout: 30000 });
+  console.log('declined:', await p.locator('#xlMsg').innerText());
   console.log('after again keys', await keys(), '| pageerrors:', errs.length ? errs : 'none');
   await b.close();
 })();
