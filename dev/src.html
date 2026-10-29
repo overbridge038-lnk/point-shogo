@@ -832,7 +832,7 @@ var I18N = {
     tp_pts_ph: "1行に1つずつ書きます\n例：向きを確認する\n例：キズ・打痕がないこと",
     tp_tr_h: "翻訳（任意）：他の言語の文",
     xl_h: "Excelの一覧から、まとめてポイント表を作る",
-    xl_note: "Excelで作った一覧から、<b>何品番でも一度に</b>ポイント表を作ります。1行目は見出しで、次の名前の列を使います。<br>・<b>品番</b>（必須）　・<b>収容数</b>（必須・数字）　・<b>ポイント</b>（必須。1つのセルに改行で並べるか、ポイント1・ポイント2…と列を分けます）<br>・<b>英語</b>・<b>インドネシア語</b>・<b>タガログ語</b>（任意。ポイントと同じ順番・同じ行数）<br>・写真は、その行に貼り付けた画像が使われます（4枚まで）。<br>同じ品番がすでに登録されていると上書きになります。登録の前に、内容を一覧で確認できます。",
+    xl_note: "Excelで作った一覧から、<b>何品番でも一度に</b>ポイント表を作ります。1行目は見出しで、次の名前の列を使います。<br>・<b>品番</b>（必須）　・<b>収容数</b>（必須・数字）　・<b>ポイント</b>（必須。1つのセルに改行で並べるか、ポイント1・ポイント2…と列を分けます）<br>・<b>英語</b>・<b>インドネシア語</b>・<b>タガログ語</b>（任意。ポイントと同じ順番・同じ行数）<br>・写真は、その行に貼り付けた画像が使われます（4枚まで）。<br>同じ品番がすでに登録されていると上書きになります。登録の前に、内容を一覧で確認できます。<br>※「品番」の列がないExcel（図や表を並べた資料など）は、確認のうえ、そのままPDFに変換して登録されます。",
     xl_pick: "📥 Excelを選ぶ（.xlsx）",
     xl_go: "この内容で登録する",
     xl_cancel: "やめる",
@@ -854,6 +854,7 @@ var I18N = {
     xl_old: "古い形式（.xls）は読めません。Excelで「名前を付けて保存」から「.xlsx」で保存し直してください",
     xl_nobrowser: "このブラウザではExcelを読めません。Chromeを新しい版にしてください",
     xl_nohead: "1行目の見出しに「品番」の列が見つかりません。これは一覧ではなく、Excelをそのまま表示したいときは「ポイント表の登録」タブで取り込んでください",
+    xl_asdoc_confirm: "このExcelには、1行目の見出しに「品番」の列がないので、一覧ではなく資料として、そのままPDFに変換して登録します。\n\n資料名（照合で読むQRの中身）：{name}\n\nよろしいですか？",
     xl_bad: "Excelとして読めませんでした",
     xl_norows: "読める行がありませんでした",
     tp_shot: "📷 写真を撮る",
@@ -1128,7 +1129,7 @@ var I18N = {
     tp_pts_ph: "Tulis satu poin per baris\nContoh: cek arah\nContoh: tidak ada goresan/penyok",
     tp_tr_h: "Terjemahan (opsional): kalimat bahasa lain",
     xl_h: "Buat tabel poin sekaligus dari daftar Excel",
-    xl_note: "Membuat tabel poin untuk <b>banyak nomor part sekaligus</b> dari daftar Excel. Baris 1 adalah judul kolom. Kolom yang dipakai:<br>・<b>品番</b> (nomor part, wajib)　・<b>収容数</b> (isi per boks, wajib, angka)　・<b>ポイント</b> (poin, wajib. Satu sel dengan baris baru, atau pisah kolom: ポイント1, ポイント2…)<br>・<b>英語</b> / <b>インドネシア語</b> / <b>タガログ語</b> (opsional, urutan dan jumlah baris sama dengan poin)<br>・Foto: gambar yang ditempel di baris itu dipakai (maksimal 4).<br>Nomor part yang sudah terdaftar akan ditimpa. Isinya bisa dicek dalam daftar sebelum didaftarkan.",
+    xl_note: "Membuat tabel poin untuk <b>banyak nomor part sekaligus</b> dari daftar Excel. Baris 1 adalah judul kolom. Kolom yang dipakai:<br>・<b>品番</b> (nomor part, wajib)　・<b>収容数</b> (isi per boks, wajib, angka)　・<b>ポイント</b> (poin, wajib. Satu sel dengan baris baru, atau pisah kolom: ポイント1, ポイント2…)<br>・<b>英語</b> / <b>インドネシア語</b> / <b>タガログ語</b> (opsional, urutan dan jumlah baris sama dengan poin)<br>・Foto: gambar yang ditempel di baris itu dipakai (maksimal 4).<br>Nomor part yang sudah terdaftar akan ditimpa. Isinya bisa dicek dalam daftar sebelum didaftarkan.<br>※ Excel tanpa kolom \"品番\" (dokumen berisi gambar atau tabel, dll.) akan dikonversi apa adanya ke PDF dan didaftarkan setelah konfirmasi.",
     xl_pick: "📥 Pilih Excel (.xlsx)",
     xl_go: "Daftarkan sesuai isi ini",
     xl_cancel: "Batal",
@@ -1150,6 +1151,7 @@ var I18N = {
     xl_old: "Format lama (.xls) tidak bisa dibaca. Simpan ulang sebagai \".xlsx\" di Excel",
     xl_nobrowser: "Browser ini tidak bisa membaca Excel. Perbarui Chrome",
     xl_nohead: "Kolom \"品番\" tidak ditemukan di baris judul. Jika ingin menampilkan Excel apa adanya, impor lewat tab \"Daftar Tabel Poin\"",
+    xl_asdoc_confirm: "Excel ini tidak punya kolom \"品番\" di baris judul, jadi diperlakukan sebagai dokumen: dikonversi apa adanya ke PDF dan didaftarkan.\n\nNama dokumen (isi QR yang dibaca saat cek): {name}\n\nLanjutkan?",
     xl_bad: "Tidak bisa dibaca sebagai Excel",
     xl_norows: "Tidak ada baris yang bisa dibaca",
     tp_shot: "📷 Ambil foto",
@@ -1424,7 +1426,7 @@ var I18N = {
     tp_pts_ph: "Isang punto bawat linya\nHal.: tingnan ang direksyon\nHal.: walang gasgas/yupi",
     tp_tr_h: "Salin (opsyonal): mga pangungusap sa ibang wika",
     xl_h: "Gumawa ng maraming point table nang sabay mula sa Excel list",
-    xl_note: "Gumagawa ng point table para sa <b>maraming part number nang sabay</b> mula sa Excel list. Ang row 1 ay mga heading. Mga column na gagamitin:<br>・<b>品番</b> (part number, kailangan)　・<b>収容数</b> (dami bawat kahon, kailangan, numero)　・<b>ポイント</b> (mga punto, kailangan. Isang cell na may bagong linya, o hiwalay na column: ポイント1, ポイント2…)<br>・<b>英語</b> / <b>インドネシア語</b> / <b>タガログ語</b> (opsyonal, parehong ayos at bilang ng linya ng mga punto)<br>・Litrato: gagamitin ang mga larawang idinikit sa row na iyon (hanggang 4).<br>Papalitan ang part number na nakarehistro na. Maaaring suriin ang laman sa listahan bago magrehistro.",
+    xl_note: "Gumagawa ng point table para sa <b>maraming part number nang sabay</b> mula sa Excel list. Ang row 1 ay mga heading. Mga column na gagamitin:<br>・<b>品番</b> (part number, kailangan)　・<b>収容数</b> (dami bawat kahon, kailangan, numero)　・<b>ポイント</b> (mga punto, kailangan. Isang cell na may bagong linya, o hiwalay na column: ポイント1, ポイント2…)<br>・<b>英語</b> / <b>インドネシア語</b> / <b>タガログ語</b> (opsyonal, parehong ayos at bilang ng linya ng mga punto)<br>・Litrato: gagamitin ang mga larawang idinikit sa row na iyon (hanggang 4).<br>Papalitan ang part number na nakarehistro na. Maaaring suriin ang laman sa listahan bago magrehistro.<br>※ Ang Excel na walang column na \"品番\" (dokumentong may larawan o talahanayan, atbp.) ay iko-convert nang walang pagbabago sa PDF at irerehistro pagkatapos ng kumpirmasyon.",
     xl_pick: "📥 Pumili ng Excel (.xlsx)",
     xl_go: "Irehistro ayon dito",
     xl_cancel: "Huwag ituloy",
@@ -1446,6 +1448,7 @@ var I18N = {
     xl_old: "Hindi mababasa ang lumang format (.xls). I-save ulit bilang \".xlsx\" sa Excel",
     xl_nobrowser: "Hindi mababasa ng browser na ito ang Excel. I-update ang Chrome",
     xl_nohead: "Walang column na \"品番\" sa heading row. Kung gusto mong ipakita ang Excel nang walang pagbabago, i-import ito sa tab na \"Irehistro ang Point Table\"",
+    xl_asdoc_confirm: "Walang column na \"品番\" sa heading row ng Excel na ito, kaya ituturing itong dokumento: iko-convert nang walang pagbabago sa PDF at irerehistro.\n\nPangalan ng dokumento (laman ng QR na babasahin sa check): {name}\n\nTuloy?",
     xl_bad: "Hindi mabasa bilang Excel",
     xl_norows: "Walang row na mababasa",
     tp_shot: "📷 Kumuha ng litrato",
@@ -1720,7 +1723,7 @@ var I18N = {
     tp_pts_ph: "One point per line\ne.g. Check the direction\ne.g. No scratches or dents",
     tp_tr_h: "Translation (optional): text in other languages",
     xl_h: "Create many point tables at once from an Excel list",
-    xl_note: "Creates point tables for <b>any number of part numbers at once</b> from an Excel list. Row 1 holds the headings. Columns used:<br>・<b>品番</b> (part number, required)　・<b>収容数</b> (quantity per box, required, a number)　・<b>ポイント</b> (points, required. Put them in one cell separated by line breaks, or split into columns: ポイント1, ポイント2…)<br>・<b>英語</b> / <b>インドネシア語</b> / <b>タガログ語</b> (optional, same order and number of lines as the points)<br>・Photos: pictures pasted into that row are used (up to 4).<br>A part number that is already registered will be overwritten. You can check everything in a list before registering.",
+    xl_note: "Creates point tables for <b>any number of part numbers at once</b> from an Excel list. Row 1 holds the headings. Columns used:<br>・<b>品番</b> (part number, required)　・<b>収容数</b> (quantity per box, required, a number)　・<b>ポイント</b> (points, required. Put them in one cell separated by line breaks, or split into columns: ポイント1, ポイント2…)<br>・<b>英語</b> / <b>インドネシア語</b> / <b>タガログ語</b> (optional, same order and number of lines as the points)<br>・Photos: pictures pasted into that row are used (up to 4).<br>A part number that is already registered will be overwritten. You can check everything in a list before registering.<br>※ An Excel file with no \"品番\" column (a document made of pictures or tables, etc.) will be converted as it is to PDF and registered after you confirm.",
     xl_pick: "📥 Choose an Excel file (.xlsx)",
     xl_go: "Register with these results",
     xl_cancel: "Cancel",
@@ -1742,6 +1745,7 @@ var I18N = {
     xl_old: "The old format (.xls) cannot be read. In Excel, use Save As and save it as \".xlsx\"",
     xl_nobrowser: "This browser cannot read Excel. Please update Chrome",
     xl_nohead: "No \"品番\" column was found in the heading row. To show an Excel file as it is, import it from the \"Register Point Tables\" tab",
+    xl_asdoc_confirm: "This Excel file has no \"品番\" column in its heading row, so it will be treated as a document: converted as it is to PDF and registered.\n\nDocument name (what the QR code must contain): {name}\n\nContinue?",
     xl_bad: "Could not read this as an Excel file",
     xl_norows: "No readable rows were found",
     tp_shot: "📷 Take a photo",
@@ -2627,7 +2631,16 @@ $('xlIn').onchange = async function () {
   if (/\.xls$/i.test(f.name)) { msg.innerHTML = '<span style="color:var(--ng);font-weight:800">⚠ ' + esc(t('xl_old')) + '</span>'; return; }
   if (typeof DecompressionStream === 'undefined') { msg.innerHTML = '<span style="color:var(--ng);font-weight:800">⚠ ' + esc(t('xl_nobrowser')) + '</span>'; return; }
   try { XL = await xlRead(await f.arrayBuffer()); }
-  catch (e) { XL = null; msg.innerHTML = '<span style="color:var(--ng);font-weight:800">⚠ ' + esc(t(e && e.message === 'nohead' ? 'xl_nohead' : 'xl_bad')) + '</span>'; return; }
+  catch (e) {
+    XL = null;
+    if (e && e.message === 'nohead') { // 品番の列がない＝一覧ではなく資料（図や表）のExcel → 確認してから、そのままPDFに変換して登録する
+      if (confirm(t('xl_asdoc_confirm', { name: f.name.replace(/\.(xlsx|xlsm)$/i, '') }))) {
+        msg.textContent = t('pk_busy'); await importFiles([f]); msg.innerHTML = $('impMsg').innerHTML; return;
+      }
+      msg.innerHTML = '<span style="color:var(--ng);font-weight:800">⚠ ' + esc(t('xl_nohead')) + '</span>'; return;
+    }
+    msg.innerHTML = '<span style="color:var(--ng);font-weight:800">⚠ ' + esc(t('xl_bad')) + '</span>'; return;
+  }
   if (!XL.rows.length) { XL = null; msg.innerHTML = '<span style="color:var(--ng);font-weight:800">⚠ ' + esc(t('xl_norows')) + '</span>'; return; }
   msg.textContent = ''; xlShow();
 };
