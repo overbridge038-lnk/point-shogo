@@ -42,6 +42,7 @@ button{font:inherit;cursor:pointer;color:inherit}
 header{flex:none;display:flex;align-items:center;gap:10px;padding:10px 14px;background:var(--card);border-bottom:var(--line)}
 header h1{display:flex;align-items:center;gap:8px;font-size:20px;margin:0 8px 0 0;white-space:nowrap;font-weight:900;letter-spacing:.02em}
 header h1 .logo{width:34px;height:36px;flex:none}
+header h1 .ver{font-size:11px;font-weight:700;color:var(--sub);margin-left:6px;letter-spacing:0}
 .tabs{display:flex;gap:8px;flex:1;overflow-x:auto;padding:2px 6px 6px 2px}
 .tab{background:var(--card);border:var(--line);border-radius:999px;padding:7px 16px;font-size:15px;font-weight:800;white-space:nowrap;box-shadow:var(--pop-s);transition:transform .08s}
 .tab:active{transform:translate(2px,2px);box-shadow:1px 1px 0 var(--ink)}
@@ -334,10 +335,11 @@ html[lang=tl] .tab,html[lang=id] .tab{font-size:14px}
     <button class="btn langBtn" data-lang="en"><span class="flag">🇬🇧</span>English</button>
   </div>
   <p id="startNote" style="font-size:13px">準備中…</p>
+  <p class="ver" style="font-size:12px;opacity:.85">@@VERSION@@</p>
 </div>
 
 <header>
-  <h1><i class="logo" data-mascot="ok"></i><span>ポイント表照合</span></h1>
+  <h1><i class="logo" data-mascot="ok"></i><span>ポイント表照合</span><small class="ver" title="版（ビルドした日時）">@@VERSION@@</small></h1>
   <div class="tabs">
     <button class="tab on" data-v="check" data-i18n="tab_check">照合</button>
     <button class="tab" data-v="pdf" data-i18n="tab_pdf">ポイント表の登録</button>
