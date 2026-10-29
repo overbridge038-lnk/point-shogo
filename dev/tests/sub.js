@@ -5,7 +5,7 @@ await p.goto('file://'+S+'/../../dist/ポイント表照合.html'); await p.wait
 const pin=async c=>{for(const k of c) await p.click(`#pinPad button:text-is("${k}")`); await p.click('#pinOk');};
 await p.click('.tab[data-v=pdf]'); await pin('0000'); await p.setInputFiles('#fileIn',fs.readdirSync(S+'/in').map(f=>S+'/in/'+f)); await p.waitForFunction(()=>/取込完了/.test(document.getElementById('impMsg').textContent));
 await p.click('.tab[data-v=check]');
-async function scan(v){ await p.evaluate(v=>onScan(v),v); await p.waitForFunction(()=>{const j=document.getElementById('jBig').textContent; return j==='OK'||document.getElementById('ng').classList.contains('on');},null,{timeout:15000});
+async function scan(v){ await p.evaluate(v=>{onScan(v);},v); await p.waitForFunction(()=>{const j=document.getElementById('jBig').textContent; return j==='OK'||document.getElementById('ng').classList.contains('on')||document.getElementById('pick').classList.contains('on');},null,{timeout:15000}); if(await p.evaluate(()=>document.getElementById('pick').classList.contains('on'))){ console.log('  (選ぶ画面：候補 '+await p.locator('#pickGrid .pcard').count()+' 件 → やめる)'); await p.click('#pickCancel'); await p.waitForFunction(()=>document.getElementById('ng').classList.contains('on'),null,{timeout:15000}); }
   const ng=await p.evaluate(()=>document.getElementById('ng').classList.contains('on'));
   console.log(JSON.stringify(v).padEnd(44), ng?'NG: '+await p.textContent('#ngWhy')+' | '+await p.textContent('#ngDet'):'OK  kanban='+await p.textContent('#kPn')+' pdf='+await p.textContent('#pdfName'));
   if(ng){ for(const k of '1234') await p.click(`#pad button:text-is("${k}")`); await p.click('#pad button:text-is("OK")'); await p.waitForTimeout(200);} }
