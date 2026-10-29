@@ -1,5 +1,5 @@
 """ポイント表照合をビルドする。
-  src.html + pdf.js（pdfjs-dist 6.2.108）+ qrdecode.js を1つのHTMLにまとめる。
+  src.html + pdf.js（pdfjs-dist 6.2.108）+ qrdecode.js + xlsxview.js を1つのHTMLにまとめる。
   出力1: dev/dist/ポイント表照合.html … 1ファイル版（USBなどで配る用）
   出力2: ../index.html               … GitHub Pages 用（PWAのmanifest・Service Worker登録つき）
 使い方:  cd dev && npm install && python build.py
@@ -14,6 +14,7 @@ h = (d / 'src.html').read_text(encoding='utf-8')
 h = h.replace('@@PDFJS@@', base64.b64encode((P / 'pdf.min.mjs').read_bytes()).decode())
 h = h.replace('@@WORKER@@', base64.b64encode((P / 'pdf.worker.min.mjs').read_bytes()).decode())
 h = h.replace('@@QRDECODE@@', (d / 'qrdecode.js').read_text(encoding='utf-8'))
+h = h.replace('@@XLSXVIEW@@', (d / 'xlsxview.js').read_text(encoding='utf-8'))
 (d / 'dist').mkdir(exist_ok=True)
 (d / 'dist/ポイント表照合.html').write_text(h, encoding='utf-8')
 
