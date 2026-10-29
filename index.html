@@ -339,11 +339,11 @@ html[lang=tl] .tab,html[lang=id] .tab{font-size:14px}
     <button class="btn langBtn" data-lang="en"><span class="flag">🇬🇧</span>English</button>
   </div>
   <p id="startNote" style="font-size:13px">準備中…</p>
-  <p class="ver" style="font-size:12px;opacity:.85">ver.2026.10.29 19:08 (#39)</p>
+  <p class="ver" style="font-size:12px;opacity:.85">ver.2026.10.29 19:18 (#40)</p>
 </div>
 
 <header>
-  <h1><i class="logo" data-mascot="ok"></i><span>ポイント表照合</span><small class="ver" title="版（ビルドした日時）">ver.2026.10.29 19:08 (#39)</small></h1>
+  <h1><i class="logo" data-mascot="ok"></i><span>ポイント表照合</span><small class="ver" title="版（ビルドした日時）">ver.2026.10.29 19:18 (#40)</small></h1>
   <div class="tabs">
     <button class="tab on" data-v="check" data-i18n="tab_check">照合</button>
     <button class="tab" data-v="pdf" data-i18n="tab_pdf">ポイント表の登録</button>
@@ -512,6 +512,7 @@ html[lang=tl] .tab,html[lang=id] .tab{font-size:14px}
     <h3 data-i18n="xl_h">Excelの一覧から、まとめてポイント表を作る</h3>
     <div style="display:grid;gap:12px;max-width:900px">
       <p class="note" style="margin:0" data-i18n-html="xl_note"></p>
+      <div class="drop" id="xlDrop" role="button" tabindex="0" style="min-height:90px;justify-content:center"><div><div class="dropTtl" data-i18n="xl_drop_t">ここにExcelをドラッグ＆ドロップ</div><div class="dropSub" data-i18n="xl_drop_s">タップしてファイルを選ぶこともできます（.xlsx）</div></div></div>
       <div class="btnrow"><button class="btn pri" id="xlPick" data-i18n="xl_pick">📥 Excelを選ぶ（.xlsx）</button><input type="file" id="xlIn" accept=".xlsx,.xlsm,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" hidden></div>
       <div id="xlBox" hidden style="display:none;gap:10px">
         <div class="card" id="xlSum" style="margin:0;font-weight:800"></div>
@@ -1823,6 +1824,9 @@ var I18N = {
     xl_old: "古い形式（.xls）は読めません。Excelで「名前を付けて保存」から「.xlsx」で保存し直してください",
     xl_nobrowser: "このブラウザではExcelを読めません。Chromeを新しい版にしてください",
     xl_nohead: "「品番」「収容数」「ポイント」の見出しがそろった行が見つかりません。これは一覧ではなく、Excelをそのまま表示したいときは「ポイント表の登録」タブで取り込んでください",
+    xl_drop_t: "ここにExcelをドラッグ＆ドロップ",
+    xl_drop_s: "タップしてファイルを選ぶこともできます（.xlsx）。一覧か資料かは自動で見分けます",
+    xl_drop_none: "Excel（.xlsx）のファイルを落としてください",
     xl_asdoc_confirm: "このExcelは、「品番」「収容数」「ポイント」の見出しがそろった一覧ではないので、資料として、そのままPDFに変換して登録します。\n\n資料名（照合で読むQRの中身）：{name}\n\nよろしいですか？",
     xl_bad: "Excelとして読めませんでした",
     xl_norows: "読める行がありませんでした",
@@ -2120,6 +2124,9 @@ var I18N = {
     xl_old: "Format lama (.xls) tidak bisa dibaca. Simpan ulang sebagai \".xlsx\" di Excel",
     xl_nobrowser: "Browser ini tidak bisa membaca Excel. Perbarui Chrome",
     xl_nohead: "Baris judul dengan \"品番\", \"収容数\", dan \"ポイント\" tidak ditemukan. Jika ingin menampilkan Excel apa adanya, impor lewat tab \"Daftar Tabel Poin\"",
+    xl_drop_t: "Seret & lepas Excel di sini",
+    xl_drop_s: "Atau ketuk untuk memilih file (.xlsx). Daftar atau dokumen dikenali otomatis",
+    xl_drop_none: "Lepaskan file Excel (.xlsx)",
     xl_asdoc_confirm: "Excel ini bukan daftar dengan judul \"品番\", \"収容数\", dan \"ポイント\", jadi diperlakukan sebagai dokumen: dikonversi apa adanya ke PDF dan didaftarkan.\n\nNama dokumen (isi QR yang dibaca saat cek): {name}\n\nLanjutkan?",
     xl_bad: "Tidak bisa dibaca sebagai Excel",
     xl_norows: "Tidak ada baris yang bisa dibaca",
@@ -2417,6 +2424,9 @@ var I18N = {
     xl_old: "Hindi mababasa ang lumang format (.xls). I-save ulit bilang \".xlsx\" sa Excel",
     xl_nobrowser: "Hindi mababasa ng browser na ito ang Excel. I-update ang Chrome",
     xl_nohead: "Walang heading row na may \"品番\", \"収容数\", at \"ポイント\". Kung gusto mong ipakita ang Excel nang walang pagbabago, i-import ito sa tab na \"Irehistro ang Point Table\"",
+    xl_drop_t: "I-drag at i-drop ang Excel dito",
+    xl_drop_s: "O i-tap para pumili ng file (.xlsx). Awtomatikong kinikilala kung listahan o dokumento",
+    xl_drop_none: "I-drop ang Excel (.xlsx) file",
     xl_asdoc_confirm: "Hindi listahang may mga heading na \"品番\", \"収容数\", at \"ポイント\" ang Excel na ito, kaya ituturing itong dokumento: iko-convert nang walang pagbabago sa PDF at irerehistro.\n\nPangalan ng dokumento (laman ng QR na babasahin sa check): {name}\n\nTuloy?",
     xl_bad: "Hindi mabasa bilang Excel",
     xl_norows: "Walang row na mababasa",
@@ -2714,6 +2724,9 @@ var I18N = {
     xl_old: "The old format (.xls) cannot be read. In Excel, use Save As and save it as \".xlsx\"",
     xl_nobrowser: "This browser cannot read Excel. Please update Chrome",
     xl_nohead: "No heading row with \"品番\", \"収容数\", and \"ポイント\" was found. To show an Excel file as it is, import it from the \"Register Point Tables\" tab",
+    xl_drop_t: "Drag & drop an Excel file here",
+    xl_drop_s: "Or tap to choose a file (.xlsx). A list or a document is detected automatically",
+    xl_drop_none: "Please drop an Excel (.xlsx) file",
     xl_asdoc_confirm: "This Excel file is not a list with \"品番\", \"収容数\", and \"ポイント\" headings, so it will be treated as a document: converted as it is to PDF and registered.\n\nDocument name (what the QR code must contain): {name}\n\nContinue?",
     xl_bad: "Could not read this as an Excel file",
     xl_norows: "No readable rows were found",
@@ -3595,9 +3608,13 @@ function xlShow() {
 }
 function xlHide() { XL = null; $('xlBox').style.display = 'none'; $('xlSum').textContent = ''; }
 $('xlPick').onclick = function () { $('xlIn').value = ''; $('xlIn').click(); };
+$('xlDrop').onclick = $('xlPick').onclick;
+$('xlDrop').onkeydown = function (e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); $('xlPick').onclick(); } };
+['dragenter', 'dragover'].forEach(function (ev) { $('xlDrop').addEventListener(ev, function () { $('xlDrop').classList.add('over'); }); });
+$('xlDrop').addEventListener('dragleave', function () { $('xlDrop').classList.remove('over'); });
 $('xlCancel').onclick = function () { xlHide(); $('xlMsg').textContent = ''; };
-$('xlIn').onchange = async function () {
-  var f = this.files && this.files[0]; if (!f) return; xlHide(); var msg = $('xlMsg'); msg.textContent = t('pk_busy');
+async function xlHandleFile(f) {
+  if (!f) return; xlHide(); var msg = $('xlMsg'); msg.textContent = t('pk_busy');
   if (/\.xls$/i.test(f.name)) { msg.innerHTML = '<span style="color:var(--ng);font-weight:800">⚠ ' + esc(t('xl_old')) + '</span>'; return; }
   if (typeof DecompressionStream === 'undefined') { msg.innerHTML = '<span style="color:var(--ng);font-weight:800">⚠ ' + esc(t('xl_nobrowser')) + '</span>'; return; }
   try { XL = await xlRead(await f.arrayBuffer()); }
@@ -3613,7 +3630,16 @@ $('xlIn').onchange = async function () {
   }
   if (!XL.rows.length) { XL = null; msg.innerHTML = '<span style="color:var(--ng);font-weight:800">⚠ ' + esc(t('xl_norows')) + '</span>'; return; }
   msg.textContent = ''; xlShow();
-};
+}
+$('xlIn').onchange = function () { var f = this.files && this.files[0]; this.value = ''; xlHandleFile(f); };
+/** ドラッグ＆ドロップ：1件なら一覧／資料を自動で見分ける。2件以上は、すべて資料としてPDFに変換して登録する */
+async function xlDropFiles(dt) {
+  var fs = Array.prototype.slice.call((dt && dt.files) || []).filter(isXlsx), msg = $('xlMsg');
+  if (!fs.length) { msg.innerHTML = '<span style="color:var(--ng);font-weight:800">⚠ ' + esc(t('xl_drop_none')) + '</span>'; return; }
+  if (fs.length === 1) return xlHandleFile(fs[0]);
+  xlHide(); msg.textContent = t('pk_busy'); await importFiles(fs); msg.innerHTML = $('impMsg').innerHTML;
+}
+
 $('xlGo').onclick = async function () {
   if (!XL) return;
   var todo = XL.rows.filter(function (r) { return !r.err; }), over = todo.filter(function (r) { return r.over; }).length;
@@ -3687,13 +3713,13 @@ function dragKind(e) {
 var dragDepth = 0;
 function dragUi(on) { $('dropAll').classList.toggle('on', on); $('dropZone').classList.toggle('over', on); }
 // どんな物を落とされても、ブラウザがページを移動しないよう必ず止める
-window.addEventListener('dragenter', function (e) { e.preventDefault(); dragDepth++; if (inTpl()) { $('tplDrop').classList.add('over'); return; } if (S.state !== 'ng') dragUi(true); });
-window.addEventListener('dragleave', function (e) { dragDepth = Math.max(0, dragDepth - 1); if (!dragDepth) { dragUi(false); $('tplDrop').classList.remove('over'); } });
+window.addEventListener('dragenter', function (e) { e.preventDefault(); dragDepth++; if (inTpl()) { if (!(e.target && e.target.closest && e.target.closest('#xlCard'))) $('tplDrop').classList.add('over'); return; } if (S.state !== 'ng') dragUi(true); });
+window.addEventListener('dragleave', function (e) { dragDepth = Math.max(0, dragDepth - 1); if (!dragDepth) { dragUi(false); $('tplDrop').classList.remove('over'); $('xlDrop').classList.remove('over'); } });
 window.addEventListener('dragover', function (e) { e.preventDefault(); if (e.dataTransfer) e.dataTransfer.dropEffect = S.state === 'ng' ? 'none' : 'copy'; });
 window.addEventListener('drop', function (e) {
-  e.preventDefault(); dragDepth = 0; dragUi(false); $('tplDrop').classList.remove('over');
-  // 設定画面（ポイント表をつくる）では、落とした写真をひな形の写真にする
-  if (inTpl()) { tplHandleDrop(e.dataTransfer); return; }
+  e.preventDefault(); dragDepth = 0; dragUi(false); $('tplDrop').classList.remove('over'); $('xlDrop').classList.remove('over');
+  // 設定画面：Excelの枠の上に落としたらExcelの取り込み、それ以外（ポイント表をつくる）では、落とした写真をひな形の写真にする
+  if (inTpl()) { if (e.target && e.target.closest && e.target.closest('#xlCard')) xlDropFiles(e.dataTransfer); else tplHandleDrop(e.dataTransfer); return; }
   if (S.state === 'ng') return toast(t('r_ngstop_drop'));
   var dt = e.dataTransfer, kind = dragKind(e);
   // ★ドロップの中身はこの瞬間しか読めないので、先に同期で控えておく
