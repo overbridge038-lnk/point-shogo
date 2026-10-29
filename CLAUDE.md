@@ -42,6 +42,7 @@ npm test                         # すべての回帰テスト（e2e の "log su
 ```
 既存の Chrome を使う場合は `CHROME_PATH=... npm test`。日本語ファイル名のテストは `LANG=C.UTF-8` が必要（run-all.js が設定する）。
 変更したら **ビルド → npm test → index.html をコミット** の順で。
+画面の上とスタート画面に **版（`ver.年.月.日 時:分 (#コミット数)`）** が出る。`build.py` がビルド時に `@@VERSION@@` へ入れる。配ったHTMLが最新か見分けるのに使う。
 
 ## しくみのポイント（dev/src.html）
 - 保存：IndexedDB `ptShogo`（v2：`pdfs`＝取り込んだPDF、`logs`＝照合記録、`kv`）。設定 `CF` は localStorage と IDB の両方に保存。

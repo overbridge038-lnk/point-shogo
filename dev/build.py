@@ -4,13 +4,18 @@
   出力2: ../index.html               … GitHub Pages 用（PWAのmanifest・Service Worker登録つき）
 使い方:  cd dev && npm install && python build.py
 """
-import base64, pathlib, sys
+import base64, pathlib, sys, subprocess, datetime
 d = pathlib.Path(__file__).resolve().parent
 cands = [d / 'node_modules/pdfjs-dist/legacy/build', pathlib.Path('/opt/npm-tools/node_modules/pdfjs-dist/legacy/build')]
 P = next((c for c in cands if (c / 'pdf.min.mjs').exists()), None)
 if not P:
     sys.exit('pdfjs-dist が見つかりません。dev フォルダで npm install を実行してください')
 h = (d / 'src.html').read_text(encoding='utf-8')
+# 版の表示：ビルドした日時＋コミット数（画面の上と、スタート画面に出る。どの版を使っているか見分けるため）
+try: n = subprocess.run(['git', 'rev-list', '--count', 'HEAD'], cwd=d, capture_output=True, text=True).stdout.strip()
+except Exception: n = ''
+ver = 'ver.' + datetime.datetime.now(datetime.timezone(datetime.timedelta(hours=9))).strftime('%Y.%m.%d %H:%M') + (' (#' + n + ')' if n else '')
+h = h.replace('@@VERSION@@', ver)
 h = h.replace('@@PDFJS@@', base64.b64encode((P / 'pdf.min.mjs').read_bytes()).decode())
 h = h.replace('@@WORKER@@', base64.b64encode((P / 'pdf.worker.min.mjs').read_bytes()).decode())
 h = h.replace('@@QRDECODE@@', (d / 'qrdecode.js').read_text(encoding='utf-8'))
