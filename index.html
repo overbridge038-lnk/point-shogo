@@ -506,6 +506,19 @@ html[lang=tl] .tab,html[lang=id] .tab{font-size:14px}
       </div>
     </div>
   </div>
+  <div class="card" id="xlCard">
+    <h3 data-i18n="xl_h">Excelの一覧から、まとめてポイント表を作る</h3>
+    <div style="display:grid;gap:12px;max-width:900px">
+      <p class="note" style="margin:0" data-i18n-html="xl_note"></p>
+      <div class="btnrow"><button class="btn pri" id="xlPick" data-i18n="xl_pick">📥 Excelを選ぶ（.xlsx）</button><input type="file" id="xlIn" accept=".xlsx,.xlsm,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" hidden></div>
+      <div id="xlBox" hidden style="display:none;gap:10px">
+        <div class="card" id="xlSum" style="margin:0;font-weight:800"></div>
+        <div style="max-height:340px;overflow:auto;border:var(--line);border-radius:12px"><table id="xlTbl"></table></div>
+        <div class="btnrow"><button class="btn pri" id="xlGo" data-i18n="xl_go">この内容で登録する</button><button class="btn" id="xlCancel" data-i18n="xl_cancel">やめる</button></div>
+      </div>
+      <p class="note" id="xlMsg" style="margin:0"></p>
+    </div>
+  </div>
   <div class="card" id="pkCard">
     <h3 data-i18n="pk_h">ポイント表の受け渡し（2台そろえる）</h3>
     <div style="display:grid;gap:14px;max-width:560px">
@@ -1072,6 +1085,140 @@ html[lang=tl] .tab,html[lang=id] .tab{font-size:14px}
   if (typeof module !== 'undefined' && module.exports) module.exports = decodeQR;
 })(typeof window !== 'undefined' ? window : globalThis);
 </script>
+<script>/* 自作のExcel(.xlsx)読み取り部品。通信なし・外部部品なし。
+   ZIPをほどき（ブラウザ標準の DecompressionStream）、セルの文字と、行に貼ってある画像を取り出す。
+   計算式は、保存されている計算結果をそのまま読む。
+   使い方： const sheets = await XV.parse(arrayBuffer);
+     sheets[i] = { name, cells: { "行,列": { v:文字, r:行, c:列 } }, maxR, maxC, images: [{ url, from:{r,c} }] }（行・列は、cells は1から、images の from は0から数える） */
+(function (g) {
+  'use strict';
+  var NS_R = 'http://schemas.openxmlformats.org/officeDocument/2006/relationships';
+
+  // ---------- ZIP ----------
+  function u16(d, o) { return d[o] | (d[o + 1] << 8); }
+  function u32(d, o) { return (d[o] | (d[o + 1] << 8) | (d[o + 2] << 16) | (d[o + 3] << 24)) >>> 0; }
+  async function inflate(raw) {
+    var ds = new DecompressionStream('deflate-raw');
+    return new Uint8Array(await new Response(new Blob([raw]).stream().pipeThrough(ds)).arrayBuffer());
+  }
+  async function unzip(buf) {
+    var d = new Uint8Array(buf), e = d.length - 22;
+    while (e >= 0 && u32(d, e) !== 0x06054b50) e--;
+    if (e < 0) throw new Error('not zip');
+    var n = u16(d, e + 10), o = u32(d, e + 16), files = {};
+    for (var i = 0; i < n; i++) {
+      if (u32(d, o) !== 0x02014b50) throw new Error('bad zip');
+      var method = u16(d, o + 10), csize = u32(d, o + 20), nlen = u16(d, o + 28), xlen = u16(d, o + 30), clen = u16(d, o + 32), lho = u32(d, o + 42);
+      files[new TextDecoder().decode(d.subarray(o + 46, o + 46 + nlen))] = { method: method, csize: csize, lho: lho };
+      o += 46 + nlen + xlen + clen;
+    }
+    return {
+      bytes: async function (name) {
+        var f = files[name]; if (!f) return null;
+        var p = f.lho, start = p + 30 + u16(d, p + 26) + u16(d, p + 28), raw = d.subarray(start, start + f.csize);
+        return f.method === 0 ? raw : f.method === 8 ? await inflate(raw) : null;
+      },
+      text: async function (name) { var b = await this.bytes(name); return b ? new TextDecoder('utf-8').decode(b) : null; }
+    };
+  }
+  function xml(s) { return s ? new DOMParser().parseFromString(s, 'application/xml') : null; }
+  function kids(el, name) { var r = []; if (!el) return r; for (var c = el.firstElementChild; c; c = c.nextElementSibling) if (c.localName === name) r.push(c); return r; }
+  function kid(el, name) { return kids(el, name)[0] || null; }
+  function resolve(base, target) {
+    if (target.charAt(0) === '/') return target.slice(1);
+    var parts = (base.slice(0, base.lastIndexOf('/') + 1) + target).split('/'), out = [];
+    parts.forEach(function (x) { if (x === '..') out.pop(); else if (x && x !== '.') out.push(x); });
+    return out.join('/');
+  }
+  async function rels(z, path) { // path のファイルに付いている関係（rId → 行き先）
+    var rp = path.slice(0, path.lastIndexOf('/') + 1) + '_rels/' + path.slice(path.lastIndexOf('/') + 1) + '.rels', doc = xml(await z.text(rp)), m = {};
+    if (doc) kids(doc.documentElement, 'Relationship').forEach(function (r) { m[r.getAttribute('Id')] = resolve(path, r.getAttribute('Target')); });
+    return m;
+  }
+
+  // ---------- 数字・日付の表示（書式） ----------
+  var BUILTIN_NUM = { 9: '0%', 10: '0.00%', 14: 'yyyy/m/d', 15: 'd-mmm-yy', 16: 'd-mmm', 17: 'mmm-yy', 22: 'yyyy/m/d h:mm', 3: '#,##0', 4: '#,##0.00', 37: '#,##0', 38: '#,##0', 39: '#,##0.00', 40: '#,##0.00', 1: '0', 2: '0.00' };
+  function pad(n) { return (n < 10 ? '0' : '') + n; }
+  function fmtNumber(v, code) {
+    var n = parseFloat(v); if (isNaN(n)) return String(v);
+    code = (code || 'General').split(';')[0].replace(/\[[^\]]*\]/g, '').replace(/"/g, '');
+    if (code === 'General' || code === '@') return String(Math.round(n * 1e10) / 1e10);
+    if (/[ymdh]/i.test(code) && !/[0#]/.test(code)) { // 日付・時刻
+      var d = new Date(Math.round((n - 25569) * 86400000)), Y = d.getUTCFullYear(), M = d.getUTCMonth() + 1, D = d.getUTCDate(), h = d.getUTCHours(), mi = d.getUTCMinutes(), hasDate = /[yd]/i.test(code);
+      return code.replace(/yyyy|yy/gi, function (m) { return m.length === 4 ? Y : pad(Y % 100); })
+        .replace(/mm|m/g, function (m) { return hasDate ? (m === 'mm' ? pad(M) : String(M)) : pad(mi); })
+        .replace(/dd|d/gi, function (m) { return m.length === 2 ? pad(D) : String(D); })
+        .replace(/hh|h/gi, function (m) { return m.length === 2 ? pad(h) : String(h); }).replace(/\\/g, '');
+    }
+    var pct = /%/.test(code), dec = (code.split('.')[1] || '').replace(/[^0#]/g, '').length, comma = /,/.test(code.split('.')[0]);
+    if (pct) n *= 100;
+    var s = n.toFixed(dec); if (comma) { var p = s.split('.'); p[0] = p[0].replace(/\B(?=(\d{3})+(?!\d))/g, ','); s = p.join('.'); }
+    return s + (pct ? '%' : '');
+  }
+
+  // ---------- シート ----------
+  function colNum(ref) { var m = /^([A-Z]+)(\d+)$/.exec(ref), c = 0; for (var i = 0; i < m[1].length; i++) c = c * 26 + m[1].charCodeAt(i) - 64; return { c: c, r: +m[2] }; }
+  function textOf(si) { // 共有文字列 <si> のテキスト（ふりがなは除く）
+    var s = ''; for (var c = si.firstElementChild; c; c = c.nextElementSibling) {
+      if (c.localName === 't') s += c.textContent; else if (c.localName === 'r') { var t = kid(c, 't'); if (t) s += t.textContent; }
+    } return s;
+  }
+  var MIME = { png: 'image/png', jpg: 'image/jpeg', jpeg: 'image/jpeg', gif: 'image/gif', bmp: 'image/bmp', webp: 'image/webp' };
+
+  async function parse(buf) {
+    var z = await unzip(buf);
+    var wb = xml(await z.text('xl/workbook.xml')); if (!wb) throw new Error('no workbook');
+    var wbRels = await rels(z, 'xl/workbook.xml'), numFmts = {}, xfNum = [], sst = [];
+    var sty = xml(await z.text('xl/styles.xml'));
+    if (sty) {
+      kids(kid(sty.documentElement, 'numFmts'), 'numFmt').forEach(function (n) { numFmts[n.getAttribute('numFmtId')] = n.getAttribute('formatCode'); });
+      kids(kid(sty.documentElement, 'cellXfs'), 'xf').forEach(function (x) { xfNum.push(x.getAttribute('numFmtId') || '0'); });
+    }
+    var sd = xml(await z.text('xl/sharedStrings.xml')); if (sd) kids(sd.documentElement, 'si').forEach(function (si) { sst.push(textOf(si)); });
+    var sheets = [], shs = kids(kid(wb.documentElement, 'sheets'), 'sheet');
+    for (var si = 0; si < shs.length; si++) {
+      var sh = shs[si]; if (sh.getAttribute('state') === 'hidden' || sh.getAttribute('state') === 'veryHidden') continue;
+      var path = wbRels[sh.getAttributeNS(NS_R, 'id')]; if (!path) continue;
+      var doc = xml(await z.text(path)); if (!doc) continue;
+      var root = doc.documentElement, cells = {}, maxR = 0, maxC = 0;
+      kids(kid(root, 'sheetData'), 'row').forEach(function (r) {
+        kids(r, 'c').forEach(function (c) {
+          var pos = colNum(c.getAttribute('r')), t = c.getAttribute('t'), v = kid(c, 'v'), val = '';
+          if (t === 's') val = sst[+(v && v.textContent)] || '';
+          else if (t === 'inlineStr') val = textOf(kid(c, 'is') || c);
+          else if (t === 'b') val = v && v.textContent === '1' ? 'TRUE' : 'FALSE';
+          else if (t === 'str' || t === 'e') val = v ? v.textContent : '';
+          else if (v && v.textContent !== '') { var id = xfNum[+(c.getAttribute('s') || 0)] || '0'; val = fmtNumber(v.textContent, numFmts[id] || BUILTIN_NUM[id]); }
+          if (val === '') return;
+          cells[pos.r + ',' + pos.c] = { v: val, r: pos.r, c: pos.c };
+          maxR = Math.max(maxR, pos.r); maxC = Math.max(maxC, pos.c);
+        });
+      });
+      var images = [], dr = kid(root, 'drawing');
+      if (dr) { var drPath = (await rels(z, path))[dr.getAttributeNS(NS_R, 'id')]; if (drPath) images = await readDrawing(z, drPath); }
+      sheets.push({ name: sh.getAttribute('name'), cells: cells, maxR: maxR, maxC: maxC, images: images });
+    }
+    if (!sheets.length) throw new Error('no sheet');
+    return sheets;
+  }
+  /** 図面（drawing）から、貼ってある写真と、その位置（左上のセル）を取り出す */
+  async function readDrawing(z, path) {
+    var dd = xml(await z.text(path)); if (!dd) return [];
+    var drels = await rels(z, path), out = [];
+    for (var a = dd.documentElement.firstElementChild; a; a = a.nextElementSibling) {
+      if (a.localName !== 'twoCellAnchor' && a.localName !== 'oneCellAnchor') continue;
+      var pic = kid(a, 'pic'), from = kid(a, 'from'); if (!pic || !from) continue;
+      var blip = pic.getElementsByTagNameNS('*', 'blip')[0]; if (!blip) continue;
+      var target = drels[blip.getAttributeNS(NS_R, 'embed')]; if (!target) continue;
+      var bytes = await z.bytes(target), mime = MIME[target.slice(target.lastIndexOf('.') + 1).toLowerCase()]; if (!bytes || !mime) continue;
+      var rr = kid(from, 'row'), cc = kid(from, 'col');
+      out.push({ url: URL.createObjectURL(new Blob([bytes], { type: mime })), from: { r: rr ? +rr.textContent : 0, c: cc ? +cc.textContent : 0 } });
+    }
+    return out;
+  }
+  g.XV = { parse: parse };
+})(window);
+</script>
 <script>
 'use strict';
 /* =========================================================================
@@ -1301,6 +1448,31 @@ var I18N = {
     tp_pts: "ポイント",
     tp_pts_ph: "1行に1つずつ書きます\n例：向きを確認する\n例：キズ・打痕がないこと",
     tp_tr_h: "翻訳（任意）：他の言語の文",
+    xl_h: "Excelの一覧から、まとめてポイント表を作る",
+    xl_note: "Excelで作った一覧から、<b>何品番でも一度に</b>ポイント表を作ります。1行目は見出しで、次の名前の列を使います。<br>・<b>品番</b>（必須）　・<b>収容数</b>（必須・数字）　・<b>ポイント</b>（必須。1つのセルに改行で並べるか、ポイント1・ポイント2…と列を分けます）<br>・<b>英語</b>・<b>インドネシア語</b>・<b>タガログ語</b>（任意。ポイントと同じ順番・同じ行数）<br>・写真は、その行に貼り付けた画像が使われます（4枚まで）。<br>同じ品番がすでに登録されていると上書きになります。登録の前に、内容を一覧で確認できます。",
+    xl_pick: "📥 Excelを選ぶ（.xlsx）",
+    xl_go: "この内容で登録する",
+    xl_cancel: "やめる",
+    xl_sum: "{n} 行を読みました：新規 {a} 件／上書き {u} 件／登録できない {e} 件",
+    xl_sum_np: "写真のない行が {n} 件あります（写真なしで作られます）",
+    xl_c_row: "行",
+    xl_c_photo: "写真",
+    xl_c_state: "結果",
+    xl_s_new: "新規",
+    xl_s_over: "上書き",
+    xl_e_pn: "品番がありません",
+    xl_e_qty: "収容数が数字ではありません",
+    xl_e_pts: "ポイントがありません",
+    xl_e_dup: "同じ品番が前の行にあります",
+    xl_w_nophoto: "写真なし",
+    xl_over_confirm: "すでに登録されている {n} 件のポイント表を上書きします。よろしいですか？",
+    xl_busy: "作成中… {i} / {n}",
+    xl_done: "登録しました：新規 {a} 件、上書き {u} 件（登録できない行 {e} 件）",
+    xl_old: "古い形式（.xls）は読めません。Excelで「名前を付けて保存」から「.xlsx」で保存し直してください",
+    xl_nobrowser: "このブラウザではExcelを読めません。Chromeを新しい版にしてください",
+    xl_nohead: "1行目の見出しに「品番」の列が見つかりません",
+    xl_bad: "Excelとして読めませんでした",
+    xl_norows: "読める行がありませんでした",
     tp_shot: "📷 写真を撮る",
     tp_shot_do: "📸 撮る",
     tp_shot_info: "撮ると、写真に追加されます（{n} / {m} 枚）",
@@ -1569,6 +1741,31 @@ var I18N = {
     tp_pts: "Poin",
     tp_pts_ph: "Tulis satu poin per baris\nContoh: cek arah\nContoh: tidak ada goresan/penyok",
     tp_tr_h: "Terjemahan (opsional): kalimat bahasa lain",
+    xl_h: "Buat tabel poin sekaligus dari daftar Excel",
+    xl_note: "Membuat tabel poin untuk <b>banyak nomor part sekaligus</b> dari daftar Excel. Baris 1 adalah judul kolom. Kolom yang dipakai:<br>・<b>品番</b> (nomor part, wajib)　・<b>収容数</b> (isi per boks, wajib, angka)　・<b>ポイント</b> (poin, wajib. Satu sel dengan baris baru, atau pisah kolom: ポイント1, ポイント2…)<br>・<b>英語</b> / <b>インドネシア語</b> / <b>タガログ語</b> (opsional, urutan dan jumlah baris sama dengan poin)<br>・Foto: gambar yang ditempel di baris itu dipakai (maksimal 4).<br>Nomor part yang sudah terdaftar akan ditimpa. Isinya bisa dicek dalam daftar sebelum didaftarkan.",
+    xl_pick: "📥 Pilih Excel (.xlsx)",
+    xl_go: "Daftarkan sesuai isi ini",
+    xl_cancel: "Batal",
+    xl_sum: "{n} baris dibaca: baru {a} / ditimpa {u} / tidak bisa didaftarkan {e}",
+    xl_sum_np: "{n} baris tanpa foto (dibuat tanpa foto)",
+    xl_c_row: "Baris",
+    xl_c_photo: "Foto",
+    xl_c_state: "Hasil",
+    xl_s_new: "Baru",
+    xl_s_over: "Timpa",
+    xl_e_pn: "Tidak ada nomor part",
+    xl_e_qty: "Isi per boks bukan angka",
+    xl_e_pts: "Tidak ada poin",
+    xl_e_dup: "Nomor part sama sudah ada di baris sebelumnya",
+    xl_w_nophoto: "tanpa foto",
+    xl_over_confirm: "{n} tabel poin yang sudah terdaftar akan ditimpa. Lanjutkan?",
+    xl_busy: "Membuat… {i} / {n}",
+    xl_done: "Terdaftar: baru {a}, ditimpa {u} (baris tidak bisa didaftarkan: {e})",
+    xl_old: "Format lama (.xls) tidak bisa dibaca. Simpan ulang sebagai \".xlsx\" di Excel",
+    xl_nobrowser: "Browser ini tidak bisa membaca Excel. Perbarui Chrome",
+    xl_nohead: "Kolom \"品番\" tidak ditemukan di baris judul",
+    xl_bad: "Tidak bisa dibaca sebagai Excel",
+    xl_norows: "Tidak ada baris yang bisa dibaca",
     tp_shot: "📷 Ambil foto",
     tp_shot_do: "📸 Ambil",
     tp_shot_info: "Foto yang diambil akan ditambahkan ({n} / {m})",
@@ -1837,6 +2034,31 @@ var I18N = {
     tp_pts: "Mga punto",
     tp_pts_ph: "Isang punto bawat linya\nHal.: tingnan ang direksyon\nHal.: walang gasgas/yupi",
     tp_tr_h: "Salin (opsyonal): mga pangungusap sa ibang wika",
+    xl_h: "Gumawa ng maraming point table nang sabay mula sa Excel list",
+    xl_note: "Gumagawa ng point table para sa <b>maraming part number nang sabay</b> mula sa Excel list. Ang row 1 ay mga heading. Mga column na gagamitin:<br>・<b>品番</b> (part number, kailangan)　・<b>収容数</b> (dami bawat kahon, kailangan, numero)　・<b>ポイント</b> (mga punto, kailangan. Isang cell na may bagong linya, o hiwalay na column: ポイント1, ポイント2…)<br>・<b>英語</b> / <b>インドネシア語</b> / <b>タガログ語</b> (opsyonal, parehong ayos at bilang ng linya ng mga punto)<br>・Litrato: gagamitin ang mga larawang idinikit sa row na iyon (hanggang 4).<br>Papalitan ang part number na nakarehistro na. Maaaring suriin ang laman sa listahan bago magrehistro.",
+    xl_pick: "📥 Pumili ng Excel (.xlsx)",
+    xl_go: "Irehistro ayon dito",
+    xl_cancel: "Huwag ituloy",
+    xl_sum: "Nabasa ang {n} row: bago {a} / papalitan {u} / hindi mairehistro {e}",
+    xl_sum_np: "May {n} row na walang litrato (gagawin nang walang litrato)",
+    xl_c_row: "Row",
+    xl_c_photo: "Litrato",
+    xl_c_state: "Resulta",
+    xl_s_new: "Bago",
+    xl_s_over: "Palitan",
+    xl_e_pn: "Walang part number",
+    xl_e_qty: "Hindi numero ang dami",
+    xl_e_pts: "Walang mga punto",
+    xl_e_dup: "Nasa naunang row na ang part number na ito",
+    xl_w_nophoto: "walang litrato",
+    xl_over_confirm: "Papalitan ang {n} point table na nakarehistro na. Ituloy?",
+    xl_busy: "Ginagawa… {i} / {n}",
+    xl_done: "Nairehistro: bago {a}, pinalitan {u} (mga row na hindi mairehistro: {e})",
+    xl_old: "Hindi mababasa ang lumang format (.xls). I-save ulit bilang \".xlsx\" sa Excel",
+    xl_nobrowser: "Hindi mababasa ng browser na ito ang Excel. I-update ang Chrome",
+    xl_nohead: "Walang column na \"品番\" sa heading row",
+    xl_bad: "Hindi mabasa bilang Excel",
+    xl_norows: "Walang row na mababasa",
     tp_shot: "📷 Kumuha ng litrato",
     tp_shot_do: "📸 Kunan",
     tp_shot_info: "Madaragdag ang kinunan na litrato ({n} / {m})",
@@ -2105,6 +2327,31 @@ var I18N = {
     tp_pts: "Points",
     tp_pts_ph: "One point per line\ne.g. Check the direction\ne.g. No scratches or dents",
     tp_tr_h: "Translation (optional): text in other languages",
+    xl_h: "Create many point tables at once from an Excel list",
+    xl_note: "Creates point tables for <b>any number of part numbers at once</b> from an Excel list. Row 1 holds the headings. Columns used:<br>・<b>品番</b> (part number, required)　・<b>収容数</b> (quantity per box, required, a number)　・<b>ポイント</b> (points, required. Put them in one cell separated by line breaks, or split into columns: ポイント1, ポイント2…)<br>・<b>英語</b> / <b>インドネシア語</b> / <b>タガログ語</b> (optional, same order and number of lines as the points)<br>・Photos: pictures pasted into that row are used (up to 4).<br>A part number that is already registered will be overwritten. You can check everything in a list before registering.",
+    xl_pick: "📥 Choose an Excel file (.xlsx)",
+    xl_go: "Register with these results",
+    xl_cancel: "Cancel",
+    xl_sum: "Read {n} rows: new {a} / overwrite {u} / cannot register {e}",
+    xl_sum_np: "{n} rows have no photo (they will be made without a photo)",
+    xl_c_row: "Row",
+    xl_c_photo: "Photos",
+    xl_c_state: "Result",
+    xl_s_new: "New",
+    xl_s_over: "Overwrite",
+    xl_e_pn: "No part number",
+    xl_e_qty: "Quantity is not a number",
+    xl_e_pts: "No points",
+    xl_e_dup: "Same part number appears in an earlier row",
+    xl_w_nophoto: "no photo",
+    xl_over_confirm: "{n} point tables that are already registered will be overwritten. Continue?",
+    xl_busy: "Creating… {i} / {n}",
+    xl_done: "Registered: new {a}, overwritten {u} (rows not registered: {e})",
+    xl_old: "The old format (.xls) cannot be read. In Excel, use Save As and save it as \".xlsx\"",
+    xl_nobrowser: "This browser cannot read Excel. Please update Chrome",
+    xl_nohead: "No \"品番\" column was found in the heading row",
+    xl_bad: "Could not read this as an Excel file",
+    xl_norows: "No readable rows were found",
     tp_shot: "📷 Take a photo",
     tp_shot_do: "📸 Capture",
     tp_shot_info: "Photos you take are added here ({n} / {m})",
@@ -2890,6 +3137,102 @@ $('pkApply').onclick = async function () {
   await loadPdfIndex(); showPdfList(); updateHeader();
   toast(t('pk_done', { a: a, u: u, d: d }), 5000);
 };
+// ---------- Excelの一覧から、まとめてポイント表を作る ----------
+// 1行目は見出し。品番・収容数・ポイント（ポイント1、ポイント2…でも、1つのセルに改行で並べても可）・英語・インドネシア語・タガログ語。
+// その行に貼ってある写真（4枚まで）が、ポイント表の写真になる。
+var XL = null; // 取り込み待ちの内容 { rows: [...] }
+function xlKind(h) {
+  h = String(h || '').normalize('NFKC').replace(/\s/g, '').toLowerCase();
+  if (/^(品番|部品番号|partnumber|part|pn)$/.test(h)) return 'pn';
+  if (/^(収容数|入数|入り数|qty|quantity)$/.test(h)) return 'qty';
+  if (/^(ポイント|points?)\d*$/.test(h)) return 'pts';
+  if (/^(英語|english|en)\d*$/.test(h)) return 'en';
+  if (/^(インドネシア語|indonesia|indonesian|bahasaindonesia|id)\d*$/.test(h)) return 'id';
+  if (/^(タガログ語|tagalog|filipino|tl|fil)\d*$/.test(h)) return 'tl';
+  return '';
+}
+function xlLines(cells, row, cols) { // 指定した列のセルを順に読み、改行でも分けて、空でない行だけ返す
+  var out = []; cols.forEach(function (c) { var x = cells[row + ',' + c]; if (x) x.v.split(/\r?\n/).forEach(function (l) { l = l.trim(); if (l) out.push(l); }); }); return out;
+}
+function xlLoadImg(url) { return new Promise(function (res) { var im = new Image(); im.onload = function () { res(im); }; im.onerror = function () { res(null); }; im.src = url; }); }
+async function xlRead(buf) {
+  var sheets = await XV.parse(buf), sh = null, hr = 0, cols = {};
+  for (var i = 0; i < sheets.length && !sh; i++) {
+    for (var r = 1; r <= Math.min(sheets[i].maxR, 10) && !sh; r++) {
+      var c2 = {}, has = false;
+      for (var c = 1; c <= sheets[i].maxC; c++) { var x = sheets[i].cells[r + ',' + c], k = x ? xlKind(x.v) : ''; if (k) { (c2[k] = c2[k] || []).push(c); if (k === 'pn') has = true; } }
+      if (has) { sh = sheets[i]; hr = r; cols = c2; }
+    }
+  }
+  if (!sh) throw new Error('nohead');
+  var rows = [], seen = {};
+  for (var r2 = hr + 1; r2 <= sh.maxR; r2++) {
+    var pnl = xlLines(sh.cells, r2, cols.pn), pn = toHalf(pnl[0] || '').normalize('NFKC').trim();
+    var qty = toHalf(xlLines(sh.cells, r2, cols.qty || [])[0] || '').normalize('NFKC').trim();
+    var pts = xlLines(sh.cells, r2, cols.pts || []);
+    var urls = sh.images.filter(function (im) { return im.from.r + 1 === r2; }).sort(function (a, b) { return a.from.c - b.from.c; }).slice(0, TPL_MAX);
+    if (!pn && !qty && !pts.length && !urls.length) continue; // 空の行は飛ばす
+    var row = { line: r2, pn: pn, qty: qty, pts: pts, urls: urls, tr: {}, err: '', warn: '' };
+    ['en', 'id', 'tl'].forEach(function (l) { row.tr[l] = xlLines(sh.cells, r2, cols[l] || []).join('\n'); });
+    var key = norm(pn.replace(/[\\/:*?"<>|]/g, '_') + '.pdf');
+    if (!pn || !key) row.err = 'xl_e_pn';
+    else if (!/^[1-9][0-9]*$/.test(qty)) row.err = 'xl_e_qty';
+    else if (!pts.length) row.err = 'xl_e_pts';
+    else if (seen[key]) row.err = 'xl_e_dup';
+    if (!row.err) { seen[key] = 1; row.key = key; row.over = !!PDF_INDEX[key]; if (!urls.length) row.warn = 'xl_w_nophoto'; }
+    rows.push(row);
+  }
+  return { rows: rows };
+}
+function xlShow() {
+  var rows = XL.rows, a = 0, u = 0, e = 0, np = 0;
+  rows.forEach(function (r) { if (r.err) e++; else { if (r.over) u++; else a++; if (r.warn) np++; } });
+  $('xlSum').innerHTML = esc(t('xl_sum', { n: rows.length, a: a, u: u, e: e })) + (np ? '<br><span style="color:var(--red)">' + esc(t('xl_sum_np', { n: np })) + '</span>' : '');
+  $('xlTbl').innerHTML = '<tr><th>' + esc(t('xl_c_row')) + '</th><th>' + esc(t('tp_pn')) + '</th><th>' + esc(t('tp_qty')) + '</th><th>' + esc(t('tp_pts')) + '</th><th>' + esc(t('xl_c_photo')) + '</th><th>' + esc(t('xl_c_state')) + '</th></tr>' +
+    rows.map(function (r) {
+      var st = r.err ? '<span style="color:var(--red);font-weight:900">✕ ' + esc(t(r.err)) + '</span>' : (r.over ? esc(t('xl_s_over')) : esc(t('xl_s_new'))) + (r.warn ? ' <span style="color:var(--red)">⚠ ' + esc(t(r.warn)) + '</span>' : '');
+      return '<tr><td>' + r.line + '</td><td class="mono">' + esc(r.pn) + '</td><td>' + esc(r.qty) + '</td><td>' + r.pts.length + '</td><td>' + r.urls.length + '</td><td>' + st + '</td></tr>';
+    }).join('');
+  $('xlGo').disabled = a + u === 0;
+  $('xlBox').style.display = 'grid';
+}
+function xlHide() { XL = null; $('xlBox').style.display = 'none'; $('xlSum').textContent = ''; }
+$('xlPick').onclick = function () { $('xlIn').value = ''; $('xlIn').click(); };
+$('xlCancel').onclick = function () { xlHide(); $('xlMsg').textContent = ''; };
+$('xlIn').onchange = async function () {
+  var f = this.files && this.files[0]; if (!f) return; xlHide(); var msg = $('xlMsg'); msg.textContent = t('pk_busy');
+  if (/\.xls$/i.test(f.name)) { msg.innerHTML = '<span style="color:var(--ng);font-weight:800">⚠ ' + esc(t('xl_old')) + '</span>'; return; }
+  if (typeof DecompressionStream === 'undefined') { msg.innerHTML = '<span style="color:var(--ng);font-weight:800">⚠ ' + esc(t('xl_nobrowser')) + '</span>'; return; }
+  try { XL = await xlRead(await f.arrayBuffer()); }
+  catch (e) { XL = null; msg.innerHTML = '<span style="color:var(--ng);font-weight:800">⚠ ' + esc(t(e && e.message === 'nohead' ? 'xl_nohead' : 'xl_bad')) + '</span>'; return; }
+  if (!XL.rows.length) { XL = null; msg.innerHTML = '<span style="color:var(--ng);font-weight:800">⚠ ' + esc(t('xl_norows')) + '</span>'; return; }
+  msg.textContent = ''; xlShow();
+};
+$('xlGo').onclick = async function () {
+  if (!XL) return;
+  var todo = XL.rows.filter(function (r) { return !r.err; }), over = todo.filter(function (r) { return r.over; }).length;
+  if (over && !confirm(t('xl_over_confirm', { n: over }))) return;
+  var btn = this, msg = $('xlMsg'), a = 0, u = 0; btn.disabled = true;
+  try {
+    for (var i = 0; i < todo.length; i++) {
+      var r = todo[i]; msg.textContent = t('xl_busy', { i: i + 1, n: todo.length });
+      var ims = (await Promise.all(r.urls.map(function (x) { return xlLoadImg(x.url); }))).filter(Boolean);
+      var cv = document.createElement('canvas'); cv.width = 1684; cv.height = 1191;
+      tplPaint(cv, { pn: r.pn, qty: r.qty, pts: r.pts }, ims);
+      var blob = await new Promise(function (res) { cv.toBlob(res, 'image/jpeg', 0.88); });
+      var pdf = jpegToPdf(new Uint8Array(await blob.arrayBuffer()), cv.width, cv.height), name = r.pn.replace(/[\\/:*?"<>|]/g, '_') + '.pdf';
+      var rec = { key: norm(name), name: name, size: pdf.length, at: today() + ' ' + nowTime(), data: pdf.buffer.slice(0),
+        src: { pn: r.pn, qty: r.qty, pts: r.pts.join('\n'), tr: r.tr, photos: ims.map(imgToDataUrl) } };
+      await tx('pdfs', 'readwrite', function (st) { st.put(rec); });
+      if (r.over) u++; else a++;
+    }
+    await loadPdfIndex(); updateHeader(); THUMBS = {};
+    var skipped = XL.rows.length - todo.length;
+    xlHide(); msg.innerHTML = '<span style="color:var(--ok);font-weight:900">' + esc(t('xl_done', { a: a, u: u, e: skipped })) + '</span>';
+    toast(t('xl_done', { a: a, u: u, e: skipped }), 4000); soundOk();
+  } catch (e) { msg.innerHTML = '<span style="color:var(--ng);font-weight:800">⚠ ' + esc(t('xl_bad')) + '</span>'; }
+  finally { btn.disabled = false; }
+};
 /** ポイント表を1件削除（確認つき） */
 async function deletePdf(k) {
   var v = PDF_INDEX[k]; if (!v) return false;
@@ -3527,8 +3870,10 @@ function wrapText(cx, text, maxW) {
   return lines;
 }
 /** ひな形を描く（A4横・約144dpi：1684×1191） */
-function tplDraw() {
-  var cv = $('tplCanvas'), cx = cv.getContext('2d'), W = cv.width, H = cv.height, v = tplVal();
+function tplDraw() { tplPaint($('tplCanvas'), tplVal(), TPL.imgs.map(function (p) { return p.im; })); }
+/** ポイント表の絵を cv に描く（v＝品番・収容数・ポイント、ims＝写真）。入力欄の見本も、Excelからのまとめ作成も、これで描く */
+function tplPaint(cv, v, ims) {
+  var cx = cv.getContext('2d'), W = cv.width, H = cv.height;
   var F = '"Hiragino Kaku Gothic ProN","Yu Gothic UI","Meiryo","Noto Sans JP","Noto Sans CJK JP",sans-serif';
   cx.fillStyle = '#fff'; cx.fillRect(0, 0, W, H);
   var M = 70;
@@ -3549,9 +3894,9 @@ function tplDraw() {
   // 写真（左）
   var py = y0 + 150, ph = H - py - M, pw = 760;
   cx.strokeRect(M, py, pw, ph);
-  if (TPL.imgs.length) {
+  if (ims.length) {
     // 枚数に合わせて並べ方を変える：1枚＝全面／2枚＝横長なら上下・縦長なら左右／3枚＝上2＋下1／4枚＝2×2
-    var ims = TPL.imgs.map(function (p) { return p.im; }), n = ims.length, cells = [], g = 12;
+    var n = ims.length, cells = [], g = 12;
     var X0 = M + g, Y0 = py + g, CW = pw - 2 * g, CH = ph - 2 * g;
     if (n === 1) cells = [[X0, Y0, CW, CH]];
     else if (n === 2) {
@@ -3637,18 +3982,20 @@ async function tplBuild() {
   var name = v.pn.replace(/[\\/:*?"<>|]/g, '_') + '.pdf';
   return { name: name, key: norm(name), pdf: jpegToPdf(jpeg, cv.width, cv.height) };
 }
+/** 写真を長辺1600pxまでに縮めて、保存用の文字列（JPEG）にする */
+function imgToDataUrl(im) {
+  var sc = Math.min(1, 1600 / Math.max(im.naturalWidth, im.naturalHeight));
+  var cv = document.createElement('canvas'); cv.width = Math.round(im.naturalWidth * sc); cv.height = Math.round(im.naturalHeight * sc);
+  var cx = cv.getContext('2d'); cx.fillStyle = '#fff'; cx.fillRect(0, 0, cv.width, cv.height); cx.drawImage(im, 0, 0, cv.width, cv.height);
+  return cv.toDataURL('image/jpeg', 0.85);
+}
 /** 後から編集できるよう、入力した内容（写真・品番・収容数・ポイント）もいっしょに保存する */
 function tplSource() {
   var v = tplVal();
   return {
     pn: v.pn, qty: v.qty, pts: $('tplPts').value,
     tr: { en: $('tplTr_en').value, id: $('tplTr_id').value, tl: $('tplTr_tl').value },
-    photos: TPL.imgs.map(function (p) {
-      var im = p.im, sc = Math.min(1, 1600 / Math.max(im.naturalWidth, im.naturalHeight));
-      var cv = document.createElement('canvas'); cv.width = Math.round(im.naturalWidth * sc); cv.height = Math.round(im.naturalHeight * sc);
-      var cx = cv.getContext('2d'); cx.fillStyle = '#fff'; cx.fillRect(0, 0, cv.width, cv.height); cx.drawImage(im, 0, 0, cv.width, cv.height);
-      return cv.toDataURL('image/jpeg', 0.85);
-    })
+    photos: TPL.imgs.map(function (p) { return imgToDataUrl(p.im); })
   };
 }
 $('tplSave').onclick = async function () {

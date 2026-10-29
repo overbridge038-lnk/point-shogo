@@ -26,7 +26,9 @@ index.html            … GitHub Pages で配信する本体（dev/build.py が�
 manifest.webmanifest, sw.js, icon-*.png … PWA（sw.js はネットワーク優先＋キャッシュ）
 dev/src.html          … ★編集するのはこれ（HTML/CSS/JS すべて）
 dev/qrdecode.js       … 自作のQRデコーダ（カメラ・写真・PDF内のQR読取）
-dev/build.py          … src.html に pdf.js と qrdecode.js を埋め込んでビルド
+dev/xlsxview.js      … 自作のExcel(.xlsx)読み取り部品（ZIP展開は DecompressionStream。文字と、行に貼った写真を取り出す）
+dev/sample/          … 利用者に渡すExcelのひな形
+dev/build.py          … src.html に pdf.js・qrdecode.js・xlsxview.js を埋め込んでビルド
 dev/tests/*.js        … Playwright の回帰テスト（fixtures/ にテスト用PDF・写真）
 ```
 
@@ -54,6 +56,7 @@ npm test                         # すべての回帰テスト（e2e の "log su
 - 登録タブ：PDFの取込（ドラッグ＆ドロップ・フォルダごと）、一覧、プレビュー、保存、削除、**編集**（`editPdf()`）。
 - 設定タブ：端末番号、音、解除番号・パスワード変更、**ポイント表をつくる**（写真4枚まで＋品番・収容数・ポイント → PDF生成 `tplBuild()`。「📷 写真を撮る」でこの画面のままカメラ撮影→写真に追加。続けて撮れて4枚で自動で閉じる。ライブ映像が使えない開き方・許可なしは端末のカメラアプリに切替。`shotStop()`、テストは `tests/shot.js`。**登録・上書きのあとは入力欄をまっさらに戻し**（`tplReset()`）、結果は「✓ 登録しました／上書き保存しました」のメッセージで知らせる）、
   **翻訳（任意）**（ポイントの文を英・インドネシア・タガログで入力→`rec.src.tr` に保存。日本語以外を選んだ端末で、照合画面のPDFの上に `renderTrans()` が大きく表示。対象は「つくる」で作った表のみ。取り込んだPDFは翻訳なし。日本語から自動で入れる「自動翻訳」ボタンはオンラインのときだけ動く（`trOne()`、失敗時は何も変えない、既存の翻訳は確認してから上書き）。テストは `tests/trans.js`・`tests/trauto.js`（翻訳サービスは偽物に差し替え）。実サービスでの動作は未確認）、
+  **Excelの一覧から、まとめてポイント表を作る**（`xlRead()`。1行目が見出し：品番・収容数・ポイント（1セル改行 or ポイント1,2…）・英語・インドネシア語・タガログ語。その行に貼った画像（4枚まで）が写真。同じ品番は上書き。登録前に一覧で確認、エラー行（品番なし・収容数が数字でない・ポイントなし・品番の重複）は飛ばす。描画は `tplPaint()` を共用。テストは `tests/xl.js`。.xls は不可）、
   **ポイント表の受け渡し**（全PDFを1つの `.ptpack` に書き出し／取り込み。先頭 `PTPACK1\n`＋見出しJSON＋PDF連結。取り込み前に新規・上書き・変更なし・削除の件数を表示。「追加・上書き」と「全部入れ替え」を選べる。`pkPreview()`、テストは `tests/pack.js`）、記録のクリア。
 - 照合画面のポイント表はズーム可能（ボタン・ピンチ・ダブルタップ）。
 
