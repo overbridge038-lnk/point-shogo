@@ -2827,6 +2827,26 @@ function scanReady() {
     !$('plist').classList.contains('on') && !$('pview').classList.contains('on');
 }
 function focusScan() { if (scanReady() && document.activeElement !== scanInp) { try { scanInp.focus({ preventScroll: true }); } catch (e) { scanInp.focus(); } } }
+// QRの中の見えない制御文字（GS・RS・EOT など）を、スキャナーは「Ctrl＋キー」で送ってくる（GS＝Ctrl+]、EOT＝Ctrl+D など）。
+// ブラウザに渡すと Ctrl+E・Ctrl+K・Ctrl+L（アドレスバーで検索）などとして動き、照合画面から離れてしまう（高木新城のQRで発生）。
+// Ctrl・Alt 付きのキーは、どの画面・手入力中でもブラウザに渡さず止める（ポカヨケ）。制御文字は区切りの空白として読取に入れる。
+// 入力欄の中のコピー・貼り付けなど（Ctrl+A・C・V・X・Z・Y）と、F5 などのファンクションキーだけは通す（スキャナーは送らない）。
+function modKey(e) { return e.key === 'Control' || e.key === 'Alt' || e.key === 'AltGraph' || e.key === 'Shift' || e.key === 'Meta'; }
+function editKey(e) {
+  var a = document.activeElement;
+  return e.ctrlKey && !e.altKey && /^Key[ACVXZY]$/.test(e.code) && a && /INPUT|TEXTAREA/.test(a.tagName);
+}
+document.addEventListener('keyup', function (e) { if (e.key === 'Alt') e.preventDefault(); }, true); // Altを離した時にブラウザのメニューへ移らない
+window.addEventListener('keydown', function (e) { // ほかの処理より先に受け取る（capture）
+  if (!(e.ctrlKey || e.altKey) || /^F\d+$/.test(e.key) || editKey(e)) return;
+  e.preventDefault(); e.stopPropagation();
+  if (!e.ctrlKey || e.altKey || modKey(e)) return;
+  var enter = e.code === 'KeyM' || e.code === 'KeyJ'; // CR・LF（Ctrl+M・Ctrl+J）は Enter と同じ
+  if (manualOn && document.activeElement === $('manIn')) { if (enter) manualSubmit(); else $('manIn').value += ' '; return; }
+  if (!scanReady()) return;
+  if (enter) { if (scanInp.value || scanBuf) scanFlush(); return; }
+  if (scanBuf) { scanBuf += ' '; scanLast = performance.now(); armFlush(); }
+}, true);
 document.addEventListener('keydown', function (e) {
   if (!scanReady()) return;
   var a = document.activeElement;
