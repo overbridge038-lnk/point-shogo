@@ -3,7 +3,7 @@
 //   既存のChromeを使う場合: CHROME_PATH=/path/to/chrome npm test
 const { execFileSync } = require('child_process'); const path = require('path');
 const F = path.join(__dirname, 'fixtures');
-const tests = ['e2e', 'toyo', 'ctrl', 'combo', 'sub', 'edit', 'del', 'zoom', 'lock', 'pack', 'trans', 'trauto', 'shot', 'xl', 'xldrop', 'xlview', 'tplpdf', 'lang4', 'lang5'];
+const tests = ['e2e', 'toyo', 'ctrl', 'combo', 'sub', 'edit', 'del', 'zoom', 'lock', 'pack', 'trans', 'trauto', 'shot', 'pick', 'xl', 'xldrop', 'xlview', 'tplpdf', 'lang4', 'lang5'];
 let ng = 0;
 for (const t of tests) {
   process.stdout.write('\n===== ' + t + ' =====\n');

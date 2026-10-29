@@ -209,6 +209,11 @@ label.f{display:flex;flex-direction:column;gap:6px;font-size:14px;font-weight:80
 #pdfList .pacts .btn{flex:1 1 calc(50% - 4px)}
 .pacts .btn{flex:1;min-height:40px;padding:4px 6px;font-size:13px;white-space:nowrap}
 .pempty{grid-column:1/-1;padding:24px;text-align:center;color:var(--sub);font-weight:700}
+#pick{position:fixed;inset:0;z-index:60;display:none;background:rgba(36,26,74,.6);padding:16px;align-items:center;justify-content:center}
+#pick.on{display:flex}
+#pick .pvbox{max-height:100%}
+#pick .pcard.same{background:var(--mint-soft)} #pick .pcard.diff{background:var(--sun-soft)}
+#pick .badge{font-weight:900;color:var(--ink)}
 #plist{position:fixed;inset:0;z-index:63;display:none;background:rgba(36,26,74,.55);padding:16px;align-items:center;justify-content:center}
 #plist.on{display:flex}
 #plist .pvbox{height:100%}
@@ -575,6 +580,13 @@ html[lang=tl] .tab,html[lang=id] .tab{font-size:14px}
   </div>
 </div>
 <div id="toast"></div>
+<div id="pick" role="dialog" aria-modal="true">
+  <div class="pvbox">
+    <div class="pvhead"><b data-i18n="pick_title">同じ読み取りに、複数のポイント表が当たりました</b></div>
+    <div class="pvbody" style="text-align:left"><p class="note" data-i18n="pick_note"></p><div class="pgrid" id="pickGrid"></div></div>
+    <div class="cambar" style="display:flex;padding:10px 14px;border-top:var(--line)"><button class="btn dng" id="pickCancel" data-i18n="pick_cancel">どれも使わない（NGで止める）</button></div>
+  </div>
+</div>
 <div id="plist" role="dialog" aria-modal="true">
   <div class="pvbox">
     <div class="pvhead"><b data-i18n="pl_title">登録済みのポイント表</b><span class="note" id="plCount" style="margin:0"></span><span style="flex:1"></span><button class="btn" id="plClose" data-i18n="c_close">✕ 閉じる</button></div>
@@ -680,6 +692,15 @@ var I18N = {
     ng_noreg: "この品番のポイント表がありません（品番違いの疑い）",
     ng_mis: "品番が一致しません（誤品の疑い）",
     ng_multi: "QRの中に複数のポイント表の品番があります",
+    pick_title: "同じ読み取りに、複数のポイント表が当たりました",
+    pick_note: "どれを使うか選んでください。緑は「同じ内容のファイルが他にもある」もの、黄色は「ほかと内容がちがう」ものです。ちがうものは、見本や🔍で確かめて選んでください。選んだことは記録に残ります。",
+    pick_use: "これを使う",
+    pick_cancel: "どれも使わない（NGで止める）",
+    pick_same: "同じ内容のファイルがあります",
+    pick_diff: "ほかと内容がちがいます",
+    pick_big: "どれを使うか選んでください",
+    pick_msg: "{n} 件のポイント表が当たりました",
+    pick_log: "複数候補から選択",
     ng_twice: "かんばんをもう一度読んでいます",
     ng_open: "ポイント表PDFを開けません",
     d_k: "かんばん",
@@ -980,6 +1001,15 @@ var I18N = {
     ng_noreg: "Tabel poin untuk nomor part ini tidak ada (kemungkinan salah part)",
     ng_mis: "Nomor part tidak cocok (kemungkinan salah part)",
     ng_multi: "Di dalam QR ada lebih dari satu nomor part tabel poin",
+    pick_title: "Beberapa tabel poin cocok dengan bacaan yang sama",
+    pick_note: "Pilih yang akan dipakai. Hijau = ada file lain dengan isi sama, kuning = isinya berbeda dari yang lain. Untuk yang berbeda, periksa dengan gambar kecil atau 🔍. Pilihan Anda dicatat.",
+    pick_use: "Pakai ini",
+    pick_cancel: "Jangan pakai semuanya (berhenti sebagai NG)",
+    pick_same: "Ada file lain dengan isi sama",
+    pick_diff: "Isinya berbeda dari yang lain",
+    pick_big: "Pilih yang akan dipakai",
+    pick_msg: "{n} tabel poin cocok",
+    pick_log: "Dipilih dari beberapa kandidat",
     ng_twice: "Kanban yang sama di-scan lagi",
     ng_open: "PDF tabel poin tidak bisa dibuka",
     d_k: "Kanban",
@@ -1280,6 +1310,15 @@ var I18N = {
     ng_noreg: "Walang point table para sa part number na ito (baka maling part)",
     ng_mis: "Hindi tugma ang part number (baka maling part)",
     ng_multi: "May higit sa isang part number ng point table sa loob ng QR",
+    pick_title: "Maraming point table ang tumugma sa iisang basa",
+    pick_note: "Piliin kung alin ang gagamitin. Berde = may ibang file na pareho ang laman, dilaw = iba ang laman kaysa sa iba. Para sa magkaiba, suriin sa thumbnail o 🔍. Itatala ang pinili mo.",
+    pick_use: "Gamitin ito",
+    pick_cancel: "Wala sa mga ito (ihinto bilang NG)",
+    pick_same: "May ibang file na pareho ang laman",
+    pick_diff: "Iba ang laman kaysa sa iba",
+    pick_big: "Piliin kung alin ang gagamitin",
+    pick_msg: "{n} point table ang tumugma",
+    pick_log: "Pinili mula sa maraming kandidato",
     ng_twice: "Na-scan ulit ang parehong kanban",
     ng_open: "Hindi mabuksan ang PDF ng point table",
     d_k: "Kanban",
@@ -1580,6 +1619,15 @@ var I18N = {
     ng_noreg: "No point table for this part number (possible wrong part)",
     ng_mis: "Part number does not match (possible wrong part)",
     ng_multi: "The QR contains more than one point table part number",
+    pick_title: "Several point tables matched the same reading",
+    pick_note: "Choose which one to use. Green = another file has the same contents, yellow = different from the others. For different ones, check the thumbnail or 🔍. Your choice is recorded.",
+    pick_use: "Use this one",
+    pick_cancel: "Use none (stop as NG)",
+    pick_same: "Another file has the same contents",
+    pick_diff: "Different from the others",
+    pick_big: "Choose which one to use",
+    pick_msg: "{n} point tables matched",
+    pick_log: "Chosen from several candidates",
     ng_twice: "The same kanban was scanned again",
     ng_open: "Cannot open the point table PDF",
     d_k: "Kanban",
@@ -2049,8 +2097,9 @@ function onScan(raw) {
   return startKanban(raw); // 'k' または 'done'（次のかんばん）
 }
 
+var PICKED = false; // 複数の候補から選んで使ったか（記録に残す）
 async function startKanban(raw) {
-  resetView();
+  resetView(); PICKED = false;
   S.state = 'busy'; S.kRaw = raw;
   // 照合は「かんばんQRの品番」と「ポイント表PDFのファイル名（＝品番）」で行う。PDFの中身は照合に使わない
   // ⓪ トヨタ形式の品番（数字5桁-英数5桁［-2桁］）をQRの中から抜き取って、最初に照合する
@@ -2069,11 +2118,13 @@ async function startKanban(raw) {
   }).filter(Boolean).sort(function (a, b) { return b.n - a.n || b.len - a.len; });
   if (combo.length) {
     var best = combo.filter(function (c) { return c.n === combo[0].n && c.len === combo[0].len; });
-    if (best.length > 1) {
+    if (best.length > 1) { // 同じくわしさで複数当たった → どれを使うか選ばせる（選ばなければNGで止める）
       CARD.kPn = picked[0] || raw; renderCards(); setSteps(2);
-      return ng('ng_multi', { t: 'multi', k: picked[0] || raw, list: best.map(function (c) { return PDF_INDEX[c.k].name.replace(/\.(pdf|xlsx|xlsm)$/i, ''); }).join('、') }, { kRaw: raw, part: best.map(function (c) { return c.k; }).join('/') });
-    }
-    key = combo[0].k; shown = PDF_INDEX[key].name.replace(/\.(pdf|xlsx|xlsm)$/i, '');
+      var ck = await pickDoc(best.map(function (c) { return c.k; }));
+      if (!ck) return ng('ng_multi', { t: 'multi', k: picked[0] || raw, list: best.map(function (c) { return PDF_INDEX[c.k].name.replace(/\.(pdf|xlsx|xlsm)$/i, ''); }).join('、') }, { kRaw: raw, part: best.map(function (c) { return c.k; }).join('/') });
+      PICKED = true; key = ck;
+    } else key = combo[0].k;
+    shown = PDF_INDEX[key].name.replace(/\.(pdf|xlsx|xlsm)$/i, '');
   }
   // ① 抜き取った品番、または区切り（カンマ・空白など）で分けた項目が、そのまま品番と一致
   if (!key) for (var i = 0; i < cand.length; i++) { var k = norm(cand[i]); if (k && PDF_INDEX[k]) { key = k; shown = cand[i]; break; } }
@@ -2088,7 +2139,9 @@ async function startKanban(raw) {
     if (phit.length === 1) { key = phit[0]; shown = PDF_INDEX[key].name.replace(/\.(pdf|xlsx|xlsm)$/i, ''); }
     else if (phit.length > 1) {
       CARD.kPn = raw; renderCards(); setSteps(2);
-      return ng('ng_multi', { t: 'multi', k: raw, list: phit.map(function (k) { return PDF_INDEX[k].name.replace(/\.(pdf|xlsx|xlsm)$/i, ''); }).join('、') }, { kRaw: raw, part: phit.join('/') });
+      var ck2 = await pickDoc(phit);
+      if (!ck2) return ng('ng_multi', { t: 'multi', k: raw, list: phit.map(function (k) { return PDF_INDEX[k].name.replace(/\.(pdf|xlsx|xlsm)$/i, ''); }).join('、') }, { kRaw: raw, part: phit.join('/') });
+      PICKED = true; key = ck2; shown = PDF_INDEX[key].name.replace(/\.(pdf|xlsx|xlsm)$/i, '');
     }
   }
   // ② 区切りのないQR（固定長など）：QRの中に登録済みの品番が含まれていれば一致とする
@@ -2103,7 +2156,9 @@ async function startKanban(raw) {
       if (pref.length === 1) top = pref;
       if (top.length > 1) { // 同じ長さで別の品番が2つ以上 → どちらか決められないので止める
         CARD.kPn = raw; renderCards(); setSteps(2);
-        return ng('ng_multi', { t: 'multi', k: raw, list: top.map(function (k) { return PDF_INDEX[k].name.replace(/\.(pdf|xlsx|xlsm)$/i, ''); }).join('、') }, { kRaw: raw, part: top.join('/') });
+        var ck3 = await pickDoc(top);
+        if (!ck3) return ng('ng_multi', { t: 'multi', k: raw, list: top.map(function (k) { return PDF_INDEX[k].name.replace(/\.(pdf|xlsx|xlsm)$/i, ''); }).join('、') }, { kRaw: raw, part: top.join('/') });
+        PICKED = true; top = [ck3];
       }
       key = top[0]; shown = PDF_INDEX[key].name.replace(/\.(pdf|xlsx|xlsm)$/i, '');
     }
@@ -2127,7 +2182,7 @@ async function startKanban(raw) {
   setSteps(3, true);
   setJudge('ok', 'OK', 'ok_msg', { pn: S.kShown });
   soundOk();
-  addLog({ result: 'OK', reason: '', kRaw: S.kRaw, part: S.kKey, pdf: S.pdfName });
+  addLog({ result: 'OK', reason: PICKED ? '複数候補から選択' : '', kRaw: S.kRaw, part: S.kKey, pdf: S.pdfName });
 }
 
 // ---------- NG：止める（アンドン） ----------
@@ -2698,6 +2753,30 @@ $('xlGo').onclick = async function () {
   } catch (e) { msg.innerHTML = '<span style="color:var(--ng);font-weight:800">⚠ ' + esc(t('xl_bad')) + '</span>'; }
   finally { btn.disabled = false; }
 };
+/** 同じ読み取りに複数のポイント表が当たった時、どれを使うか選ばせる。選んだ表の名前（照合キー）を返す。やめたら null（呼び出し側がNGで止める） */
+async function pickDoc(keys) {
+  var recs = await Promise.all(keys.map(getPdf));
+  setJudge('warn', 'pick_big', 'pick_msg', { n: keys.length });
+  $('pickGrid').innerHTML = keys.map(function (k, i) {
+    var v = PDF_INDEX[k], same = recs.some(function (r, j) { return j !== i && r && recs[i] && pkSame(r.data, recs[i].data); });
+    return '<div class="pcard ' + (same ? 'same' : 'diff') + '"><button class="pthumb" data-pick="' + esc(k) + '" data-thumb="' + esc(k) + '" aria-label="' + esc(v.name) + '"><span>…</span></button>' +
+      '<div class="pinfo"><b class="mono">' + esc(v.name.replace(/\.(pdf|xlsx|xlsm)$/i, '')) + '</b><div class="note">' + esc(v.at) + '・' + Math.round(v.size / 1024) + ' KB</div>' +
+      '<div class="note badge">' + (same ? '＝ ' + esc(t('pick_same')) : '≠ ' + esc(t('pick_diff'))) + '</div></div>' +
+      '<div class="pacts"><button class="btn pri" data-pick="' + esc(k) + '">' + esc(t('pick_use')) + '</button><button class="btn" data-view="' + esc(k) + '">🔍</button></div></div>';
+  }).join('');
+  $('pickGrid').querySelectorAll('[data-thumb]').forEach(fillThumb);
+  $('pick').classList.add('on');
+  return new Promise(function (res) {
+    function done(k) { $('pick').classList.remove('on'); $('pickGrid').onclick = null; $('pickCancel').onclick = null; document.removeEventListener('keydown', onKey, true); res(k); }
+    function onKey(e) { if (e.key === 'Escape' && !$('pview').classList.contains('on')) { e.preventDefault(); done(null); } }
+    document.addEventListener('keydown', onKey, true);
+    $('pickCancel').onclick = function () { done(null); };
+    $('pickGrid').onclick = function (e) {
+      var v = e.target.closest('[data-view]'); if (v) return openPreview(v.getAttribute('data-view'));
+      var b = e.target.closest('[data-pick]'); if (b) done(b.getAttribute('data-pick'));
+    };
+  });
+}
 /** ポイント表を1件削除（確認つき） */
 async function deletePdf(k) {
   var v = PDF_INDEX[k]; if (!v) return false;
