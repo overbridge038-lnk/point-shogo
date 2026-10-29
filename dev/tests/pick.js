@@ -36,8 +36,16 @@ const { chromium } = require('playwright'); const S = process.argv[2]; const fs 
   await p.evaluate(() => { onScan('99999-11111'); }); await p.waitForFunction(() => document.getElementById('pick').classList.contains('on'));
   console.log('single name + (1) copy chooser:', await p.locator('#pickGrid .pcard .mono').allInnerTexts()); await p.click('#pickCancel'); await p.waitForFunction(() => document.getElementById('ng').classList.contains('on'));
   for (const k of '1234') await p.click(`#pad button:text-is("${k}")`); await p.click('#pad button:text-is("OK")'); await p.waitForTimeout(300);
+  // 3.7) 名前の頭が同じで、あとに言葉が付いたもの（17850-V1010,B999 と 17850-V1010,B999 古い）も、選ばせる。名前のちがう部分に色がつく
+  await p.click('.tab[data-v=pdf]'); if (await p.locator('#pinPad').isVisible()) { for (const k of '0000') await p.click(`#pinPad button:text-is("${k}")`); await p.click('#pinOk'); }
+  await p.setInputFiles('#fileIn', [{ name: '17850-V1010,B999 古い.pdf', mimeType: 'application/pdf', buffer: other }, { name: '55555-66666.pdf', mimeType: 'application/pdf', buffer: src }]); await p.waitForFunction(() => Object.keys(PDF_INDEX).length === 7); await p.click('.tab[data-v=check]');
+  await p.evaluate(() => { onScan('17850-V1010,B999'); }); await p.waitForFunction(() => document.getElementById('pick').classList.contains('on'));
+  console.log('prefix family:', await p.locator('#pickGrid .pcard').evaluateAll(cs => cs.map(c => c.querySelector('.mono').textContent + ' {pink:' + (c.querySelector('mark.dif') || { textContent: '' }).textContent + '}').join(' || ')));
+  await p.screenshot({ path: S + '/pick2.png' }); await p.click('#pickCancel'); await p.waitForFunction(() => document.getElementById('ng').classList.contains('on'));
+  for (const k of '1234') await p.click(`#pad button:text-is("${k}")`); await p.click('#pad button:text-is("OK")'); await p.waitForTimeout(300);
+  // 異なる品番（12345 と 123456）は、選ばせない
   // 4) 1つに決まる読み取りは、選ばずにそのまま OK
-  await p.evaluate(() => onScan('17850-V1010,B999')); await p.waitForFunction(() => document.getElementById('jBig').textContent === 'OK', null, { timeout: 30000 });
+  await p.evaluate(() => onScan('55555-66666')); await p.waitForFunction(() => document.getElementById('jBig').textContent === 'OK', null, { timeout: 30000 });
   console.log('single match:', await p.textContent('#pdfName'), '| chooser shown:', await shown());
   console.log('pageerrors:', errs.length ? errs : 'none'); await b.close();
 })();
