@@ -221,6 +221,10 @@ label.f{display:flex;flex-direction:column;gap:6px;font-size:14px;font-weight:80
 #plist .pvbox{height:100%}
 #pview{position:fixed;inset:0;z-index:64;display:none;background:rgba(36,26,74,.55);padding:16px;align-items:center;justify-content:center}
 #pview.on{display:flex}
+#vidView{position:fixed;inset:0;z-index:66;display:none;background:rgba(36,26,74,.7);padding:16px;align-items:center;justify-content:center}
+#vidView.on{display:flex}
+#vidEl{width:100%;max-height:70vh;background:#000;border-radius:10px}
+#vidBtn{min-height:34px;padding:2px 12px;font-size:14px}
 .pvbox{background:var(--card);border:var(--line);border-radius:22px;box-shadow:var(--pop);width:min(1100px,100%);max-height:100%;display:flex;flex-direction:column;overflow:hidden}
 .pvhead{display:flex;align-items:center;gap:10px;padding:10px 16px;border-bottom:var(--line);background:var(--sun-soft)}
 .pvhead b{font-size:20px;font-weight:900}
@@ -356,11 +360,11 @@ html[lang=my],html[lang=ne],html[lang=bn],html[lang=si]{line-height:1.5} /* ミ�
     <button class="btn langBtn" data-lang="si"><span class="flag">🇱🇰</span>සිංහල</button>
   </div>
   <p id="startNote" style="font-size:13px">準備中…</p>
-  <p class="ver" style="font-size:12px;opacity:.85">ver.2026.10.30 17:03 (#65)</p>
+  <p class="ver" style="font-size:12px;opacity:.85">ver.2026.10.30 17:35 (#67)</p>
 </div>
 
 <header>
-  <h1><i class="logo" data-mascot="ok"></i><span>ポイント表照合</span><small class="ver" title="版（ビルドした日時）">ver.2026.10.30 17:03 (#65)</small></h1>
+  <h1><i class="logo" data-mascot="ok"></i><span>ポイント表照合</span><small class="ver" title="版（ビルドした日時）">ver.2026.10.30 17:35 (#67)</small></h1>
   <div class="tabs">
     <button class="tab on" data-v="check" data-i18n="tab_check">照合</button>
     <button class="tab" data-v="pdf" data-i18n="tab_pdf">ポイント表の登録</button>
@@ -419,7 +423,7 @@ html[lang=my],html[lang=ne],html[lang=bn],html[lang=si]{line-height:1.5} /* ミ�
     </div>
   </div>
   <div class="right">
-    <div class="pdfhead"><span data-i18n="pdf_h">ポイント表：</span><b id="pdfName">―</b><span style="flex:1"></span><div class="zoomBar" id="zoomBar" hidden><button id="zOut" aria-label="縮小">－</button><span id="zLbl">100%</span><button id="zIn" aria-label="拡大">＋</button><button id="zFit" class="zfit" data-i18n="z_fit">全体</button></div><span id="pdfCount"></span></div>
+    <div class="pdfhead"><span data-i18n="pdf_h">ポイント表：</span><b id="pdfName">―</b><span style="flex:1"></span><button class="btn pri" id="vidBtn" hidden data-i18n="vid_play">▶ 動画を見る</button><div class="zoomBar" id="zoomBar" hidden><button id="zOut" aria-label="縮小">－</button><span id="zLbl">100%</span><button id="zIn" aria-label="拡大">＋</button><button id="zFit" class="zfit" data-i18n="z_fit">全体</button></div><span id="pdfCount"></span></div>
     <div id="ptTrans" hidden></div>
     <div id="pdfbox"><div class="empty"><span data-mascot="wait"></span>かんばんを読むと、ここにポイント表が開きます</div></div>
   </div>
@@ -617,6 +621,13 @@ html[lang=my],html[lang=ne],html[lang=bn],html[lang=si]{line-height:1.5} /* ミ�
     <div class="pvbody" style="text-align:left"><div class="pgrid" id="plGrid"></div></div>
   </div>
 </div>
+<div id="vidView" role="dialog" aria-modal="true">
+  <div class="pvbox">
+    <div class="pvhead"><b class="mono" id="vidName"></b><span style="flex:1"></span><button class="btn" id="vidClose" data-i18n="c_close">✕ 閉じる</button></div>
+    <div class="pvbody"><video id="vidEl" controls playsinline preload="metadata"></video><p class="note" id="vidErr" style="color:var(--ng);font-weight:800" hidden></p></div>
+  </div>
+</div>
+<input type="file" id="vidIn" accept="video/*,.mp4,.m4v,.webm,.mov" hidden>
 <div id="pview" role="dialog" aria-modal="true">
   <div class="pvbox">
     <div class="pvhead"><div><div class="note" style="margin:0" data-i18n="pv_title">ポイント表</div><b class="mono" id="pvName"></b></div><span style="flex:1"></span><button class="btn" id="pvClose" data-i18n="c_close">✕ 閉じる</button></div>
@@ -2124,7 +2135,18 @@ var I18N = {
     cl_done_day: "{d} の記録を削除しました（{n}件）",
     cl_none: "削除する記録はありません",
     cl_conf_all: "すべての照合記録 {n}件を削除します。元に戻せません。よろしいですか？",
-    cl_done_all: "すべての記録を削除しました（{n}件）"
+    cl_done_all: "すべての記録を削除しました（{n}件）",
+    vid_add: "🎬 動画をつける",
+    vid_replace: "🎬 入れ替え",
+    vid_play: "▶ 動画を見る",
+    vid_del: "🗑 動画を消す",
+    vid_del_confirm: "「{name}」の動画を消しますか？",
+    vid_big: "動画が大きすぎます（{n}MBまで）。短く・小さくして入れ直してください",
+    vid_notvid: "動画ファイルを選んでください（MP4がおすすめ）",
+    vid_saved: "動画をつけました：{name}",
+    vid_deleted: "動画を消しました",
+    vid_err: "⚠ 動画を再生できません（形式が合わないかもしれません。MP4にしてください）",
+    vid_save_err: "⚠ 動画を保存できません（保存場所がいっぱいかもしれません）"
   },
   id: {
     tab_check: "Cek",
@@ -2438,7 +2460,18 @@ var I18N = {
     cl_done_day: "Catatan {d} dihapus ({n})",
     cl_none: "Tidak ada catatan untuk dihapus",
     cl_conf_all: "Hapus semua {n} catatan? Tidak bisa dikembalikan.",
-    cl_done_all: "Semua catatan dihapus ({n})"
+    cl_done_all: "Semua catatan dihapus ({n})",
+    vid_add: "🎬 Tambah video",
+    vid_replace: "🎬 Ganti",
+    vid_play: "▶ Lihat video",
+    vid_del: "🗑 Hapus video",
+    vid_del_confirm: "Hapus video untuk \"{name}\"?",
+    vid_big: "Video terlalu besar (maksimal {n} MB). Buat lebih pendek atau kecil lalu coba lagi",
+    vid_notvid: "Pilih file video (disarankan MP4)",
+    vid_saved: "Video ditambahkan: {name}",
+    vid_deleted: "Video dihapus",
+    vid_err: "⚠ Video tidak bisa diputar (formatnya mungkin tidak didukung. Gunakan MP4)",
+    vid_save_err: "⚠ Video tidak bisa disimpan (penyimpanan mungkin penuh)"
   },
   tl: {
     tab_check: "Suriin",
@@ -2752,7 +2785,18 @@ var I18N = {
     cl_done_day: "Nabura ang talaan ng {d} ({n})",
     cl_none: "Walang talaang buburahin",
     cl_conf_all: "Burahin ang lahat ng {n} talaan? Hindi na maibabalik.",
-    cl_done_all: "Nabura ang lahat ng talaan ({n})"
+    cl_done_all: "Nabura ang lahat ng talaan ({n})",
+    vid_add: "🎬 Magdagdag ng video",
+    vid_replace: "🎬 Palitan",
+    vid_play: "▶ Panoorin ang video",
+    vid_del: "🗑 Burahin ang video",
+    vid_del_confirm: "Burahin ang video ng \"{name}\"?",
+    vid_big: "Masyadong malaki ang video (hanggang {n} MB). Paikliin o paliitin at subukan muli",
+    vid_notvid: "Pumili ng video file (inirerekomenda ang MP4)",
+    vid_saved: "Naidagdag ang video: {name}",
+    vid_deleted: "Nabura ang video",
+    vid_err: "⚠ Hindi mapatugtog ang video (maaaring hindi suportado ang format. Gumamit ng MP4)",
+    vid_save_err: "⚠ Hindi ma-save ang video (maaaring puno na ang storage)"
   },
   en: {
     tab_check: "Check",
@@ -3066,7 +3110,18 @@ var I18N = {
     cl_done_day: "Deleted records from {d} ({n})",
     cl_none: "No records to delete",
     cl_conf_all: "Delete all {n} records? This cannot be undone.",
-    cl_done_all: "All records deleted ({n})"
+    cl_done_all: "All records deleted ({n})",
+    vid_add: "🎬 Add video",
+    vid_replace: "🎬 Replace",
+    vid_play: "▶ Watch video",
+    vid_del: "🗑 Delete video",
+    vid_del_confirm: "Delete the video for \"{name}\"?",
+    vid_big: "The video is too large (up to {n} MB). Make it shorter or smaller and try again",
+    vid_notvid: "Choose a video file (MP4 is recommended)",
+    vid_saved: "Video added: {name}",
+    vid_deleted: "Video deleted",
+    vid_err: "⚠ Cannot play the video (the format may not be supported. Use MP4)",
+    vid_save_err: "⚠ Cannot save the video (storage may be full)"
   },
   vi: {
     tab_check: "Kiểm tra",
@@ -3380,7 +3435,18 @@ var I18N = {
     cl_done_day: "Đã xóa lịch sử ngày {d} ({n})",
     cl_none: "Không có lịch sử để xóa",
     cl_conf_all: "Xóa toàn bộ {n} bản ghi? Không thể hoàn tác.",
-    cl_done_all: "Đã xóa toàn bộ lịch sử ({n})"
+    cl_done_all: "Đã xóa toàn bộ lịch sử ({n})",
+    vid_add: "🎬 Thêm video",
+    vid_replace: "🎬 Thay",
+    vid_play: "▶ Xem video",
+    vid_del: "🗑 Xóa video",
+    vid_del_confirm: "Xóa video của \"{name}\"?",
+    vid_big: "Video quá lớn (tối đa {n} MB). Hãy làm ngắn hoặc nhỏ hơn rồi thử lại",
+    vid_notvid: "Hãy chọn file video (nên dùng MP4)",
+    vid_saved: "Đã thêm video: {name}",
+    vid_deleted: "Đã xóa video",
+    vid_err: "⚠ Không phát được video (có thể định dạng không hỗ trợ. Hãy dùng MP4)",
+    vid_save_err: "⚠ Không lưu được video (bộ nhớ có thể đã đầy)"
   },
   my: {
     tab_check: "စစ်ဆေးခြင်း",
@@ -3694,7 +3760,18 @@ var I18N = {
     cl_done_day: "{d} ၏ မှတ်တမ်းများကို ဖျက်ပြီးပါပြီ ({n})",
     cl_none: "ဖျက်ရန် မှတ်တမ်းမရှိပါ",
     cl_conf_all: "မှတ်တမ်းအားလုံး {n} ခုကို ဖျက်မလား? ပြန်မရနိုင်ပါ။",
-    cl_done_all: "မှတ်တမ်းအားလုံး ဖျက်ပြီးပါပြီ ({n})"
+    cl_done_all: "မှတ်တမ်းအားလုံး ဖျက်ပြီးပါပြီ ({n})",
+    vid_add: "🎬 ဗီဒီယို ထည့်မည်",
+    vid_replace: "🎬 လဲမည်",
+    vid_play: "▶ ဗီဒီယို ကြည့်မည်",
+    vid_del: "🗑 ဗီဒီယို ဖျက်မည်",
+    vid_del_confirm: "\"{name}\" ၏ ဗီဒီယိုကို ဖျက်မလား?",
+    vid_big: "ဗီဒီယို ကြီးလွန်းသည် (အများဆုံး {n} MB)။ တိုအောင် သို့မဟုတ် သေးအောင်လုပ်ပြီး ထပ်ကြိုးစားပါ",
+    vid_notvid: "ဗီဒီယိုဖိုင်ကို ရွေးပါ (MP4 ကို အကြံပြုသည်)",
+    vid_saved: "ဗီဒီယို ထည့်ပြီးပါပြီ: {name}",
+    vid_deleted: "ဗီဒီယို ဖျက်ပြီးပါပြီ",
+    vid_err: "⚠ ဗီဒီယို မဖွင့်နိုင်ပါ (ပုံစံ မကိုက်ညီနိုင်သည်။ MP4 သုံးပါ)",
+    vid_save_err: "⚠ ဗီဒီယို မသိမ်းနိုင်ပါ (သိမ်းစရာနေရာ ပြည့်နေနိုင်သည်)"
   },
   ne: {
     tab_check: "जाँच",
@@ -4008,7 +4085,18 @@ var I18N = {
     cl_done_day: "{d} का अभिलेख मेटिए ({n})",
     cl_none: "मेट्न अभिलेख छैन",
     cl_conf_all: "सबै {n} अभिलेख मेट्ने? यो फिर्ता गर्न सकिँदैन।",
-    cl_done_all: "सबै अभिलेख मेटिए ({n})"
+    cl_done_all: "सबै अभिलेख मेटिए ({n})",
+    vid_add: "🎬 भिडियो थप्ने",
+    vid_replace: "🎬 बदल्ने",
+    vid_play: "▶ भिडियो हेर्ने",
+    vid_del: "🗑 भिडियो हटाउने",
+    vid_del_confirm: "\"{name}\" को भिडियो हटाउने?",
+    vid_big: "भिडियो धेरै ठूलो छ (अधिकतम {n} MB)। छोटो वा सानो बनाएर फेरि प्रयास गर्नुहोस्",
+    vid_notvid: "भिडियो फाइल छान्नुहोस् (MP4 सिफारिस गरिन्छ)",
+    vid_saved: "भिडियो थपियो: {name}",
+    vid_deleted: "भिडियो हटाइयो",
+    vid_err: "⚠ भिडियो चलाउन सकिएन (ढाँचा मिलेको नहुन सक्छ। MP4 प्रयोग गर्नुहोस्)",
+    vid_save_err: "⚠ भिडियो सेभ गर्न सकिएन (भण्डारण भरिएको हुन सक्छ)"
   },
   bn: {
     tab_check: "যাচাই",
@@ -4322,7 +4410,18 @@ var I18N = {
     cl_done_day: "{d}-এর রেকর্ড মোছা হয়েছে ({n})",
     cl_none: "মোছার মতো রেকর্ড নেই",
     cl_conf_all: "সব {n}টি রেকর্ড মুছবেন? এটি ফেরানো যায় না।",
-    cl_done_all: "সব রেকর্ড মোছা হয়েছে ({n})"
+    cl_done_all: "সব রেকর্ড মোছা হয়েছে ({n})",
+    vid_add: "🎬 ভিডিও যোগ করুন",
+    vid_replace: "🎬 বদলান",
+    vid_play: "▶ ভিডিও দেখুন",
+    vid_del: "🗑 ভিডিও মুছুন",
+    vid_del_confirm: "\"{name}\"-এর ভিডিও মুছবেন?",
+    vid_big: "ভিডিও খুব বড় (সর্বোচ্চ {n} MB)। ছোট বা কম আকারের করে আবার চেষ্টা করুন",
+    vid_notvid: "ভিডিও ফাইল বাছুন (MP4 সুপারিশ করা হয়)",
+    vid_saved: "ভিডিও যোগ হয়েছে: {name}",
+    vid_deleted: "ভিডিও মোছা হয়েছে",
+    vid_err: "⚠ ভিডিও চালানো গেল না (ফরম্যাট সমর্থিত নাও হতে পারে। MP4 ব্যবহার করুন)",
+    vid_save_err: "⚠ ভিডিও সেভ করা গেল না (স্টোরেজ ভরে যেতে পারে)"
   },
   mn: {
     tab_check: "Шалгах",
@@ -4636,7 +4735,18 @@ var I18N = {
     cl_done_day: "{d}-ний бүртгэлийг устгалаа ({n})",
     cl_none: "Устгах бүртгэл алга",
     cl_conf_all: "Нийт {n} бүртгэлийг устгах уу? Буцаах боломжгүй.",
-    cl_done_all: "Бүх бүртгэлийг устгалаа ({n})"
+    cl_done_all: "Бүх бүртгэлийг устгалаа ({n})",
+    vid_add: "🎬 Видео нэмэх",
+    vid_replace: "🎬 Солих",
+    vid_play: "▶ Видео үзэх",
+    vid_del: "🗑 Видео устгах",
+    vid_del_confirm: "\"{name}\"-ийн видеог устгах уу?",
+    vid_big: "Видео хэт том байна (дээд тал нь {n} MB). Богино эсвэл жижиг болгоод дахин оролд",
+    vid_notvid: "Видео файл сонго (MP4 санал болгоно)",
+    vid_saved: "Видео нэмэгдлээ: {name}",
+    vid_deleted: "Видео устгагдлаа",
+    vid_err: "⚠ Видеог тоглуулж чадсангүй (формат дэмжигдээгүй байж магадгүй. MP4 ашигла)",
+    vid_save_err: "⚠ Видеог хадгалж чадсангүй (хадгалах зай дүүрсэн байж магадгүй)"
   },
   pt: {
     tab_check: "Verificar",
@@ -4950,7 +5060,18 @@ var I18N = {
     cl_done_day: "Registros de {d} apagados ({n})",
     cl_none: "Não há registros para apagar",
     cl_conf_all: "Apagar todos os {n} registros? Não é possível desfazer.",
-    cl_done_all: "Todos os registros apagados ({n})"
+    cl_done_all: "Todos os registros apagados ({n})",
+    vid_add: "🎬 Adicionar vídeo",
+    vid_replace: "🎬 Substituir",
+    vid_play: "▶ Ver vídeo",
+    vid_del: "🗑 Excluir vídeo",
+    vid_del_confirm: "Excluir o vídeo de \"{name}\"?",
+    vid_big: "O vídeo é grande demais (até {n} MB). Deixe-o mais curto ou menor e tente de novo",
+    vid_notvid: "Escolha um arquivo de vídeo (recomendado: MP4)",
+    vid_saved: "Vídeo adicionado: {name}",
+    vid_deleted: "Vídeo excluído",
+    vid_err: "⚠ Não foi possível reproduzir o vídeo (o formato pode não ser aceito. Use MP4)",
+    vid_save_err: "⚠ Não foi possível salvar o vídeo (o armazenamento pode estar cheio)"
   },
   si: {
     tab_check: "පරීක්ෂා කිරීම",
@@ -5264,7 +5385,18 @@ var I18N = {
     cl_done_day: "{d} දිනයේ වාර්තා මැකුවා ({n})",
     cl_none: "මැකීමට වාර්තා නැත",
     cl_conf_all: "සියලු වාර්තා {n}ම මකන්නද? මෙය ආපසු හැරවිය නොහැක.",
-    cl_done_all: "සියලු වාර්තා මැකුවා ({n})"
+    cl_done_all: "සියලු වාර්තා මැකුවා ({n})",
+    vid_add: "🎬 වීඩියෝ එක් කරන්න",
+    vid_replace: "🎬 මාරු කරන්න",
+    vid_play: "▶ වීඩියෝ බලන්න",
+    vid_del: "🗑 වීඩියෝ මකන්න",
+    vid_del_confirm: "\"{name}\" හි වීඩියෝව මකන්නද?",
+    vid_big: "වීඩියෝව ඉතා විශාලයි (උපරිම {n} MB). කෙටි හෝ කුඩා කර නැවත උත්සාහ කරන්න",
+    vid_notvid: "වීඩියෝ ගොනුවක් තෝරන්න (MP4 නිර්දේශිතයි)",
+    vid_saved: "වීඩියෝව එක් කළා: {name}",
+    vid_deleted: "වීඩියෝව මැකුවා",
+    vid_err: "⚠ වීඩියෝව වාදනය කළ නොහැක (ආකෘතියට සහාය නොදක්වනවා විය හැක. MP4 භාවිත කරන්න)",
+    vid_save_err: "⚠ වීඩියෝව සුරැකිය නොහැක (ගබඩාව පිරී තිබිය හැක)"
   }
 };
 var LANG = 'ja';
@@ -5408,8 +5540,21 @@ function loadPdfIndex() {
     c.onsuccess = function () {
       var cur = c.result;
       if (cur) { var v = cur.value; PDF_INDEX[v.key] = { key: v.key, name: v.name, size: v.size, at: v.at, kind: v.kind, xl: v.xl }; cur.continue(); }
-      else res();
+      else loadVidIndex().then(res);
     };
+  });
+}
+/** 動画は kv に 'vid:品番キー' で保存する（ポイント表を上書きしても動画は残る）。一覧には大きさ・日時だけ持つ */
+var VID_INDEX = {}, VID_MAX_MB = 30;
+function loadVidIndex() {
+  return new Promise(function (res) {
+    VID_INDEX = {};
+    var c = DB.transaction('kv').objectStore('kv').openCursor();
+    c.onsuccess = function () {
+      var cur = c.result;
+      if (cur) { var v = cur.value; if (/^vid:/.test(v.k)) VID_INDEX[v.k.slice(4)] = { name: v.name, size: v.size, at: v.at }; cur.continue(); } else res();
+    };
+    c.onerror = function () { res(); };
   });
 }
 function getPdf(key) { return tx('pdfs', 'readonly', function (s) { return s.get(key); }); }
@@ -5507,7 +5652,7 @@ function resetView() {
   S = { state: 'k', kRaw: '', kKey: '', pdfName: '' };
   CARD = { kPn: '―', kRaw: '', pPn: '―', pRaw: '', pHow: '' };
   setSteps(1); setJudge('wait', 'wait_big', 'wait_msg');
-  $('pdfName').textContent = '―'; $('zoomBar').hidden = true; ZM.z = 1; TRREC = null; renderTrans(); if (XLCUR) { XV.release(XLCUR); XLCUR = null; }
+  $('pdfName').textContent = '―'; $('zoomBar').hidden = true; ZM.z = 1; TRREC = null; renderTrans(); VIDKEY = null; $('vidBtn').hidden = true; if (XLCUR) { XV.release(XLCUR); XLCUR = null; }
   $('pdfbox').innerHTML = '<div class="empty">' + mascot('wait') + esc(t('empty')) + '</div>';
   renderCards();
 }
@@ -5610,7 +5755,7 @@ async function startKanban(raw) {
   $('pdfName').textContent = rec.name;
   CARD.pPn = rec.name; renderCards();
   setJudge('wait', 'chk_big', 'chk_msg');
-  try { await (rec.kind === 'xlsx' ? renderXlsx(rec.data) : renderPdf(rec.data)); TRREC = rec.src || null; renderTrans(); }
+  try { await (rec.kind === 'xlsx' ? renderXlsx(rec.data) : renderPdf(rec.data)); TRREC = rec.src || null; renderTrans(); VIDKEY = key; $('vidBtn').hidden = !VID_INDEX[key]; }
   catch (e) { return ng('ng_open', { t: 'open', f: rec.name, e: (e && e.message || String(e)) }, { kRaw: raw, part: key, pdf: rec.name }); }
   S.state = 'done';
   setSteps(3, true);
@@ -5877,7 +6022,7 @@ function showPdfList() {
     var v = PDF_INDEX[k];
     return '<div class="pcard"><button class="pthumb" data-view="' + esc(k) + '" data-thumb="' + esc(k) + '" aria-label="' + esc(v.name) + '"><span>' + esc(t('r_making')) + '</span></button>' +
       '<div class="pinfo"><b class="mono">' + esc(v.name.replace(/\.(pdf|xlsx|xlsm)$/i, '')) + '</b><div class="note">' + esc(t('r_key')) + ' ' + esc(k) + '</div><div class="note">' + Math.round(v.size / 1024) + ' KB・' + esc(v.at) + '</div></div>' +
-      '<div class="pacts"><button class="btn" data-view="' + esc(k) + '">' + esc(t('r_view')) + '</button><button class="btn" data-dl="' + esc(k) + '">' + esc(t('r_save')) + '</button>' + ((v.kind === 'xlsx' || v.xl) ? '' : '<button class="btn" data-edit="' + esc(k) + '">' + esc(t('r_edit')) + '</button>') + '<button class="btn dng" data-del="' + esc(k) + '">' + esc(t('r_del')) + '</button></div></div>';
+      '<div class="pacts"><button class="btn" data-view="' + esc(k) + '">' + esc(t('r_view')) + '</button><button class="btn" data-dl="' + esc(k) + '">' + esc(t('r_save')) + '</button>' + ((v.kind === 'xlsx' || v.xl) ? '' : '<button class="btn" data-edit="' + esc(k) + '">' + esc(t('r_edit')) + '</button>') + (VID_INDEX[k] ? '<button class="btn" data-vidplay="' + esc(k) + '">' + esc(t('vid_play')) + '</button><button class="btn" data-vid="' + esc(k) + '">' + esc(t('vid_replace')) + '</button><button class="btn dng" data-viddel="' + esc(k) + '">' + esc(t('vid_del')) + '</button>' : '<button class="btn" data-vid="' + esc(k) + '">' + esc(t('vid_add')) + '</button>') + '<button class="btn dng" data-del="' + esc(k) + '">' + esc(t('r_del')) + '</button></div></div>';
   }).join('') || '<div class="pempty">' + (keys.length ? esc(t('r_nomatch', { q: $('pdfSearch').value })) : esc(t('r_none'))) + '</div>';
   // 画面に見えた分だけ見本を作る（件数が多くても重くならない）
   if (thumbObs) thumbObs.disconnect();
@@ -6241,10 +6386,46 @@ async function deletePdf(k) {
   var v = PDF_INDEX[k]; if (!v) return false;
   if (!confirm(t('r_del_confirm', { name: v.name }))) return false;
   await tx('pdfs', 'readwrite', function (s) { s.delete(k); });
+  if (VID_INDEX[k]) await tx('kv', 'readwrite', function (s) { s.delete('vid:' + k); });
   await loadPdfIndex(); updateHeader();
   toast(t('r_deleted', { name: v.name }), 3000);
   return true;
 }
+// ---------- ポイント表につける動画（品番ごとに1本。照合でOKのとき「▶ 動画を見る」が出る） ----------
+var VID_TARGET = null, VID_URL = null, VIDKEY = null;
+$('vidIn').onchange = async function () {
+  var f = this.files && this.files[0]; this.value = ''; var k = VID_TARGET; if (!f || !k || !PDF_INDEX[k]) return;
+  if (!(/^video\//.test(f.type) || /\.(mp4|m4v|webm|mov)$/i.test(f.name))) return toast(t('vid_notvid'), 4000);
+  if (f.size > VID_MAX_MB * 1024 * 1024) return toast(t('vid_big', { n: VID_MAX_MB }), 5000);
+  try {
+    var buf = await readBuf(f), type = f.type || (/\.webm$/i.test(f.name) ? 'video/webm' : 'video/mp4');
+    var rec = { k: 'vid:' + k, blob: new Blob([buf], { type: type }), name: f.name, size: buf.byteLength, at: today() + ' ' + nowTime() };
+    await tx('kv', 'readwrite', function (s) { s.put(rec); });
+    VID_INDEX[k] = { name: rec.name, size: rec.size, at: rec.at };
+    toast(t('vid_saved', { name: PDF_INDEX[k].name }), 3000); showPdfList();
+  } catch (e) { toast(t('vid_save_err') + ' [' + errTxt(e) + ']', 6000); }
+};
+async function deleteVideo(k) {
+  if (!VID_INDEX[k] || !confirm(t('vid_del_confirm', { name: PDF_INDEX[k] ? PDF_INDEX[k].name : k }))) return;
+  await tx('kv', 'readwrite', function (s) { s.delete('vid:' + k); });
+  delete VID_INDEX[k]; toast(t('vid_deleted'), 2500);
+}
+async function playVideo(k) {
+  var rec = await tx('kv', 'readonly', function (s) { return s.get('vid:' + k); }); if (!rec) return;
+  closeVideo(); VID_URL = URL.createObjectURL(rec.blob);
+  var v = $('vidEl'); $('vidErr').hidden = true; $('vidName').textContent = (PDF_INDEX[k] ? PDF_INDEX[k].name : k);
+  v.onerror = function () { $('vidErr').textContent = t('vid_err'); $('vidErr').hidden = false; };
+  v.src = VID_URL; $('vidView').classList.add('on');
+  try { var p = v.play(); if (p && p.catch) p.catch(function () {}); } catch (e) {}
+}
+function closeVideo() {
+  var v = $('vidEl'); try { v.pause(); } catch (e) {} v.removeAttribute('src'); try { v.load(); } catch (e) {}
+  if (VID_URL) { URL.revokeObjectURL(VID_URL); VID_URL = null; }
+  $('vidView').classList.remove('on');
+}
+$('vidClose').onclick = closeVideo;
+$('vidView').addEventListener('click', function (e) { if (e.target === $('vidView')) closeVideo(); });
+$('vidBtn').onclick = function () { if (VIDKEY) playVideo(VIDKEY); };
 var PV_KEY = null;
 function closePreview() { $('pview').classList.remove('on'); $('pvBody').innerHTML = ''; }
 $('pvClose').onclick = closePreview;
@@ -6257,6 +6438,9 @@ $('pdfList').addEventListener('click', async function (e) {
   var vb = e.target.closest('[data-view]'); if (vb) return openPreview(vb.getAttribute('data-view'));
   var eb = e.target.closest('[data-edit]'); if (eb) return editPdf(eb.getAttribute('data-edit'));
   var sb = e.target.closest('[data-dl]'); if (sb) { await savePdf(sb.getAttribute('data-dl')); return toast(t('r_saved', { name: PDF_INDEX[sb.getAttribute('data-dl')].name })); }
+  var vp = e.target.closest('[data-vidplay]'); if (vp) return playVideo(vp.getAttribute('data-vidplay'));
+  var va = e.target.closest('[data-vid]'); if (va) { VID_TARGET = va.getAttribute('data-vid'); $('vidIn').click(); return; }
+  var vd = e.target.closest('[data-viddel]'); if (vd) { await deleteVideo(vd.getAttribute('data-viddel')); return showPdfList(); }
   var db = e.target.closest('[data-del]'); if (!db) return;
   await deletePdf(db.getAttribute('data-del'));
   showPdfList();
@@ -6264,6 +6448,7 @@ $('pdfList').addEventListener('click', async function (e) {
 $('clearPdf').onclick = async function () {
   if (!confirm(t('r_clear_confirm'))) return;
   await tx('pdfs', 'readwrite', function (s) { s.clear(); });
+  var vk = Object.keys(VID_INDEX); if (vk.length) await tx('kv', 'readwrite', function (s) { vk.forEach(function (k) { s.delete('vid:' + k); }); });
   await loadPdfIndex(); showPdfList(); updateHeader();
 };
 $('fileIn').onchange = function () { importFiles(this.files); this.value = ''; };
