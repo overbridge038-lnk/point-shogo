@@ -1,5 +1,5 @@
-// 10言語（日本語・英語・ベトナム語・インドネシア語・ミャンマー語・ネパール語・タガログ語・ベンガル語・モンゴル語・ポルトガル語）
-const { chromium } = require('playwright'); const S = process.argv[2]; const LS = ['ja', 'en', 'vi', 'id', 'my', 'ne', 'tl', 'bn', 'mn', 'pt'];
+// 11言語（日本語・英語・ベトナム語・インドネシア語・ミャンマー語・ネパール語・タガログ語・ベンガル語・モンゴル語・ポルトガル語・シンハラ語）
+const { chromium } = require('playwright'); const S = process.argv[2]; const LS = ['ja', 'en', 'vi', 'id', 'my', 'ne', 'tl', 'bn', 'mn', 'pt', 'si'];
 (async () => {
   const b = await chromium.launch({ executablePath: process.env.CHROME_PATH || undefined });
   const p = await b.newPage({ viewport: { width: 1280, height: 800 } }); const errs = []; p.on('pageerror', e => errs.push(e.message)); p.on('dialog', d => d.accept());
@@ -14,7 +14,7 @@ const { chromium } = require('playwright'); const S = process.argv[2]; const LS 
   await p.setInputFiles('#tplPhotoIn', S + '/partimg-000.jpg'); await p.waitForTimeout(800);
   await p.fill('#tplPn', '77777-88888'); await p.fill('#tplQty', '8'); await p.fill('#tplPts', '向きを確認\nキズなし');
   await p.click('#tplTrBox summary');
-  for (const l of ['en', 'vi', 'id', 'my', 'ne', 'tl', 'bn', 'mn', 'pt']) await p.fill('#tplTr_' + l, l + '-1\n' + l + '-2');
+  for (const l of ['en', 'vi', 'id', 'my', 'ne', 'tl', 'bn', 'mn', 'pt', 'si']) await p.fill('#tplTr_' + l, l + '-1\n' + l + '-2');
   await p.click('#tplSave'); await p.waitForFunction(() => /登録しました/.test(document.getElementById('tplMsg').textContent), null, { timeout: 20000 });
   console.log('保存された翻訳:', await p.evaluate(async () => { const r = await getPdf(Object.keys(PDF_INDEX)[0]); return Object.keys(r.src.tr).join(','); }));
   for (const l of LS) {
