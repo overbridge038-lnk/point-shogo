@@ -360,11 +360,11 @@ html[lang=my],html[lang=ne],html[lang=bn],html[lang=si]{line-height:1.5} /* ミ�
     <button class="btn langBtn" data-lang="si"><span class="flag">🇱🇰</span>සිංහල</button>
   </div>
   <p id="startNote" style="font-size:13px">準備中…</p>
-  <p class="ver" style="font-size:12px;opacity:.85">ver.2026.10.30 17:35 (#67)</p>
+  <p class="ver" style="font-size:12px;opacity:.85">ver.2026.10.30 17:55 (#69)</p>
 </div>
 
 <header>
-  <h1><i class="logo" data-mascot="ok"></i><span>ポイント表照合</span><small class="ver" title="版（ビルドした日時）">ver.2026.10.30 17:35 (#67)</small></h1>
+  <h1><i class="logo" data-mascot="ok"></i><span>ポイント表照合</span><small class="ver" title="版（ビルドした日時）">ver.2026.10.30 17:55 (#69)</small></h1>
   <div class="tabs">
     <button class="tab on" data-v="check" data-i18n="tab_check">照合</button>
     <button class="tab" data-v="pdf" data-i18n="tab_pdf">ポイント表の登録</button>
@@ -440,10 +440,12 @@ html[lang=my],html[lang=ne],html[lang=bn],html[lang=si]{line-height:1.5} /* ミ�
       <div class="dropSub" data-i18n="r_drop_s">PDFファイルでもフォルダごとでもOK／タップするとファイルを選べます</div></div>
     </div>
     <div class="btnrow">
-      <label class="btn pri"><span data-i18n="r_pick">PDFを選んで取込</span><input type="file" id="fileIn" accept="application/pdf,.pdf,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,.xlsx,.xlsm,application/vnd.ms-excel.sheet.macroEnabled.12,application/vnd.ms-excel,.xls" multiple hidden></label>
+      <label class="btn pri"><span data-i18n="r_pick">PDFを選んで取込</span><input type="file" id="fileIn" accept="video/*,.mp4,.m4v,.webm,.mov,application/pdf,.pdf,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,.xlsx,.xlsm,application/vnd.ms-excel.sheet.macroEnabled.12,application/vnd.ms-excel,.xls" multiple hidden></label>
       <label class="btn"><span data-i18n="r_dir">フォルダごと取込</span><input type="file" id="dirIn" webkitdirectory multiple hidden></label>
+      <label class="btn"><span data-i18n="vid_bulk">🎬 動画をまとめて取り込む</span><input type="file" id="vidMulti" accept="video/*,.mp4,.m4v,.webm,.mov" multiple hidden></label>
       <button class="btn dng" id="clearPdf" data-i18n="r_clear">全部削除</button>
     </div>
+    <p class="note" data-i18n="vid_bulk_note"></p>
     <p class="note" id="impMsg"></p>
   </div>
   <div class="card">
@@ -497,7 +499,7 @@ html[lang=my],html[lang=ne],html[lang=bn],html[lang=si]{line-height:1.5} /* ミ�
             <div id="tplDropTxt"><div class="dropTtl">写真・PDFをドラッグ＆ドロップ（最大4枚）</div><div class="dropSub">タップするとファイル選択・撮影ができます。まとめて選んでもOK（コピーした画像は Ctrl＋V でも可）</div></div>
           </div>
           <div class="btnrow" style="margin-top:8px"><button type="button" class="btn pri" id="tplShot" data-i18n="tp_shot">📷 写真を撮る</button></div>
-          <input type="file" id="tplPhotoIn" accept="image/*,application/pdf,.pdf" multiple hidden>
+          <input type="file" id="tplPhotoIn" accept="image/*,application/pdf,.pdf,video/*,.mp4,.m4v,.webm,.mov" multiple hidden>
           <input type="file" id="tplShotIn" accept="image/*" capture="environment" hidden>
           <div class="tplPhotoMsg" id="tplPhotoMsg"></div>
         </div>
@@ -523,6 +525,10 @@ html[lang=my],html[lang=ne],html[lang=bn],html[lang=si]{line-height:1.5} /* ミ�
           <label class="f"><span>සිංහල</span><textarea id="tplTr_si" rows="4" spellcheck="false"></textarea></label>
           <p class="note" id="tplTrMsg" style="margin:6px 0 0"></p>
         </details>
+        <div class="tplItem"><div class="tplLbl"><b>6</b><span data-i18n="vid_h">🎬 動画（任意）</span></div>
+          <div class="btnrow" style="margin:6px 0 0"><button type="button" class="btn" id="tplVidBtn" data-i18n="vid_pick">🎬 動画を選ぶ</button><button type="button" class="btn dng" id="tplVidDel" hidden data-i18n="vid_rm">✕ 外す</button></div>
+          <p class="note" id="tplVidInfo" style="margin:6px 0 0"></p>
+          <input type="file" id="tplVidIn" accept="video/*,.mp4,.m4v,.webm,.mov" hidden></div>
         <p class="note" id="tplMsg" style="margin:0"></p>
         <div class="btnrow">
           <button class="btn pri" id="tplSave" data-i18n="tp_save">登録する</button>
@@ -2146,7 +2152,16 @@ var I18N = {
     vid_saved: "動画をつけました：{name}",
     vid_deleted: "動画を消しました",
     vid_err: "⚠ 動画を再生できません（形式が合わないかもしれません。MP4にしてください）",
-    vid_save_err: "⚠ 動画を保存できません（保存場所がいっぱいかもしれません）"
+    vid_save_err: "⚠ 動画を保存できません（保存場所がいっぱいかもしれません）",
+    vid_bulk: "🎬 動画をまとめて取り込む",
+    vid_bulk_note: "動画（MP4など）は、ファイル名を品番にして（例 12345-67890.mp4）、上の枠にドラッグ＆ドロップするか、「🎬 動画をまとめて取り込む」で選びます。先に登録したポイント表に自動でつきます（1本30MBまで）。",
+    vid_in_done: "動画を取り込みました：{n}本",
+    vid_in_none: "ポイント表が見つからない動画：",
+    vid_h: "🎬 動画（任意）",
+    vid_pick: "🎬 動画を選ぶ",
+    vid_rm: "✕ 外す",
+    vid_will: "登録するときにつけます：{name}",
+    vid_has: "この品番には、すでに動画がついています（選ぶと入れ替え）"
   },
   id: {
     tab_check: "Cek",
@@ -2471,7 +2486,16 @@ var I18N = {
     vid_saved: "Video ditambahkan: {name}",
     vid_deleted: "Video dihapus",
     vid_err: "⚠ Video tidak bisa diputar (formatnya mungkin tidak didukung. Gunakan MP4)",
-    vid_save_err: "⚠ Video tidak bisa disimpan (penyimpanan mungkin penuh)"
+    vid_save_err: "⚠ Video tidak bisa disimpan (penyimpanan mungkin penuh)",
+    vid_bulk: "🎬 Impor video sekaligus",
+    vid_bulk_note: "Beri nama file video sesuai nomor part (contoh 12345-67890.mp4), lalu seret ke kotak di atas atau pilih dengan \"🎬 Impor video sekaligus\". Video otomatis dipasang ke tabel poin yang sudah didaftarkan (maksimal 30 MB per video).",
+    vid_in_done: "Video diimpor: {n}",
+    vid_in_none: "Video tanpa tabel poin yang cocok: ",
+    vid_h: "🎬 Video (opsional)",
+    vid_pick: "🎬 Pilih video",
+    vid_rm: "✕ Lepas",
+    vid_will: "Akan dipasang saat mendaftar: {name}",
+    vid_has: "Nomor part ini sudah punya video (memilih akan menggantinya)"
   },
   tl: {
     tab_check: "Suriin",
@@ -2796,7 +2820,16 @@ var I18N = {
     vid_saved: "Naidagdag ang video: {name}",
     vid_deleted: "Nabura ang video",
     vid_err: "⚠ Hindi mapatugtog ang video (maaaring hindi suportado ang format. Gumamit ng MP4)",
-    vid_save_err: "⚠ Hindi ma-save ang video (maaaring puno na ang storage)"
+    vid_save_err: "⚠ Hindi ma-save ang video (maaaring puno na ang storage)",
+    vid_bulk: "🎬 Mag-import ng mga video nang sabay",
+    vid_bulk_note: "Pangalanan ang video file ayon sa part number (hal. 12345-67890.mp4), saka i-drag & drop sa kahon sa itaas o piliin gamit ang \"🎬 Mag-import ng mga video nang sabay\". Awtomatiko itong ikakabit sa point table na nairehistro na (hanggang 30 MB bawat isa).",
+    vid_in_done: "Na-import na video: {n}",
+    vid_in_none: "Mga video na walang katugmang point table: ",
+    vid_h: "🎬 Video (opsyonal)",
+    vid_pick: "🎬 Pumili ng video",
+    vid_rm: "✕ Alisin",
+    vid_will: "Ikakabit kapag nagrehistro: {name}",
+    vid_has: "May video na ang part number na ito (papalitan kapag pumili)"
   },
   en: {
     tab_check: "Check",
@@ -3121,7 +3154,16 @@ var I18N = {
     vid_saved: "Video added: {name}",
     vid_deleted: "Video deleted",
     vid_err: "⚠ Cannot play the video (the format may not be supported. Use MP4)",
-    vid_save_err: "⚠ Cannot save the video (storage may be full)"
+    vid_save_err: "⚠ Cannot save the video (storage may be full)",
+    vid_bulk: "🎬 Import videos in bulk",
+    vid_bulk_note: "Name each video file after the part number (e.g. 12345-67890.mp4), then drag & drop it into the box above or choose it with \"🎬 Import videos in bulk\". It is attached automatically to the point table registered earlier (up to 30 MB each).",
+    vid_in_done: "Videos imported: {n}",
+    vid_in_none: "Videos with no matching point table: ",
+    vid_h: "🎬 Video (optional)",
+    vid_pick: "🎬 Choose a video",
+    vid_rm: "✕ Remove",
+    vid_will: "It will be attached when you register: {name}",
+    vid_has: "This part number already has a video (choosing one replaces it)"
   },
   vi: {
     tab_check: "Kiểm tra",
@@ -3446,7 +3488,16 @@ var I18N = {
     vid_saved: "Đã thêm video: {name}",
     vid_deleted: "Đã xóa video",
     vid_err: "⚠ Không phát được video (có thể định dạng không hỗ trợ. Hãy dùng MP4)",
-    vid_save_err: "⚠ Không lưu được video (bộ nhớ có thể đã đầy)"
+    vid_save_err: "⚠ Không lưu được video (bộ nhớ có thể đã đầy)",
+    vid_bulk: "🎬 Nhập nhiều video",
+    vid_bulk_note: "Đặt tên file video theo mã hàng (ví dụ 12345-67890.mp4), rồi kéo thả vào khung phía trên hoặc chọn bằng \"🎬 Nhập nhiều video\". Video sẽ tự gắn vào bảng điểm đã đăng ký trước đó (tối đa 30 MB mỗi video).",
+    vid_in_done: "Đã nhập video: {n}",
+    vid_in_none: "Video không có bảng điểm tương ứng: ",
+    vid_h: "🎬 Video (tùy chọn)",
+    vid_pick: "🎬 Chọn video",
+    vid_rm: "✕ Bỏ",
+    vid_will: "Sẽ gắn khi đăng ký: {name}",
+    vid_has: "Mã hàng này đã có video (chọn sẽ thay thế)"
   },
   my: {
     tab_check: "စစ်ဆေးခြင်း",
@@ -3771,7 +3822,16 @@ var I18N = {
     vid_saved: "ဗီဒီယို ထည့်ပြီးပါပြီ: {name}",
     vid_deleted: "ဗီဒီယို ဖျက်ပြီးပါပြီ",
     vid_err: "⚠ ဗီဒီယို မဖွင့်နိုင်ပါ (ပုံစံ မကိုက်ညီနိုင်သည်။ MP4 သုံးပါ)",
-    vid_save_err: "⚠ ဗီဒီယို မသိမ်းနိုင်ပါ (သိမ်းစရာနေရာ ပြည့်နေနိုင်သည်)"
+    vid_save_err: "⚠ ဗီဒီယို မသိမ်းနိုင်ပါ (သိမ်းစရာနေရာ ပြည့်နေနိုင်သည်)",
+    vid_bulk: "🎬 ဗီဒီယိုများ စုပေါင်းထည့်သွင်းမည်",
+    vid_bulk_note: "ဗီဒီယိုဖိုင်ကို ပစ္စည်းနံပါတ်ဖြင့် အမည်ပေးပါ (ဥပမာ 12345-67890.mp4)၊ ထို့နောက် အပေါ်ရှိအကွက်သို့ ဆွဲချပါ သို့မဟုတ် \"🎬 ဗီဒီယိုများ စုပေါင်းထည့်သွင်းမည်\" ဖြင့် ရွေးပါ။ အရင်မှတ်ပုံတင်ထားသော ပွိုင့်ဇယားတွင် အလိုအလျောက် ကပ်မည် (တစ်ခုလျှင် အများဆုံး 30 MB)။",
+    vid_in_done: "ဗီဒီယို ထည့်သွင်းပြီး: {n}",
+    vid_in_none: "ကိုက်ညီသော ပွိုင့်ဇယားမရှိသည့် ဗီဒီယိုများ: ",
+    vid_h: "🎬 ဗီဒီယို (မဖြစ်မနေမလို)",
+    vid_pick: "🎬 ဗီဒီယို ရွေးမည်",
+    vid_rm: "✕ ဖယ်မည်",
+    vid_will: "မှတ်ပုံတင်ချိန်တွင် ကပ်မည်: {name}",
+    vid_has: "ဤပစ္စည်းနံပါတ်တွင် ဗီဒီယိုရှိပြီးဖြစ်သည် (ရွေးလျှင် အစားထိုးမည်)"
   },
   ne: {
     tab_check: "जाँच",
@@ -4096,7 +4156,16 @@ var I18N = {
     vid_saved: "भिडियो थपियो: {name}",
     vid_deleted: "भिडियो हटाइयो",
     vid_err: "⚠ भिडियो चलाउन सकिएन (ढाँचा मिलेको नहुन सक्छ। MP4 प्रयोग गर्नुहोस्)",
-    vid_save_err: "⚠ भिडियो सेभ गर्न सकिएन (भण्डारण भरिएको हुन सक्छ)"
+    vid_save_err: "⚠ भिडियो सेभ गर्न सकिएन (भण्डारण भरिएको हुन सक्छ)",
+    vid_bulk: "🎬 भिडियो एकैचोटि आयात",
+    vid_bulk_note: "भिडियो फाइलको नाम पार्ट नम्बरकै राख्नुहोस् (जस्तै 12345-67890.mp4), अनि माथिको बाकसमा तानेर छोड्नुहोस् वा \"🎬 भिडियो एकैचोटि आयात\" बाट छान्नुहोस्। पहिले दर्ता गरेको पोइन्ट तालिकामा आफैं जोडिन्छ (प्रत्येक अधिकतम 30 MB)।",
+    vid_in_done: "भिडियो आयात भयो: {n}",
+    vid_in_none: "मिल्ने पोइन्ट तालिका नभएका भिडियो: ",
+    vid_h: "🎬 भिडियो (ऐच्छिक)",
+    vid_pick: "🎬 भिडियो छान्ने",
+    vid_rm: "✕ हटाउने",
+    vid_will: "दर्ता गर्दा जोडिनेछ: {name}",
+    vid_has: "यो पार्ट नम्बरमा पहिले नै भिडियो छ (छान्दा बदलिन्छ)"
   },
   bn: {
     tab_check: "যাচাই",
@@ -4421,7 +4490,16 @@ var I18N = {
     vid_saved: "ভিডিও যোগ হয়েছে: {name}",
     vid_deleted: "ভিডিও মোছা হয়েছে",
     vid_err: "⚠ ভিডিও চালানো গেল না (ফরম্যাট সমর্থিত নাও হতে পারে। MP4 ব্যবহার করুন)",
-    vid_save_err: "⚠ ভিডিও সেভ করা গেল না (স্টোরেজ ভরে যেতে পারে)"
+    vid_save_err: "⚠ ভিডিও সেভ করা গেল না (স্টোরেজ ভরে যেতে পারে)",
+    vid_bulk: "🎬 একসাথে অনেক ভিডিও ইমপোর্ট",
+    vid_bulk_note: "ভিডিও ফাইলের নাম পার্ট নম্বর অনুযায়ী দিন (যেমন 12345-67890.mp4), তারপর উপরের বাক্সে টেনে ছাড়ুন বা \"🎬 একসাথে অনেক ভিডিও ইমপোর্ট\" দিয়ে বাছুন। আগে নিবন্ধিত পয়েন্ট টেবিলে নিজে থেকে যুক্ত হবে (প্রতিটি সর্বোচ্চ 30 MB)।",
+    vid_in_done: "ভিডিও ইমপোর্ট হয়েছে: {n}",
+    vid_in_none: "মেলে এমন পয়েন্ট টেবিল নেই এমন ভিডিও: ",
+    vid_h: "🎬 ভিডিও (ঐচ্ছিক)",
+    vid_pick: "🎬 ভিডিও বাছুন",
+    vid_rm: "✕ সরান",
+    vid_will: "নিবন্ধনের সময় যুক্ত হবে: {name}",
+    vid_has: "এই পার্ট নম্বরে আগেই ভিডিও আছে (বাছলে বদলে যাবে)"
   },
   mn: {
     tab_check: "Шалгах",
@@ -4746,7 +4824,16 @@ var I18N = {
     vid_saved: "Видео нэмэгдлээ: {name}",
     vid_deleted: "Видео устгагдлаа",
     vid_err: "⚠ Видеог тоглуулж чадсангүй (формат дэмжигдээгүй байж магадгүй. MP4 ашигла)",
-    vid_save_err: "⚠ Видеог хадгалж чадсангүй (хадгалах зай дүүрсэн байж магадгүй)"
+    vid_save_err: "⚠ Видеог хадгалж чадсангүй (хадгалах зай дүүрсэн байж магадгүй)",
+    vid_bulk: "🎬 Видеог нэг дор оруулах",
+    vid_bulk_note: "Видео файлын нэрийг эдийн дугаараар өг (жишээ нь 12345-67890.mp4), дараа нь дээрх хүрээнд чирж оруул эсвэл \"🎬 Видеог нэг дор оруулах\"-аар сонго. Өмнө бүртгэсэн цэгийн хүснэгтэд автоматаар хавсарна (тус бүр 30 MB хүртэл).",
+    vid_in_done: "Видео оруулсан: {n}",
+    vid_in_none: "Тохирох цэгийн хүснэгтгүй видео: ",
+    vid_h: "🎬 Видео (заавал биш)",
+    vid_pick: "🎬 Видео сонгох",
+    vid_rm: "✕ Авах",
+    vid_will: "Бүртгэхэд хавсарна: {name}",
+    vid_has: "Энэ эдийн дугаарт видео аль хэдийн байна (сонговол солигдоно)"
   },
   pt: {
     tab_check: "Verificar",
@@ -5071,7 +5158,16 @@ var I18N = {
     vid_saved: "Vídeo adicionado: {name}",
     vid_deleted: "Vídeo excluído",
     vid_err: "⚠ Não foi possível reproduzir o vídeo (o formato pode não ser aceito. Use MP4)",
-    vid_save_err: "⚠ Não foi possível salvar o vídeo (o armazenamento pode estar cheio)"
+    vid_save_err: "⚠ Não foi possível salvar o vídeo (o armazenamento pode estar cheio)",
+    vid_bulk: "🎬 Importar vídeos em lote",
+    vid_bulk_note: "Dê ao arquivo de vídeo o nome do código da peça (ex.: 12345-67890.mp4) e arraste-o para a caixa acima ou escolha em \"🎬 Importar vídeos em lote\". Ele é anexado automaticamente à tabela de pontos cadastrada antes (até 30 MB cada).",
+    vid_in_done: "Vídeos importados: {n}",
+    vid_in_none: "Vídeos sem tabela de pontos correspondente: ",
+    vid_h: "🎬 Vídeo (opcional)",
+    vid_pick: "🎬 Escolher um vídeo",
+    vid_rm: "✕ Remover",
+    vid_will: "Será anexado ao cadastrar: {name}",
+    vid_has: "Este código de peça já tem um vídeo (escolher substitui)"
   },
   si: {
     tab_check: "පරීක්ෂා කිරීම",
@@ -5396,7 +5492,16 @@ var I18N = {
     vid_saved: "වීඩියෝව එක් කළා: {name}",
     vid_deleted: "වීඩියෝව මැකුවා",
     vid_err: "⚠ වීඩියෝව වාදනය කළ නොහැක (ආකෘතියට සහාය නොදක්වනවා විය හැක. MP4 භාවිත කරන්න)",
-    vid_save_err: "⚠ වීඩියෝව සුරැකිය නොහැක (ගබඩාව පිරී තිබිය හැක)"
+    vid_save_err: "⚠ වීඩියෝව සුරැකිය නොහැක (ගබඩාව පිරී තිබිය හැක)",
+    vid_bulk: "🎬 වීඩියෝ එකවර ආනයනය",
+    vid_bulk_note: "වීඩියෝ ගොනුවට කොටස් අංකයම නම දෙන්න (උදා: 12345-67890.mp4), ඉන්පසු ඉහත කොටුවට ඇද දමන්න හෝ \"🎬 වීඩියෝ එකවර ආනයනය\" මගින් තෝරන්න. කලින් ලියාපදිංචි කළ ලකුණු වගුවට ස්වයංක්‍රීයව සම්බන්ධ වේ (එකකට උපරිම 30 MB).",
+    vid_in_done: "වීඩියෝ ආනයනය කළා: {n}",
+    vid_in_none: "ගැළපෙන ලකුණු වගුවක් නැති වීඩියෝ: ",
+    vid_h: "🎬 වීඩියෝ (අනිවාර්ය නොවේ)",
+    vid_pick: "🎬 වීඩියෝවක් තෝරන්න",
+    vid_rm: "✕ ඉවත් කරන්න",
+    vid_will: "ලියාපදිංචි කරන විට සම්බන්ධ වේ: {name}",
+    vid_has: "මෙම කොටස් අංකයට දැනටමත් වීඩියෝවක් ඇත (තෝරා ගත්විට මාරු වේ)"
   }
 };
 var LANG = 'ja';
@@ -5968,7 +6073,9 @@ function isXls(f) { return /\.xls$/i.test((f.name || '').trim()); }
 function looksPdf(f) { return /\.pdf$/i.test((f.name || '').trim()) || f.type === 'application/pdf' || isXlsx(f) || isXls(f); } // PDF と Excel(.xlsx) を取り込める
 async function importFiles(files, note) {
   files = Array.prototype.slice.call(files || []);
+  var vids = files.filter(function (f) { return isVideoFile(f) && !looksPdf(f); }); files = files.filter(function (f) { return vids.indexOf(f) < 0; });
   var list = files.filter(looksPdf), others = files.length - list.length;
+  if (!list.length && vids.length) { var vh = await importVideos(vids); $('impMsg').innerHTML = vh; toast(t('vid_in_done', { n: VID_OK }), 3500); showPdfList(); return; }
   if (!list.length) {
     var why = files.length ? t('im_nopdf', { n: files.length }) : t('im_nofile');
     $('impMsg').innerHTML = '<span style="color:var(--ng);font-weight:800">⚠ ' + why + '</span>' + (note ? '<br>' + note : '');
@@ -6008,6 +6115,7 @@ async function importFiles(files, note) {
   if (dup.length) msg += '<br><span style="color:var(--ng)">' + t('im_dup') + esc(dup.join(', ')) + '</span>';
   if (fail.length) msg += '<br><span style="color:var(--ng);font-weight:800">' + t('im_fail', { n: fail.length }) + esc(fail.join(', ')) +
     '</span>' + (readFail ? '<br><span class="note">' + t('im_drive_tip') + '</span>' : '');
+  if (vids.length) msg += '<br>' + await importVideos(vids);
   $('impMsg').innerHTML = msg;
   toast(t('im_toast', { a: add, u: upd }) + (fail.length ? t('im_toast_fail', { n: fail.length }) : ''), 3500);
   showPdfList(); updateHeader();
@@ -6392,19 +6500,39 @@ async function deletePdf(k) {
   return true;
 }
 // ---------- ポイント表につける動画（品番ごとに1本。照合でOKのとき「▶ 動画を見る」が出る） ----------
-var VID_TARGET = null, VID_URL = null, VIDKEY = null;
+var VID_TARGET = null, VID_URL = null, VIDKEY = null, VID_OK = 0;
 $('vidIn').onchange = async function () {
   var f = this.files && this.files[0]; this.value = ''; var k = VID_TARGET; if (!f || !k || !PDF_INDEX[k]) return;
   if (!(/^video\//.test(f.type) || /\.(mp4|m4v|webm|mov)$/i.test(f.name))) return toast(t('vid_notvid'), 4000);
   if (f.size > VID_MAX_MB * 1024 * 1024) return toast(t('vid_big', { n: VID_MAX_MB }), 5000);
-  try {
-    var buf = await readBuf(f), type = f.type || (/\.webm$/i.test(f.name) ? 'video/webm' : 'video/mp4');
-    var rec = { k: 'vid:' + k, blob: new Blob([buf], { type: type }), name: f.name, size: buf.byteLength, at: today() + ' ' + nowTime() };
-    await tx('kv', 'readwrite', function (s) { s.put(rec); });
-    VID_INDEX[k] = { name: rec.name, size: rec.size, at: rec.at };
-    toast(t('vid_saved', { name: PDF_INDEX[k].name }), 3000); showPdfList();
-  } catch (e) { toast(t('vid_save_err') + ' [' + errTxt(e) + ']', 6000); }
+  try { await saveVideo(k, f); toast(t('vid_saved', { name: PDF_INDEX[k].name }), 3000); showPdfList(); }
+  catch (e) { toast(t('vid_save_err') + ' [' + errTxt(e) + ']', 6000); }
 };
+function isVideoFile(f) { return /^video\//.test(f.type || '') || /\.(mp4|m4v|webm|mov)$/i.test((f.name || '').trim()); }
+/** 動画ファイルの中身を1回だけ読み、品番キーに保存する（ファイルを2回読まない） */
+async function saveVideo(k, f, buf) {
+  buf = buf || await readBuf(f);
+  var type = f.type || (/\.webm$/i.test(f.name) ? 'video/webm' : 'video/mp4');
+  var rec = { k: 'vid:' + k, blob: new Blob([buf], { type: type }), name: f.name, size: buf.byteLength, at: today() + ' ' + nowTime() };
+  await tx('kv', 'readwrite', function (s) { s.put(rec); });
+  VID_INDEX[k] = { name: rec.name, size: rec.size, at: rec.at };
+}
+/** ファイル名＝品番の動画を、登録済みのポイント表につける（まとめて）。結果を文章で返す */
+async function importVideos(vids) {
+  var ok = 0, none = [], big = [], fail = [];
+  for (var i = 0; i < vids.length; i++) {
+    var f = vids[i], base = (f.name || '').trim().replace(/\.(mp4|m4v|webm|mov)$/i, ''), k = norm(base + '.pdf');
+    $('impMsg').textContent = t('im_prog', { i: i + 1, n: vids.length });
+    if (!k || !PDF_INDEX[k]) { none.push(f.name); continue; }
+    if (f.size > VID_MAX_MB * 1024 * 1024) { big.push(f.name); continue; }
+    try { await saveVideo(k, f); ok++; } catch (e) { fail.push(f.name + ' [' + errTxt(e) + ']'); }
+  }
+  var h = '<b>' + esc(t('vid_in_done', { n: ok })) + '</b>'; VID_OK = ok;
+  if (none.length) h += '<br><span style="color:var(--ng)">' + esc(t('vid_in_none')) + esc(none.join(', ')) + '</span>';
+  if (big.length) h += '<br><span style="color:var(--ng)">' + esc(t('vid_big', { n: VID_MAX_MB })) + ' ' + esc(big.join(', ')) + '</span>';
+  if (fail.length) h += '<br><span style="color:var(--ng)">' + esc(t('vid_save_err')) + ' ' + esc(fail.join(', ')) + '</span>';
+  return h;
+}
 async function deleteVideo(k) {
   if (!VID_INDEX[k] || !confirm(t('vid_del_confirm', { name: PDF_INDEX[k] ? PDF_INDEX[k].name : k }))) return;
   await tx('kv', 'readwrite', function (s) { s.delete('vid:' + k); });
@@ -6452,6 +6580,7 @@ $('clearPdf').onclick = async function () {
   await loadPdfIndex(); showPdfList(); updateHeader();
 };
 $('fileIn').onchange = function () { importFiles(this.files); this.value = ''; };
+$('vidMulti').onchange = function () { importFiles(this.files); this.value = ''; };
 $('dirIn').onchange = function () { importFiles(this.files); this.value = ''; };
 
 // ---------- ドラッグ＆ドロップで取込（ファイルもフォルダもOK） ----------
@@ -6502,11 +6631,11 @@ window.addEventListener('drop', function (e) {
   }
   collectDropped(entries, snapFiles).then(function (files) {
     var hasDir = entries.some(function (en) { return en.isDirectory; });
-    if (hasDir && !files.some(looksPdf)) {
+    if (hasDir && !files.some(function (f) { return looksPdf(f) || isVideoFile(f); })) {
       $('impMsg').innerHTML = '<span style="color:var(--ng);font-weight:800">' + esc(t('im_dir_fail_t')) + '</span><br>' + esc(t('im_dir_fail_s'));
       return toast(t('im_dir_fail_t'), 4000);
     }
-    importFiles(files.filter(function (f) { return !hasDir || f.size > 0 || looksPdf(f); }));
+    importFiles(files.filter(function (f) { return !hasDir || f.size > 0 || looksPdf(f) || isVideoFile(f); }));
   })
     .catch(function (err) { importFiles(snapFiles); });
   })();
@@ -6888,7 +7017,7 @@ function pinClose(v) { $('pinDlg').classList.remove('on'); var r = pinResolve; p
 // ---------- ポイント表をつくる（ひな形） ----------
 // 写真・品番・収容数・ポイントから A4横 のポイント表を作り、PDF（ファイル名＝品番）として登録する。
 // 文字は端末のフォントで画像に描くので、日本語もそのまま。外部ライブラリなし・オフラインで動く。
-var TPL = { imgs: [], editKey: null }, TPL_MAX = 4;
+var TPL = { imgs: [], editKey: null, video: null }, TPL_MAX = 4;
 function inTpl() { return $('v-set').classList.contains('on'); }
 function tplVal() {
   return {
@@ -6992,6 +7121,25 @@ $('tplPhotos').addEventListener('click', function (e) {
   else return;
   tplRenderPhotos(); tplDraw();
 });
+/** 「つくる」画面でつける動画（登録するときに保存する）。写真の枠に動画を入れても、ここに入る */
+async function tplSetVideo(f) {
+  if (f.size > VID_MAX_MB * 1024 * 1024) { tplPhotoMsg(esc(t('vid_big', { n: VID_MAX_MB }))); return; }
+  try { var buf = await readBuf(f); TPL.video = { file: f, buf: buf, name: f.name }; } catch (e) { tplPhotoMsg(esc(t('vid_save_err') + ' [' + errTxt(e) + ']')); return; }
+  tplVidShow();
+}
+function tplVidShow() {
+  var has = TPL.editKey && VID_INDEX[TPL.editKey], tx2 = TPL.video ? t('vid_will', { name: TPL.video.name }) : (has ? t('vid_has') : '');
+  $('tplVidInfo').textContent = tx2; $('tplVidDel').hidden = !TPL.video;
+}
+$('tplVidBtn').onclick = function () { $('tplVidIn').click(); };
+$('tplVidIn').onchange = function () { var f = this.files && this.files[0]; this.value = ''; if (!f) return; if (!isVideoFile(f)) return tplPhotoMsg(esc(t('vid_notvid'))); tplSetVideo(f); };
+$('tplVidDel').onclick = function () { TPL.video = null; tplVidShow(); };
+/** 取り出した動画ファイルを「つくる」画面の動画にして、残り（写真・PDF）を返す */
+function tplTakeVideo(files) {
+  var v = files.filter(function (f) { return isVideoFile(f) && !/\.pdf$/i.test(f.name || ''); });
+  if (v.length) tplSetVideo(v[0]);
+  return files.filter(function (f) { return v.indexOf(f) < 0; });
+}
 /** ドロップされた物から写真を取り出す（ファイル／画像そのもの／リンクを見分ける） */
 function tplHandleDrop(dt) {
   if (!dt) return;
@@ -6999,6 +7147,7 @@ function tplHandleDrop(dt) {
   if (!files.length) {
     try { Array.prototype.slice.call(dt.items || []).forEach(function (it) { if (it.kind === 'file') { var f = it.getAsFile(); if (f) files.push(f); } }); } catch (e) {}
   }
+  var hadVid = files.length; files = tplTakeVideo(files); if (hadVid && !files.length) return;
   if (tplAddFiles(files)) return;
   if (files.length) return tplPhotoMsg(esc(t('tp_not_img', { f: files[0].name || '' })));
   // ブラウザの画面から画像をドラッグした場合：中身が data: 画像なら使える
@@ -7063,7 +7212,7 @@ $('shotDo').onclick = function () {
 };
 $('shotClose').onclick = shotStop;
 $('tplShotIn').onchange = function () { var fs = Array.prototype.slice.call(this.files || []); this.value = ''; if (fs.length && !tplAddFiles(fs)) tplPhotoMsg(esc(t('tp_pick_bad'))); };
-$('tplPhotoIn').onchange = function () { var fs = Array.prototype.slice.call(this.files || []); this.value = ''; if (fs.length && !tplAddFiles(fs)) tplPhotoMsg(esc(t('tp_pick_bad'))); };
+$('tplPhotoIn').onchange = function () { var fs = Array.prototype.slice.call(this.files || []); this.value = ''; var had = fs.length; fs = tplTakeVideo(fs); if (had && !fs.length) return; if (fs.length && !tplAddFiles(fs)) tplPhotoMsg(esc(t('tp_pick_bad'))); };
 ['tplPn', 'tplQty', 'tplPts'].forEach(function (id) { $(id).addEventListener('input', function () { tplDraw(); if (!tplMark(true).length) $('tplMsg').textContent = ''; }); });
 
 /** 日本語は単語の区切りがないので、1文字ずつ幅を測って折り返す */
@@ -7261,6 +7410,10 @@ $('tplSave').onclick = async function () {
   if (PDF_INDEX[r.key] && r.key !== ek && !confirm(t('tp_exists_confirm', { pn: tplVal().pn, name: PDF_INDEX[r.key].name }))) return;
   var rec = { key: r.key, name: r.name, size: r.pdf.length, at: today() + ' ' + nowTime(), data: r.pdf.buffer.slice(0), src: tplSource() };
   await tx('pdfs', 'readwrite', function (st) { if (ek && ek !== r.key) st.delete(ek); st.put(rec); });
+  try {
+    if (ek && ek !== r.key && VID_INDEX[ek]) { var ov = await tx('kv', 'readonly', function (st) { return st.get('vid:' + ek); }); if (ov) { ov.k = 'vid:' + r.key; await tx('kv', 'readwrite', function (st) { st.put(ov); st.delete('vid:' + ek); }); VID_INDEX[r.key] = VID_INDEX[ek]; delete VID_INDEX[ek]; } }
+    if (TPL.video) await saveVideo(r.key, TPL.video.file, TPL.video.buf);
+  } catch (ev) { toast(t('vid_save_err') + ' [' + errTxt(ev) + ']', 6000); }
   await loadPdfIndex(); updateHeader(); THUMBS = {};
   // 登録・上書きのあとは入力欄をまっさらに戻す（登録したのか上書きなのか、次の入力と見分けがつかなくなるため）。結果は下のメッセージで知らせる
   var was = !!ek; tplEditEnd(); tplReset(); $('tplTrBox').open = false;
@@ -7270,20 +7423,20 @@ $('tplSave').onclick = async function () {
 
 // ---- 登録済みのポイント表を編集する ----
 function tplReset() {
-  TPL.imgs.forEach(function (p) { try { URL.revokeObjectURL(p.url); } catch (x) {} }); TPL.imgs = []; tplRenderPhotos();
+  TPL.imgs.forEach(function (p) { try { URL.revokeObjectURL(p.url); } catch (x) {} }); TPL.imgs = []; tplRenderPhotos(); TPL.video = null; tplVidShow();
   tplPhotoMsg('');
   $('tplPn').value = ''; $('tplQty').value = ''; $('tplPts').value = ''; $('tplMsg').textContent = '';
   TRL.forEach(function (l) { $('tplTr_' + l).value = ''; }); $('tplTrMsg').textContent = '';
   document.querySelectorAll('.tplItem.bad').forEach(function (el) { el.classList.remove('bad'); });
   tplDraw();
 }
-function tplEditEnd() { TPL.editKey = null; $('editBar').hidden = true; $('tplSave').textContent = t('tp_save'); }
+function tplEditEnd() { TPL.editKey = null; $('editBar').hidden = true; $('tplSave').textContent = t('tp_save'); tplVidShow(); }
 /** ポイント表を「ポイント表をつくる」に読み込んで編集できる状態にする */
 async function editPdf(k) {
   var rec = await getPdf(k); if (!rec || rec.kind === 'xlsx' || rec.xl) return;
   gotoView('set');
   tplReset();
-  TPL.editKey = k; $('editName').textContent = rec.name.replace(/\.(pdf|xlsx|xlsm)$/i, ''); $('editBar').hidden = false; $('tplSave').textContent = t('tp_overwrite');
+  TPL.editKey = k; tplVidShow(); $('editName').textContent = rec.name.replace(/\.(pdf|xlsx|xlsm)$/i, ''); $('editBar').hidden = false; $('tplSave').textContent = t('tp_overwrite');
   if (rec.src) { // このアプリで作ったもの：入力した内容をそのまま戻す
     $('tplPn').value = rec.src.pn || ''; $('tplQty').value = rec.src.qty || ''; $('tplPts').value = rec.src.pts || '';
     var rtr = rec.src.tr || {}; TRL.forEach(function (l) { $('tplTr_' + l).value = rtr[l] || ''; });
