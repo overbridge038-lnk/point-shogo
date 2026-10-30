@@ -346,11 +346,11 @@ html[lang=tl] .tab,html[lang=id] .tab{font-size:14px}
     <button class="btn langBtn" data-lang="en"><span class="flag">🇬🇧</span>English</button>
   </div>
   <p id="startNote" style="font-size:13px">準備中…</p>
-  <p class="ver" style="font-size:12px;opacity:.85">ver.2026.10.30 13:31 (#54)</p>
+  <p class="ver" style="font-size:12px;opacity:.85">ver.2026.10.30 14:40 (#56)</p>
 </div>
 
 <header>
-  <h1><i class="logo" data-mascot="ok"></i><span>ポイント表照合</span><small class="ver" title="版（ビルドした日時）">ver.2026.10.30 13:31 (#54)</small></h1>
+  <h1><i class="logo" data-mascot="ok"></i><span>ポイント表照合</span><small class="ver" title="版（ビルドした日時）">ver.2026.10.30 14:40 (#56)</small></h1>
   <div class="tabs">
     <button class="tab on" data-v="check" data-i18n="tab_check">照合</button>
     <button class="tab" data-v="pdf" data-i18n="tab_pdf">ポイント表の登録</button>
@@ -3468,6 +3468,9 @@ async function exportCsv() {
 
 // ---------- ポイント表の登録 ----------
 /** PDFかどうか：拡張子 .pdf か、中身の先頭が %PDF */
+/** ファイルの中身を読む。標準の方法がだめなら FileReader で（端末によって、片方しか読めないことがある） */
+function readBufFR(f) { return new Promise(function (res, rej) { var fr = new FileReader(); fr.onload = function () { res(fr.result); }; fr.onerror = function () { rej(fr.error || new Error('read')); }; fr.readAsArrayBuffer(f); }); }
+function readBuf(f) { return f.arrayBuffer ? f.arrayBuffer().catch(function () { return readBufFR(f); }) : readBufFR(f); }
 /** エラーの原因を短く（画面に出して、あとで調べられるように） */
 function errTxt(e) { var s = String((e && (e.name ? e.name + ': ' : '') + (e.message || e)) || e || ''); return s.replace(/\s+/g, ' ').slice(0, 70); }
 function isXlsx(f) { return /\.(xlsx|xlsm)$/i.test((f.name || '').trim()); }
@@ -3488,7 +3491,7 @@ async function importFiles(files, note) {
     if (!key) { fail.push(name + t('im_f_empty')); continue; }
     if (isXls(f)) { fail.push(name + t('im_f_xls')); continue; } // 古い形式(.xls)は読めない
     try {
-      var buf = await f.arrayBuffer();
+      var buf = await readBuf(f);
       var head = new Uint8Array(buf.slice(0, 5)), sig = String.fromCharCode.apply(null, head), xl = isXlsx(f);
       if (xl ? sig.slice(0, 2) !== 'PK' : sig.indexOf('%PDF') < 0) { fail.push(name + t(xl ? 'im_f_notxl' : 'im_f_notpdf')); continue; }
       var rec = { key: key, name: name, size: buf.byteLength, at: today() + ' ' + nowTime(), data: buf };
@@ -3687,7 +3690,7 @@ $('pkIn').onchange = async function () {
   var f = this.files && this.files[0]; if (!f) return;
   toast(t('pk_busy'), 1500);
   try {
-    var buf = await f.arrayBuffer();
+    var buf = await readBuf(f);
     if (buf.byteLength < 12 || new TextDecoder().decode(buf.slice(0, 8)) !== 'PTPACK1\n') throw 0;
     var hl = new DataView(buf).getUint32(8), meta = JSON.parse(new TextDecoder().decode(buf.slice(12, 12 + hl))), off = 12 + hl, items = [];
     meta.items.forEach(function (m) { items.push({ key: m.key, name: m.name, at: m.at, src: m.src || null, kind: m.kind || null, xl: m.xl || null, data: buf.slice(off, off + m.size) }); off += m.size; });
@@ -3797,12 +3800,16 @@ $('xlCancel').onclick = function () { xlHide(); $('xlMsg').textContent = ''; };
 async function xlHandleFile(f) {
   if (!f) return; xlHide(); var msg = $('xlMsg'); msg.textContent = t('pk_busy');
   if (/\.xls$/i.test(f.name)) { msg.innerHTML = '<span style="color:var(--ng);font-weight:800">⚠ ' + esc(t('xl_old')) + '</span>'; return; }
-  try { XL = await xlRead(await f.arrayBuffer()); }
+  var buf;
+  try { buf = await readBuf(f); } catch (e0) { msg.innerHTML = '<span style="color:var(--ng);font-weight:800">⚠ ' + esc(t('im_f_read', { e: (e0 && e0.name) || e0 })) + '</span>'; return; }
+  try { XL = await xlRead(buf.slice(0)); }
   catch (e) {
     XL = null;
     if (e && e.message === 'nohead') { // 品番の列がない＝一覧ではなく資料（図や表）のExcel → 確認してから、そのままPDFに変換して登録する
       if (confirm(t('xl_asdoc_confirm', { name: f.name.replace(/\.(xlsx|xlsm)$/i, '') }))) {
-        msg.textContent = t('pk_busy'); await importFiles([f]); msg.innerHTML = $('impMsg').innerHTML; return;
+        msg.textContent = t('pk_busy');
+        // 同じファイルをもう一度読まず、読み込み済みの中身を渡す（タブレットによっては、2回目を読ませてくれない：NotReadableError）
+        await importFiles([{ name: f.name, type: f.type, size: buf.byteLength, arrayBuffer: function () { return Promise.resolve(buf.slice(0)); } }]); msg.innerHTML = $('impMsg').innerHTML; return;
       }
       msg.innerHTML = '<span style="color:var(--ng);font-weight:800">⚠ ' + esc(t('xl_nohead')) + '</span>'; return;
     }
@@ -4374,7 +4381,7 @@ function trimWhite(cv) {
 async function tplSetPdf(file) {
   tplPhotoMsg(t('tp_pdf_loading'));
   try {
-    var doc = await pdfjs.getDocument({ data: new Uint8Array(await file.arrayBuffer()), isEvalSupported: false }).promise;
+    var doc = await pdfjs.getDocument({ data: new Uint8Array(await readBuf(file)), isEvalSupported: false }).promise;
     var page = await doc.getPage(1), vp1 = page.getViewport({ scale: 1 });
     var sc = 1600 / Math.max(vp1.width, vp1.height), vp = page.getViewport({ scale: sc });
     var cv = document.createElement('canvas'); cv.width = Math.round(vp.width); cv.height = Math.round(vp.height);
