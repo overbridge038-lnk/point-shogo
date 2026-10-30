@@ -382,6 +382,8 @@
       var st = kid(el, 'style'), it = { grp: !!inGrp, kind: kind, x: x, y: y, w: w, h: h, rot: xf ? +attr(xf, 'rot', 0) / 60000 : 0, flipH: !!xf && xf.getAttribute('flipH') === '1', flipV: !!xf && xf.getAttribute('flipV') === '1' };
       if (inGrp && top) it.frac = { x: (x * EMU - top.x) / top.cx, y: (y * EMU - top.y) / top.cy, w: w * EMU / top.cx, h: h * EMU / top.cy }; // グループの枠の中での位置（割合）
       var geom = pr && kid(pr, 'prstGeom'); it.geom = geom ? geom.getAttribute('prst') : 'rect';
+      if (geom) { var av = kid(geom, 'avLst'); it.adj = {}; if (av) kids(av, 'gd').forEach(function (g) { var mm = /^val\s+(-?\d+)/.exec(g.getAttribute('fmla') || ''); if (mm) it.adj[g.getAttribute('name')] = +mm[1]; }); }
+      var cg = pr && kid(pr, 'custGeom'); if (cg) it.cust = readCust(cg);
       if (kind === 'pic') {
         var blip = el.getElementsByTagNameNS('*', 'blip')[0]; if (!blip) return;
         it.url = await img(blip); if (!it.url) return;
@@ -460,6 +462,91 @@
     }
     return h + '</table>';
   }
+
+  // ---------- 図形の形（矢印・×・自由な形など） ----------
+  /** 自由な形（custGeom）の線の並びを読む。座標は元の値のまま持ち、描く時に大きさへ合わせる */
+  function readCust(cg) {
+    var pl = kid(cg, 'pathLst'); if (!pl) return null; var paths = [], ok = true;
+    kids(pl, 'path').forEach(function (pa) {
+      var cmds = [];
+      function pt(e) { var q = kid(e, 'pt'); if (!q) return null; var x = +q.getAttribute('x'), y = +q.getAttribute('y'); if (isNaN(x) || isNaN(y)) { ok = false; return null; } return [x, y]; }
+      function pts(e) { return kids(e, 'pt').map(function (q) { var x = +q.getAttribute('x'), y = +q.getAttribute('y'); if (isNaN(x) || isNaN(y)) ok = false; return [x, y]; }); }
+      for (var c = pa.firstElementChild; c; c = c.nextElementSibling) {
+        var n = c.localName;
+        if (n === 'moveTo' || n === 'lnTo') { var q = pt(c); if (q) cmds.push({ k: n === 'moveTo' ? 'M' : 'L', p: [q] }); }
+        else if (n === 'cubicBezTo') cmds.push({ k: 'C', p: pts(c) });
+        else if (n === 'quadBezTo') cmds.push({ k: 'Q', p: pts(c) });
+        else if (n === 'arcTo') { var wr = +c.getAttribute('wR'), hr = +c.getAttribute('hR'), st = +c.getAttribute('stAng'), sw = +c.getAttribute('swAng'); if ([wr, hr, st, sw].some(isNaN)) ok = false; cmds.push({ k: 'A', wr: wr, hr: hr, st: st / 60000, sw: sw / 60000 }); }
+        else if (n === 'close') cmds.push({ k: 'Z' });
+      }
+      paths.push({ w: +pa.getAttribute('w') || 0, h: +pa.getAttribute('h') || 0, fill: pa.getAttribute('fill') !== 'none', stroke: pa.getAttribute('stroke') !== '0', cmds: cmds });
+    });
+    return ok && paths.length ? paths : null;
+  }
+  function custD(paths, W, H) { // 自由な形 → SVGの線の文字列（W×H の枠に合わせる）
+    var out = [];
+    paths.forEach(function (pa) {
+      var pw = pa.w || W * EMU, ph = pa.h || H * EMU, sx = W / pw, sy = H / ph, d = '', cx = 0, cy = 0;
+      function f(q) { return [q[0] * sx, q[1] * sy]; }
+      pa.cmds.forEach(function (c) {
+        if (c.k === 'M' || c.k === 'L') { var a = f(c.p[0]); d += c.k + a[0].toFixed(2) + ' ' + a[1].toFixed(2); cx = a[0]; cy = a[1]; }
+        else if (c.k === 'C' && c.p.length >= 3) { var b = c.p.map(f); d += 'C' + b.map(function (q) { return q[0].toFixed(2) + ' ' + q[1].toFixed(2); }).join(' '); cx = b[2][0]; cy = b[2][1]; }
+        else if (c.k === 'Q' && c.p.length >= 2) { var b2 = c.p.map(f); d += 'Q' + b2.map(function (q) { return q[0].toFixed(2) + ' ' + q[1].toFixed(2); }).join(' '); cx = b2[1][0]; cy = b2[1][1]; }
+        else if (c.k === 'A') { // 円弧：いまの点が開始角にあるとして中心を求める。180度をこえる弧は、半分ずつ描く（始点と終点が同じ円でも消えない）
+          var rx = c.wr * sx, ry = c.hr * sy, ang = function (t) { t = t * Math.PI / 180; return Math.atan2(Math.sin(t) / (ry || 1), Math.cos(t) / (rx || 1)); };
+          var a1 = ang(c.st), ox = cx - rx * Math.cos(a1), oy = cy - ry * Math.sin(a1), n = Math.abs(c.sw) > 180 ? 2 : 1;
+          for (var i = 1; i <= n; i++) {
+            var a2 = ang(c.st + c.sw * i / n), ex = ox + rx * Math.cos(a2), ey = oy + ry * Math.sin(a2);
+            d += 'A' + rx.toFixed(2) + ' ' + ry.toFixed(2) + ' 0 0 ' + (c.sw > 0 ? 1 : 0) + ' ' + ex.toFixed(2) + ' ' + ey.toFixed(2); cx = ex; cy = ey;
+          }
+        } else if (c.k === 'Z') d += 'Z';
+      });
+      out.push({ d: d, fill: pa.fill, stroke: pa.stroke });
+    });
+    return out;
+  }
+  /** よく使う既製の形 → 線の点の並び（W×H の枠、調整値 adj はOOXMLの初期値つき）。ない形は null（四角で描く） */
+  function presetPts(g, W, H, adj) {
+    var ss = Math.min(W, H), A = function (n, d) { return adj && adj[n] !== undefined ? adj[n] : d; };
+    function arrow(L, T, a1, a2) { // 右向きの矢印（L=長さ T=太さ方向）
+      var hd = Math.min(L, ss0(L, T) * a2 / 100000), x1 = L - hd, dy = T * a1 / 200000, vc = T / 2;
+      return [[0, vc - dy], [x1, vc - dy], [x1, 0], [L, vc], [x1, T], [x1, vc + dy], [0, vc + dy]];
+    }
+    function ss0(L, T) { return Math.min(L, T); }
+    if (g === 'rightArrow') return [arrow(W, H, A('adj1', 50000), A('adj2', 50000))];
+    if (g === 'leftArrow') return [arrow(W, H, A('adj1', 50000), A('adj2', 50000)).map(function (q) { return [W - q[0], q[1]]; })];
+    if (g === 'downArrow') return [arrow(H, W, A('adj1', 50000), A('adj2', 50000)).map(function (q) { return [q[1], q[0]]; })];
+    if (g === 'upArrow') return [arrow(H, W, A('adj1', 50000), A('adj2', 50000)).map(function (q) { return [q[1], H - q[0]]; })];
+    if (g === 'leftRightArrow' || g === 'upDownArrow') {
+      var horiz = g === 'leftRightArrow', L = horiz ? W : H, T = horiz ? H : W, hd = Math.min(L / 2, Math.min(L, T) * A('adj2', 50000) / 100000), dy = T * A('adj1', 50000) / 200000, vc = T / 2;
+      var q = [[hd, vc - dy], [L - hd, vc - dy], [L - hd, 0], [L, vc], [L - hd, T], [L - hd, vc + dy], [hd, vc + dy], [hd, T], [0, vc], [hd, 0]];
+      return [horiz ? q : q.map(function (z) { return [z[1], z[0]]; })];
+    }
+    if (g === 'triangle') { var px = W * A('adj', 50000) / 100000; return [[[0, H], [px, 0], [W, H]]]; }
+    if (g === 'rtTriangle') return [[[0, 0], [0, H], [W, H]]];
+    if (g === 'diamond') return [[[W / 2, 0], [W, H / 2], [W / 2, H], [0, H / 2]]];
+    if (g === 'homePlate') { var d1 = ss * A('adj', 50000) / 100000; return [[[0, 0], [W - d1, 0], [W, H / 2], [W - d1, H], [0, H]]]; }
+    if (g === 'chevron') { var d2 = ss * A('adj', 50000) / 100000; return [[[0, 0], [W - d2, 0], [W, H / 2], [W - d2, H], [0, H], [d2, H / 2]]]; }
+    if (g === 'mathMinus') { var t = H * A('adj1', 23520) / 200000; return [[[W * 0.05, H / 2 - t], [W * 0.95, H / 2 - t], [W * 0.95, H / 2 + t], [W * 0.05, H / 2 + t]]]; }
+    if (g === 'plus' || g === 'mathPlus') {
+      var k = g === 'plus' ? ss * A('adj', 25000) / 100000 : ss * A('adj1', 23520) / 200000 * 1, x1 = g === 'plus' ? k : W / 2 - k, x2 = g === 'plus' ? W - k : W / 2 + k, y1 = g === 'plus' ? k : H / 2 - k, y2 = g === 'plus' ? H - k : H / 2 + k;
+      var m = g === 'plus' ? 0 : Math.min(W, H) * 0.1, X0 = m ? W * 0.05 : 0, X1 = m ? W * 0.95 : W, Y0 = m ? H * 0.05 : 0, Y1 = m ? H * 0.95 : H;
+      return [[[x1, Y0], [x2, Y0], [x2, y1], [X1, y1], [X1, y2], [x2, y2], [x2, Y1], [x1, Y1], [x1, y2], [X0, y2], [X0, y1], [x1, y1]]];
+    }
+    if (g === 'mathMultiply') {
+      var a = ss * A('adj1', 23520) / 100000 * 0.7, ap = a * H / W, cx = W / 2, cy = H / 2, ny = H * (cx - a) / W, nx = W * (cy - ap) / H;
+      return [[[a, 0], [cx, ny], [W - a, 0], [W, ap], [W - nx, cy], [W, H - ap], [W - a, H], [cx, H - ny], [a, H], [0, H - ap], [nx, cy], [0, ap]]];
+    }
+    return null;
+  }
+  function svgShape(it, parts) { // 形のSVG（塗り・線は図形の指定どおり）
+    var fill = it.fill ? (it.fill.alpha < 1 ? it.fill.color : it.fill.color) : 'none', ln = it.line, fo = it.fill && it.fill.alpha < 1 ? ' fill-opacity="' + it.fill.alpha + '"' : '';
+    var h = '<svg width="' + it.w + '" height="' + it.h + '" viewBox="0 0 ' + it.w + ' ' + it.h + '" style="position:absolute;left:0;top:0;overflow:visible">';
+    parts.forEach(function (p) {
+      h += '<path d="' + p.d + '" fill="' + (p.fill === false ? 'none' : fill) + '"' + fo + ' stroke="' + (ln && p.stroke !== false ? ln.color : 'none') + '"' + (ln ? ' stroke-width="' + ln.w + '" stroke-linejoin="miter"' + (/dash/.test(ln.dash) ? ' stroke-dasharray="' + ln.w * 4 + ' ' + ln.w * 2 + '"' : '') : '') + '/>';
+    });
+    return h + '</svg>';
+  }
   function shapeEl(it) {
     var d = document.createElement('div'), ln = it.line, tr = [];
     d.style.cssText = 'position:absolute;left:' + it.x + 'px;top:' + it.y + 'px;width:' + it.w + 'px;height:' + it.h + 'px;box-sizing:border-box';
@@ -479,7 +566,12 @@
       else im.style.cssText = 'position:absolute;max-width:none;width:100%;height:100%;left:0;top:0';
       d.appendChild(im);
     } else {
-      if (it.fill) d.style.background = it.fill.alpha < 1 ? it.fill.color + Math.round(it.fill.alpha * 255).toString(16).padStart(2, '0') : it.fill.color;
+      var parts = null, pp = it.cust ? null : presetPts(it.geom, it.w, it.h, it.adj);
+      if (it.cust) parts = custD(it.cust, it.w, it.h);
+      else if (pp) parts = pp.map(function (pts) { return { d: 'M' + pts.map(function (q) { return q[0].toFixed(2) + ' ' + q[1].toFixed(2); }).join('L') + 'Z' }; });
+      if (parts) { d.insertAdjacentHTML('afterbegin', svgShape(it, parts)); }
+      else if (it.fill) d.style.background = it.fill.alpha < 1 ? it.fill.color + Math.round(it.fill.alpha * 255).toString(16).padStart(2, '0') : it.fill.color;
+      if (parts) ln = null;
       if (ln) d.style.border = ln.w + 'px ' + (/dash/.test(ln.dash) ? 'dashed' : /dot/.test(ln.dash) ? 'dotted' : 'solid') + ' ' + ln.color;
       if (it.geom === 'ellipse') d.style.borderRadius = '50%'; else if (it.geom === 'roundRect') d.style.borderRadius = Math.min(it.w, it.h) * 0.16 + 'px';
       var tx = it.text;
