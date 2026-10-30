@@ -26,7 +26,7 @@ index.html            … GitHub Pages で配信する本体（dev/build.py が�
 manifest.webmanifest, sw.js, icon-*.png … PWA（sw.js はネットワーク優先＋キャッシュ）
 dev/src.html          … ★編集するのはこれ（HTML/CSS/JS すべて）
 dev/qrdecode.js       … 自作のQRデコーダ（カメラ・写真・PDF内のQR読取）
-dev/xlsxview.js      … 自作のExcel(.xlsx)読み取り・表示部品（ZIP展開は DecompressionStream。セル・図形・矢印・回転した写真を描く）
+dev/xlsxview.js      … 自作のExcel(.xlsx)読み取り・表示部品（ZIP展開は、ブラウザの DecompressionStream が使えればそれ、**古いブラウザ（Chrome 102以前など）では自前の `jsInflate()`**。セル・図形・矢印・回転した写真を描く）
 dev/sample/          … 利用者に渡すExcelのひな形
 dev/build.py          … src.html に pdf.js・qrdecode.js・xlsxview.js を埋め込んでビルド
 dev/tests/*.js        … Playwright の回帰テスト（fixtures/ にテスト用PDF・写真）
@@ -58,7 +58,7 @@ npm test                         # すべての回帰テスト（e2e の "log su
 - 主な処理：`onScan()` → `startKanban()` → OK表示 / `ng()`。記録は `addLog()`、CSVは `exportCsv()`。
 - 拡大画面（プレビュー）には「閉じる」だけ（保存ボタンなし。保存は登録タブの一覧のカードから）。
 - 登録タブ：PDFと**Excel(.xlsx)**の取込（ドラッグ＆ドロップ・フォルダごと）、一覧、プレビュー、保存、削除、**編集**（`editPdf()`。Excelは編集ボタンなし＝PC側で直して入れ直す）。
-  **Excelは取り込み時にPDFへ変換して登録する**（`xlsxToPdf()`：`XV.render()` で描いた絵を SVG foreignObject→canvas→JPEG にして、1シート＝1ページの画像PDF `jpegsToPdf()`。`rec.xl=true`、ファイル名は `〇〇.pdf` になる。変換後は普通のPDFなので、見本・ズーム・保存・受け渡しもPDFと同じ）。変換だけ失敗したときは `rec.kind='xlsx'` のままExcelを保存し、`renderXlsx()` で画面に直接描く（予備）。Excelから作ったものは編集ボタンなし＝PC側で直して入れ直す。空のシートは出さない。計算式は保存されている結果を表示。`.xls` は不可（選ぶと理由を出す）。ファイルを選ぶ画面（`#fileIn`・`#xlIn`）の `accept` には、Excelの**形式名（MIME）も書く**（拡張子だけだと、Androidのタブレットのファイル選択でExcelが灰色になって選べないことがあるため。テストは `tests/xls.js`）。テストは `tests/xlview.js`（基準はLibreOfficeで変換した画像と見比べた）。
+  **Excelは取り込み時にPDFへ変換して登録する**（`xlsxToPdf()`：`XV.render()` で描いた絵を SVG foreignObject→canvas→JPEG にして、1シート＝1ページの画像PDF `jpegsToPdf()`。`rec.xl=true`、ファイル名は `〇〇.pdf` になる。変換後は普通のPDFなので、見本・ズーム・保存・受け渡しもPDFと同じ）。変換だけ失敗したときは `rec.kind='xlsx'` のままExcelを保存し、`renderXlsx()` で画面に直接描く（予備）。Excelから作ったものは編集ボタンなし＝PC側で直して入れ直す。空のシートは出さない。計算式は保存されている結果を表示。`.xls` は不可（選ぶと理由を出す）。読めなかった時は、画面に原因の印（`errTxt()`、例 `[Error: not zip]`）を出す。工場のタブレットでExcelが「読めませんでした」になったのは、古いChromeに deflate-raw の展開が無かったためとみられる（テストは `tests/oldchrome.js`：展開機能を消した状態で取り込み・照合）。ファイルを選ぶ画面（`#fileIn`・`#xlIn`）の `accept` には、Excelの**形式名（MIME）も書く**（拡張子だけだと、Androidのタブレットのファイル選択でExcelが灰色になって選べないことがあるため。テストは `tests/xls.js`）。テストは `tests/xlview.js`（基準はLibreOfficeで変換した画像と見比べた）。
 - 設定タブ：端末番号、音、解除番号・パスワード変更、**ポイント表をつくる**（写真4枚まで＋品番・収容数・ポイント → PDF生成 `tplBuild()`。「📷 写真を撮る」でこの画面のままカメラ撮影→写真に追加。続けて撮れて4枚で自動で閉じる。ライブ映像が使えない開き方・許可なしは端末のカメラアプリに切替。`shotStop()`、テストは `tests/shot.js`。**登録・上書きのあとは入力欄をまっさらに戻し**（`tplReset()`）、結果は「✓ 登録しました／上書き保存しました」のメッセージで知らせる）、
   **翻訳（任意）**（ポイントの文を英・インドネシア・タガログで入力→`rec.src.tr` に保存。日本語以外を選んだ端末で、照合画面のPDFの上に `renderTrans()` が大きく表示。対象は「つくる」で作った表のみ。取り込んだPDFは翻訳なし。日本語から自動で入れる「自動翻訳」ボタンはオンラインのときだけ動く（`trOne()`、失敗時は何も変えない、既存の翻訳は確認してから上書き）。テストは `tests/trans.js`・`tests/trauto.js`（翻訳サービスは偽物に差し替え）。実サービスでの動作は未確認）、
   **Excelの一覧から、まとめてポイント表を作る**（`xlRead()`。1行目が見出し：品番・収容数・ポイント（1セル改行 or ポイント1,2…）・英語・インドネシア語・タガログ語。その行に貼った画像（4枚まで）が写真。同じ品番は上書き。登録前に一覧で確認、エラー行（品番なし・収容数が数字でない・ポイントなし・品番の重複）は飛ばす。描画は `tplPaint()` を共用。**「品番」「収容数」「ポイント」の見出しが同じ行にそろっていないExcel（書類の項目名に「品番」があるだけのものも含む）は、一覧ではなく資料とみなし、確認のうえ、そのままPDFに変換して登録する**（登録タブと同じ処理）。**ドラッグ＆ドロップの枠あり**（`xlDropFiles()`。1件なら一覧か資料かを自動判定、2件以上はすべて資料としてPDF変換。写真の枠に落とした時は従来どおり写真）。テストは `tests/xl.js`・`tests/xldrop.js`。.xls は不可）、

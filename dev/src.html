@@ -2419,6 +2419,8 @@ async function exportCsv() {
 
 // ---------- ポイント表の登録 ----------
 /** PDFかどうか：拡張子 .pdf か、中身の先頭が %PDF */
+/** エラーの原因を短く（画面に出して、あとで調べられるように） */
+function errTxt(e) { var s = String((e && (e.name ? e.name + ': ' : '') + (e.message || e)) || e || ''); return s.replace(/\s+/g, ' ').slice(0, 70); }
 function isXlsx(f) { return /\.(xlsx|xlsm)$/i.test((f.name || '').trim()); }
 function isXls(f) { return /\.xls$/i.test((f.name || '').trim()); }
 function looksPdf(f) { return /\.pdf$/i.test((f.name || '').trim()) || f.type === 'application/pdf' || isXlsx(f) || isXls(f); } // PDF と Excel(.xlsx) を取り込める
@@ -2442,7 +2444,7 @@ async function importFiles(files, note) {
       if (xl ? sig.slice(0, 2) !== 'PK' : sig.indexOf('%PDF') < 0) { fail.push(name + t(xl ? 'im_f_notxl' : 'im_f_notpdf')); continue; }
       var rec = { key: key, name: name, size: buf.byteLength, at: today() + ' ' + nowTime(), data: buf };
       if (xl) { // Excelは、PDFに変換して登録する（読めないExcelはここで弾く）。変換だけ失敗した時は、Excelのまま保存して画面に直接描く
-        try { await XV.release(await XV.parse(buf.slice(0))); } catch (e2) { fail.push(name + t('im_f_notxl')); continue; }
+        try { await XV.release(await XV.parse(buf.slice(0))); } catch (e2) { fail.push(name + t('im_f_notxl') + ' [' + errTxt(e2) + ']'); continue; }
         try {
           $('impMsg').textContent = t('im_xl_busy', { name: name });
           var pdfb = await xlsxToPdf(buf); rec = { key: key, name: name.replace(/\.(xlsx|xlsm)$/i, '') + '.pdf', size: pdfb.length, at: rec.at, data: pdfb.buffer, xl: true }; xlDone++;
@@ -2746,7 +2748,6 @@ $('xlCancel').onclick = function () { xlHide(); $('xlMsg').textContent = ''; };
 async function xlHandleFile(f) {
   if (!f) return; xlHide(); var msg = $('xlMsg'); msg.textContent = t('pk_busy');
   if (/\.xls$/i.test(f.name)) { msg.innerHTML = '<span style="color:var(--ng);font-weight:800">⚠ ' + esc(t('xl_old')) + '</span>'; return; }
-  if (typeof DecompressionStream === 'undefined') { msg.innerHTML = '<span style="color:var(--ng);font-weight:800">⚠ ' + esc(t('xl_nobrowser')) + '</span>'; return; }
   try { XL = await xlRead(await f.arrayBuffer()); }
   catch (e) {
     XL = null;
@@ -2756,7 +2757,7 @@ async function xlHandleFile(f) {
       }
       msg.innerHTML = '<span style="color:var(--ng);font-weight:800">⚠ ' + esc(t('xl_nohead')) + '</span>'; return;
     }
-    msg.innerHTML = '<span style="color:var(--ng);font-weight:800">⚠ ' + esc(t('xl_bad')) + '</span>'; return;
+    msg.innerHTML = '<span style="color:var(--ng);font-weight:800">⚠ ' + esc(t('xl_bad')) + ' [' + esc(errTxt(e)) + ']</span>'; return;
   }
   if (!XL.rows.length) { XL = null; msg.innerHTML = '<span style="color:var(--ng);font-weight:800">⚠ ' + esc(t('xl_norows')) + '</span>'; return; }
   msg.textContent = ''; xlShow();

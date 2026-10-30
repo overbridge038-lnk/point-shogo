@@ -13,9 +13,91 @@
   // ---------- ZIP ----------
   function u16(d, o) { return d[o] | (d[o + 1] << 8); }
   function u32(d, o) { return (d[o] | (d[o + 1] << 8) | (d[o + 2] << 16) | (d[o + 3] << 24)) >>> 0; }
+  // ブラウザの標準の展開（DecompressionStream）が使えれば使い、古いブラウザ（Chrome 102以前など）では、下の自前の展開に切り替える
+  var LB = [3, 4, 5, 6, 7, 8, 9, 10, 11, 13, 15, 17, 19, 23, 27, 31, 35, 43, 51, 59, 67, 83, 99, 115, 131, 163, 195, 227, 258];
+  var LE = [0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 2, 2, 2, 2, 3, 3, 3, 3, 4, 4, 4, 4, 5, 5, 5, 5, 0];
+  var DB = [1, 2, 3, 4, 5, 7, 9, 13, 17, 25, 33, 49, 65, 97, 129, 193, 257, 385, 513, 769, 1025, 1537, 2049, 3073, 4097, 6145, 8193, 12289, 16385, 24577];
+  var DE = [0, 0, 0, 0, 1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7, 8, 8, 9, 9, 10, 10, 11, 11, 12, 12, 13, 13];
+  var CL = [16, 17, 18, 0, 8, 7, 9, 6, 10, 5, 11, 4, 12, 3, 13, 2, 14, 1, 15];
+  function huff(lengths, n) { // 長さの表から、符号の表を作る
+    var count = new Uint16Array(16), offs = new Uint16Array(16), sym = new Uint16Array(n), i;
+    for (i = 0; i < n; i++) count[lengths[i]]++;
+    count[0] = 0;
+    for (i = 1; i < 15; i++) offs[i + 1] = offs[i] + count[i];
+    for (i = 0; i < n; i++) if (lengths[i]) sym[offs[lengths[i]]++] = i;
+    return { count: count, sym: sym };
+  }
+  var FIXED_L = null, FIXED_D = null;
+  function jsInflate(src) { // raw deflate → Uint8Array（puff.c と同じ考え方）
+    var pos = 0, bitBuf = 0, bitCnt = 0, out = new Uint8Array(Math.max(1024, src.length * 4)), op = 0;
+    function bits(n) {
+      var v = bitBuf;
+      while (bitCnt < n) { if (pos >= src.length) throw new Error('inflate: end'); v |= src[pos++] << bitCnt; bitCnt += 8; }
+      bitBuf = v >>> n; bitCnt -= n; return v & ((1 << n) - 1);
+    }
+    function decode(t) {
+      var code = 0, first = 0, index = 0;
+      for (var len = 1; len <= 15; len++) {
+        code |= bits(1); var c = t.count[len];
+        if (code - c < first) return t.sym[index + (code - first)];
+        index += c; first += c; first <<= 1; code <<= 1;
+      }
+      throw new Error('inflate: bad code');
+    }
+    function grow(n) { if (op + n > out.length) { var b = new Uint8Array(Math.max(out.length * 2, op + n)); b.set(out.subarray(0, op)); out = b; } }
+    function codes(lt, dt) {
+      for (;;) {
+        var sym = decode(lt);
+        if (sym < 256) { grow(1); out[op++] = sym; }
+        else if (sym === 256) return;
+        else {
+          sym -= 257; if (sym >= 29) throw new Error('inflate: bad length');
+          var len = LB[sym] + bits(LE[sym]), ds = decode(dt); if (ds >= 30) throw new Error('inflate: bad dist');
+          var dist = DB[ds] + bits(DE[ds]); if (dist > op) throw new Error('inflate: far');
+          grow(len); for (var i = 0; i < len; i++) { out[op] = out[op - dist]; op++; }
+        }
+      }
+    }
+    var last;
+    do {
+      last = bits(1); var type = bits(2);
+      if (type === 0) {
+        bitBuf = 0; bitCnt = 0; if (pos + 4 > src.length) throw new Error('inflate: stored');
+        var len = src[pos] | (src[pos + 1] << 8); pos += 4;
+        if (pos + len > src.length) throw new Error('inflate: stored len');
+        grow(len); out.set(src.subarray(pos, pos + len), op); op += len; pos += len;
+      } else if (type === 1) {
+        if (!FIXED_L) {
+          var l = new Uint8Array(288), i;
+          for (i = 0; i < 144; i++) l[i] = 8; for (; i < 256; i++) l[i] = 9; for (; i < 280; i++) l[i] = 7; for (; i < 288; i++) l[i] = 8;
+          FIXED_L = huff(l, 288); FIXED_D = huff(new Uint8Array(30).fill(5), 30);
+        }
+        codes(FIXED_L, FIXED_D);
+      } else if (type === 2) {
+        var nlen = bits(5) + 257, ndist = bits(5) + 1, ncode = bits(4) + 4, lengths = new Uint8Array(320), i2;
+        for (i2 = 0; i2 < ncode; i2++) lengths[CL[i2]] = bits(3);
+        var lc = huff(lengths, 19); lengths = new Uint8Array(320); i2 = 0;
+        while (i2 < nlen + ndist) {
+          var sy = decode(lc);
+          if (sy < 16) lengths[i2++] = sy;
+          else {
+            var prev = 0, rep;
+            if (sy === 16) { if (!i2) throw new Error('inflate: rep'); prev = lengths[i2 - 1]; rep = 3 + bits(2); }
+            else if (sy === 17) rep = 3 + bits(3); else rep = 11 + bits(7);
+            if (i2 + rep > nlen + ndist) throw new Error('inflate: rep len');
+            while (rep--) lengths[i2++] = prev;
+          }
+        }
+        codes(huff(lengths.subarray(0, nlen), nlen), huff(lengths.subarray(nlen, nlen + ndist), ndist));
+      } else throw new Error('inflate: type');
+    } while (!last);
+    return out.subarray(0, op);
+  }
   async function inflate(raw) {
-    var ds = new DecompressionStream('deflate-raw');
-    return new Uint8Array(await new Response(new Blob([raw]).stream().pipeThrough(ds)).arrayBuffer());
+    try {
+      var ds = new DecompressionStream('deflate-raw');
+      return new Uint8Array(await new Response(new Blob([raw]).stream().pipeThrough(ds)).arrayBuffer());
+    } catch (e) { return jsInflate(raw); }
   }
   async function unzip(buf) {
     var d = new Uint8Array(buf), e = d.length - 22;
@@ -476,5 +558,5 @@
   }
   /** 読み取りで作った画像のURLを手放す（使い終わったとき） */
   function release(sheets) { (sheets || []).forEach(function (sh) { sh.shapes.forEach(function (it) { if (it.url) { try { URL.revokeObjectURL(it.url); } catch (e) {} } }); }); }
-  g.XV = { parse: parse, render: render, release: release };
+  g.XV = { parse: parse, render: render, release: release, jsInflate: jsInflate };
 })(window);
