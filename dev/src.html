@@ -2511,7 +2511,7 @@ async function fillThumb(el) {
       doc.destroy && doc.destroy();
     }
     el.innerHTML = '<img alt="" src="' + THUMBS[ck] + '">';
-  } catch (e) { el.innerHTML = '<span>' + esc(t('r_thumb_err')) + '</span>'; }
+  } catch (e) { el.innerHTML = '<span>' + esc(t('r_thumb_err')) + '<br><small>[' + esc(errTxt(e)) + ']</small></span>'; }
 }
 var PVXL = null;
 async function openPreview(k) {
@@ -2537,7 +2537,7 @@ async function openPreview(k) {
       $('pvBody').appendChild(cv);
       await page.render({ canvasContext: cv.getContext('2d'), viewport: vp }).promise;
     }
-  } catch (e) { $('pvBody').innerHTML = '<p class="note">' + esc(t('pv_err')) + '</p>'; }
+  } catch (e) { $('pvBody').innerHTML = '<p class="note">' + esc(t('pv_err')) + ' [' + esc(errTxt(e)) + ']' + (pdfjs ? '' : ' [pdf.js none]') + '</p>'; }
 }
 // ---- 上の「📄 ポイント表 ○件」を押すと、登録済みの一覧（見本つき）を開く（作業者も見られる・削除はできない）
 var plObs = null;
