@@ -422,7 +422,7 @@ html[lang=tl] .tab,html[lang=id] .tab{font-size:14px}
       <div class="dropSub" data-i18n="r_drop_s">PDFファイルでもフォルダごとでもOK／タップするとファイルを選べます</div></div>
     </div>
     <div class="btnrow">
-      <label class="btn pri"><span data-i18n="r_pick">PDFを選んで取込</span><input type="file" id="fileIn" accept="application/pdf,.pdf,.xlsx,.xlsm" multiple hidden></label>
+      <label class="btn pri"><span data-i18n="r_pick">PDFを選んで取込</span><input type="file" id="fileIn" accept="application/pdf,.pdf,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,.xlsx,.xlsm,application/vnd.ms-excel.sheet.macroEnabled.12,application/vnd.ms-excel,.xls" multiple hidden></label>
       <label class="btn"><span data-i18n="r_dir">フォルダごと取込</span><input type="file" id="dirIn" webkitdirectory multiple hidden></label>
       <button class="btn dng" id="clearPdf" data-i18n="r_clear">全部削除</button>
     </div>
@@ -516,7 +516,7 @@ html[lang=tl] .tab,html[lang=id] .tab{font-size:14px}
     <div style="display:grid;gap:12px;max-width:900px">
       <p class="note" style="margin:0" data-i18n-html="xl_note"></p>
       <div class="drop" id="xlDrop" role="button" tabindex="0" style="min-height:90px;justify-content:center"><div><div class="dropTtl" data-i18n="xl_drop_t">ここにExcelをドラッグ＆ドロップ</div><div class="dropSub" data-i18n="xl_drop_s">タップしてファイルを選ぶこともできます（.xlsx）</div></div></div>
-      <div class="btnrow"><button class="btn pri" id="xlPick" data-i18n="xl_pick">📥 Excelを選ぶ（.xlsx）</button><input type="file" id="xlIn" accept=".xlsx,.xlsm,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" hidden></div>
+      <div class="btnrow"><button class="btn pri" id="xlPick" data-i18n="xl_pick">📥 Excelを選ぶ（.xlsx）</button><input type="file" id="xlIn" accept=".xlsx,.xlsm,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel,.xls" hidden></div>
       <div id="xlBox" hidden style="display:none;gap:10px">
         <div class="card" id="xlSum" style="margin:0;font-weight:800"></div>
         <div style="max-height:340px;overflow:auto;border:var(--line);border-radius:12px"><table id="xlTbl"></table></div>
@@ -793,6 +793,7 @@ var I18N = {
     im_f_empty: "（ファイル名が空）",
     im_f_notpdf: "（PDFの中身ではありません）",
     im_f_notxl: "（Excelとして読めません。.xlsx で保存したものを使ってください）",
+    im_f_xls: "（古い形式の .xls は読めません。Excelで「名前を付けて保存」から .xlsx で保存し直してください）",
     im_xl_busy: "ExcelをPDFに変換中… {name}",
     im_xl_note: "Excel {n} 件を、PDFに変換して登録しました（直すときはPCで直して入れ直してください）",
     im_f_read: "（読み込めません：{e}）",
@@ -1106,6 +1107,7 @@ var I18N = {
     im_f_empty: " (nama file kosong)",
     im_f_notpdf: " (isinya bukan PDF)",
     im_f_notxl: " (tidak bisa dibaca sebagai Excel. Pakai file .xlsx)",
+    im_f_xls: " (format lama .xls tidak bisa dibaca. Simpan ulang sebagai .xlsx di Excel)",
     im_xl_busy: "Mengonversi Excel ke PDF… {name}",
     im_xl_note: "{n} file Excel dikonversi ke PDF dan didaftarkan (untuk mengubah, perbaiki di PC lalu impor ulang)",
     im_f_read: " (tidak bisa dibaca: {e})",
@@ -1419,6 +1421,7 @@ var I18N = {
     im_f_empty: " (walang pangalan ng file)",
     im_f_notpdf: " (hindi PDF ang laman)",
     im_f_notxl: " (hindi mabasa bilang Excel. Gamitin ang .xlsx file)",
+    im_f_xls: " (hindi mababasa ang lumang .xls. I-save ulit bilang .xlsx sa Excel)",
     im_xl_busy: "Kino-convert ang Excel sa PDF… {name}",
     im_xl_note: "{n} Excel file ang na-convert sa PDF at nairehistro (para magbago, ayusin sa PC at i-import ulit)",
     im_f_read: " (hindi mabasa: {e})",
@@ -1732,6 +1735,7 @@ var I18N = {
     im_f_empty: " (empty file name)",
     im_f_notpdf: " (not a PDF inside)",
     im_f_notxl: " (cannot be read as Excel. Use a .xlsx file)",
+    im_f_xls: " (the old .xls format cannot be read. In Excel, use Save As and save it as .xlsx)",
     im_xl_busy: "Converting Excel to PDF… {name}",
     im_xl_note: "{n} Excel file(s) were converted to PDF and registered (to change one, fix it on the PC and import it again)",
     im_f_read: " (cannot read: {e})",
@@ -2416,7 +2420,8 @@ async function exportCsv() {
 // ---------- ポイント表の登録 ----------
 /** PDFかどうか：拡張子 .pdf か、中身の先頭が %PDF */
 function isXlsx(f) { return /\.(xlsx|xlsm)$/i.test((f.name || '').trim()); }
-function looksPdf(f) { return /\.pdf$/i.test((f.name || '').trim()) || f.type === 'application/pdf' || isXlsx(f); } // PDF と Excel(.xlsx) を取り込める
+function isXls(f) { return /\.xls$/i.test((f.name || '').trim()); }
+function looksPdf(f) { return /\.pdf$/i.test((f.name || '').trim()) || f.type === 'application/pdf' || isXlsx(f) || isXls(f); } // PDF と Excel(.xlsx) を取り込める
 async function importFiles(files, note) {
   files = Array.prototype.slice.call(files || []);
   var list = files.filter(looksPdf), others = files.length - list.length;
@@ -2430,6 +2435,7 @@ async function importFiles(files, note) {
   for (var i = 0; i < list.length; i++) {
     var f = list[i], name = (f.name || '').trim(), key = norm(name);
     if (!key) { fail.push(name + t('im_f_empty')); continue; }
+    if (isXls(f)) { fail.push(name + t('im_f_xls')); continue; } // 古い形式(.xls)は読めない
     try {
       var buf = await f.arrayBuffer();
       var head = new Uint8Array(buf.slice(0, 5)), sig = String.fromCharCode.apply(null, head), xl = isXlsx(f);
