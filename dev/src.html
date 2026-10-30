@@ -2062,9 +2062,44 @@ function b64Blob(id) {
   for (var i = 0; i < s.length; i++) u[i] = s.charCodeAt(i);
   return URL.createObjectURL(new Blob([u], { type: 'text/javascript' }));
 }
+var PDFJS_ERR = '';
 async function loadPdfjs() {
-  pdfjs = await import(b64Blob('b64-pdfjs'));
-  pdfjs.GlobalWorkerOptions.workerSrc = b64Blob('b64-worker');
+  try {
+    pdfjs = await import(b64Blob('b64-pdfjs'));
+    pdfjs.GlobalWorkerOptions.workerSrc = b64Blob('b64-worker');
+  } catch (e) { pdfjs = null; PDFJS_ERR = errTxt(e); } // 古い端末では pdf.js が動かない。起動は止めず、自作PDFは下の openDoc() で表示する
+}
+/** このアプリが作った画像だけのPDF（Excel変換・ポイント表づくり）から、写真（JPEG）を取り出す。pdf.js が動かない古い端末用 */
+function pdfJpegs(data) {
+  var u = data instanceof Uint8Array ? data : new Uint8Array(data), txt = '';
+  for (var i = 0; i < u.length; i += 8192) txt += String.fromCharCode.apply(null, u.subarray(i, Math.min(u.length, i + 8192)));
+  var out = [], re = /\/Subtype \/Image \/Width (\d+) \/Height (\d+)[^>]*?\/Length (\d+) >>\nstream\n/g, m;
+  while ((m = re.exec(txt))) {
+    var st = m.index + m[0].length, n = +m[3];
+    out.push({ w: +m[1], h: +m[2], url: URL.createObjectURL(new Blob([u.subarray(st, st + n)], { type: 'image/jpeg' })) });
+  }
+  return out;
+}
+/** PDFを開く。pdf.js が使えればそれ、だめなら自作PDFだけ写真を取り出して表示 */
+async function openDoc(data) {
+  if (pdfjs) return await pdfjs.getDocument({ data: data.slice(0), isEvalSupported: false }).promise;
+  var im = pdfJpegs(data);
+  if (!im.length) throw new Error('pdf.js none' + (PDFJS_ERR ? ': ' + PDFJS_ERR : ''));
+  return {
+    numPages: im.length, destroy: function () {},
+    getPage: async function (n) {
+      var g = im[n - 1];
+      return {
+        getViewport: function (o) { return { width: g.w * o.scale, height: g.h * o.scale, scale: o.scale }; },
+        render: function (o) {
+          return { promise: new Promise(function (res, rej) {
+            var x = new Image(); x.onload = function () { o.canvasContext.drawImage(x, 0, 0, o.viewport.width, o.viewport.height); res(); };
+            x.onerror = function () { rej(new Error('jpeg')); }; x.src = g.url;
+          }) };
+        }
+      };
+    }
+  };
 }
 
 // ---------- 照合の状態 ----------
@@ -2274,7 +2309,7 @@ function padKey(k) {
 // ---- ポイント表の表示と拡大（写真の細かい所まで見られるように） ----
 var ZM = { z: 1, fitW: 0, xl: 1 }, Z_MAX = 4;
 async function renderPdf(data) {
-  var doc = await pdfjs.getDocument({ data: data.slice(0), isEvalSupported: false }).promise;
+  var doc = await openDoc(data);
   var box = $('pdfbox'); box.innerHTML = '';
   var pages = [], fitW = Math.max(300, box.clientWidth - 32), dpr = window.devicePixelRatio || 1;
   ZM.z = 1; ZM.fitW = fitW;
@@ -2502,7 +2537,7 @@ async function fillThumb(el) {
   try {
     if (!THUMBS[ck]) {
       var rec = await getPdf(k);
-      var doc = await pdfjs.getDocument({ data: new Uint8Array(rec.data.slice(0)), isEvalSupported: false }).promise;
+      var doc = await openDoc(new Uint8Array(rec.data));
       var page = await doc.getPage(1), vp1 = page.getViewport({ scale: 1 }), vp = page.getViewport({ scale: 420 / vp1.width });
       var cv = document.createElement('canvas'); cv.width = Math.round(vp.width); cv.height = Math.round(vp.height);
       var cx = cv.getContext('2d'); cx.fillStyle = '#fff'; cx.fillRect(0, 0, cv.width, cv.height);
@@ -2511,7 +2546,7 @@ async function fillThumb(el) {
       doc.destroy && doc.destroy();
     }
     el.innerHTML = '<img alt="" src="' + THUMBS[ck] + '">';
-  } catch (e) { el.innerHTML = '<span>' + esc(t('r_thumb_err')) + '</span>'; }
+  } catch (e) { el.innerHTML = '<span>' + esc(t('r_thumb_err')) + '<br><small>[' + esc(errTxt(e)) + ']</small></span>'; }
 }
 var PVXL = null;
 async function openPreview(k) {
@@ -2528,7 +2563,7 @@ async function openPreview(k) {
       $('pvBody').querySelectorAll('.xlwrap').forEach(function (e) { e.style.zoom = Math.min(2, fw / (wm || fw)); });
       return;
     }
-    var doc = await pdfjs.getDocument({ data: new Uint8Array(rec.data.slice(0)), isEvalSupported: false }).promise;
+    var doc = await openDoc(new Uint8Array(rec.data));
     $('pvBody').innerHTML = '';
     var maxW = Math.max(300, $('pvBody').clientWidth - 28), dpr = window.devicePixelRatio || 1;
     for (var n = 1; n <= doc.numPages; n++) {
@@ -2537,7 +2572,7 @@ async function openPreview(k) {
       $('pvBody').appendChild(cv);
       await page.render({ canvasContext: cv.getContext('2d'), viewport: vp }).promise;
     }
-  } catch (e) { $('pvBody').innerHTML = '<p class="note">' + esc(t('pv_err')) + '</p>'; }
+  } catch (e) { $('pvBody').innerHTML = '<p class="note">' + esc(t('pv_err')) + ' [' + esc(errTxt(e)) + ']' + (pdfjs ? '' : ' [pdf.js: ' + esc(PDFJS_ERR) + ']') + '</p>'; }
 }
 // ---- 上の「📄 ポイント表 ○件」を押すと、登録済みの一覧（見本つき）を開く（作業者も見られる・削除はできない）
 var plObs = null;
@@ -3332,7 +3367,7 @@ function trimWhite(cv) {
 async function tplSetPdf(file) {
   tplPhotoMsg(t('tp_pdf_loading'));
   try {
-    var doc = await pdfjs.getDocument({ data: new Uint8Array(await readBuf(file)), isEvalSupported: false }).promise;
+    var doc = await openDoc(new Uint8Array(await readBuf(file)));
     var page = await doc.getPage(1), vp1 = page.getViewport({ scale: 1 });
     var sc = 1600 / Math.max(vp1.width, vp1.height), vp = page.getViewport({ scale: sc });
     var cv = document.createElement('canvas'); cv.width = Math.round(vp.width); cv.height = Math.round(vp.height);
