@@ -563,6 +563,13 @@ html[lang=my],html[lang=ne],html[lang=bn],html[lang=si]{line-height:1.5} /* ミ�
       <p class="note" id="xlMsg" style="margin:0"></p>
     </div>
   </div>
+  <div class="card" id="appCard">
+    <h3 data-i18n="app_h">このツールをほかのタブレットに渡す</h3>
+    <div style="display:grid;gap:12px;max-width:560px">
+      <p class="note" style="margin:0" data-i18n="app_note"></p>
+      <div class="btnrow"><button class="btn pri" id="appSave" data-i18n="app_btn">💾 このツールをファイルとして保存</button></div>
+    </div>
+  </div>
   <div class="card" id="pkCard">
     <h3 data-i18n="pk_h">ポイント表の受け渡し（2台そろえる）</h3>
     <div style="display:grid;gap:14px;max-width:560px">
@@ -1057,7 +1064,13 @@ var I18N = {
     dr_saved: "作りかけを保存しました：{name}（別のタブレットで「作りかけを開く」から続きができます。動画は含まれません）",
     dr_bad: "作りかけのファイルではありません",
     dr_confirm: "いま入力している内容は消えます。作りかけを開きますか？",
-    dr_loaded: "作りかけを開きました：{name}"
+    dr_loaded: "作りかけを開きました：{name}",
+    app_h: "このツールをほかのタブレットに渡す",
+    app_note: "このツール本体（HTML）を、ファイルとして保存します。USBやGoogleドライブでほかのタブレットに渡して、開くだけで使えます（インターネット不要）。ポイント表や記録は入りません（ポイント表は「受け渡し」で渡します）。",
+    app_btn: "💾 このツールをファイルとして保存",
+    app_done: "保存しました：{name}",
+    app_fail_file: "このファイルから直接開いているため、ここからは保存できません。お手元の「ポイント照合ツール.html」を、そのままコピーして渡してください",
+    app_fail: "保存できませんでした。インターネットにつながっているときに、もう一度押してください"
   },
   id: {
     tab_check: "Cek",
@@ -1411,7 +1424,13 @@ var I18N = {
     dr_saved: "Pekerjaan disimpan: {name} (lanjutkan di tablet lain dengan \"Buka pekerjaan yang belum selesai\". Video tidak termasuk)",
     dr_bad: "Ini bukan file pekerjaan yang belum selesai",
     dr_confirm: "Isian saat ini akan terhapus. Buka pekerjaan yang disimpan?",
-    dr_loaded: "Dibuka: {name}"
+    dr_loaded: "Dibuka: {name}",
+    app_h: "Berikan alat ini ke tablet lain",
+    app_note: "Menyimpan alat ini (HTML) sebagai file. Berikan ke tablet lain lewat USB atau Google Drive lalu cukup buka (tanpa internet). Tabel poin dan riwayat tidak ikut (kirim tabel poin lewat \"Bagikan tabel poin\").",
+    app_btn: "💾 Simpan alat ini sebagai file",
+    app_done: "Disimpan: {name}",
+    app_fail_file: "Alat ini dibuka langsung dari file sehingga tidak bisa disimpan dari sini. Salin file \"ポイント照合ツール.html\" Anda apa adanya",
+    app_fail: "Gagal menyimpan. Tekan lagi saat terhubung ke internet"
   },
   tl: {
     tab_check: "Suriin",
@@ -1765,7 +1784,13 @@ var I18N = {
     dr_saved: "Na-save ang hindi pa tapos: {name} (ipagpatuloy sa ibang tablet gamit ang \"Buksan ang hindi pa tapos\". Hindi kasama ang video)",
     dr_bad: "Hindi ito file ng hindi pa tapos na gawa",
     dr_confirm: "Mabubura ang kasalukuyang inilagay. Buksan ang na-save?",
-    dr_loaded: "Nabuksan: {name}"
+    dr_loaded: "Nabuksan: {name}",
+    app_h: "Ibigay ang tool na ito sa ibang tablet",
+    app_note: "Sine-save ang mismong tool (HTML) bilang file. Ibigay sa ibang tablet sa pamamagitan ng USB o Google Drive at buksan lang (hindi kailangan ng internet). Hindi kasama ang mga point table at talaan (ipasa ang mga point table gamit ang \"Ibahagi ang mga point table\").",
+    app_btn: "💾 I-save ang tool na ito bilang file",
+    app_done: "Na-save: {name}",
+    app_fail_file: "Direktang binuksan ang tool na ito mula sa file kaya hindi ito ma-save mula rito. Kopyahin nang buo ang iyong \"ポイント照合ツール.html\"",
+    app_fail: "Hindi na-save. Pindutin muli kapag nakakonekta sa internet"
   },
   en: {
     tab_check: "Check",
@@ -2119,7 +2144,13 @@ var I18N = {
     dr_saved: "Work in progress saved: {name} (continue on another tablet with \"Open work in progress\". Videos are not included)",
     dr_bad: "This is not a work-in-progress file",
     dr_confirm: "What you have entered now will be erased. Open the saved work?",
-    dr_loaded: "Opened: {name}"
+    dr_loaded: "Opened: {name}",
+    app_h: "Pass this tool to another tablet",
+    app_note: "Saves the tool itself (HTML) as a file. Hand it to another tablet by USB or Google Drive and just open it (no internet needed). Point tables and records are not included (pass point tables with \"Share point tables\").",
+    app_btn: "💾 Save this tool as a file",
+    app_done: "Saved: {name}",
+    app_fail_file: "This tool was opened directly from a file, so it cannot be saved from here. Copy your \"ポイント照合ツール.html\" file as it is",
+    app_fail: "Could not save. Press it again while connected to the internet"
   },
   vi: {
     tab_check: "Kiểm tra",
@@ -2473,7 +2504,13 @@ var I18N = {
     dr_saved: "Đã lưu bản làm dở: {name} (tiếp tục trên máy tính bảng khác bằng \"Mở bản đang làm dở\". Không gồm video)",
     dr_bad: "Đây không phải file bản làm dở",
     dr_confirm: "Nội dung đang nhập sẽ bị xóa. Mở bản làm dở?",
-    dr_loaded: "Đã mở: {name}"
+    dr_loaded: "Đã mở: {name}",
+    app_h: "Chuyển công cụ này sang máy tính bảng khác",
+    app_note: "Lưu chính công cụ này (HTML) thành một file. Chuyển sang máy tính bảng khác bằng USB hoặc Google Drive rồi chỉ cần mở ra (không cần internet). Bảng điểm và lịch sử không được kèm theo (hãy chuyển bảng điểm bằng \"Chia sẻ bảng điểm\").",
+    app_btn: "💾 Lưu công cụ này thành file",
+    app_done: "Đã lưu: {name}",
+    app_fail_file: "Công cụ đang được mở trực tiếp từ một file nên không thể lưu từ đây. Hãy sao chép nguyên file \"ポイント照合ツール.html\" của bạn",
+    app_fail: "Không lưu được. Hãy nhấn lại khi có kết nối internet"
   },
   my: {
     tab_check: "စစ်ဆေးခြင်း",
@@ -2827,7 +2864,13 @@ var I18N = {
     dr_saved: "လုပ်လက်စ သိမ်းပြီး: {name} (အခြားတက်ဘလက်တွင် \"လုပ်လက်စကို ဖွင့်မည်\" ဖြင့် ဆက်လုပ်နိုင်သည်။ ဗီဒီယိုမပါပါ)",
     dr_bad: "ဤဖိုင်သည် လုပ်လက်စဖိုင် မဟုတ်ပါ",
     dr_confirm: "ယခုထည့်ထားသည်များ ပျက်သွားမည်။ လုပ်လက်စကို ဖွင့်မလား?",
-    dr_loaded: "ဖွင့်ပြီး: {name}"
+    dr_loaded: "ဖွင့်ပြီး: {name}",
+    app_h: "ဤကိရိယာကို အခြားတက်ဘလက်သို့ ပေးခြင်း",
+    app_note: "ဤကိရိယာ (HTML) ကို ဖိုင်အဖြစ် သိမ်းသည်။ USB သို့မဟုတ် Google Drive ဖြင့် အခြားတက်ဘလက်သို့ ပေးပြီး ဖွင့်ရုံဖြင့် သုံးနိုင်သည် (အင်တာနက်မလို)။ ပွိုင့်ဇယားနှင့် မှတ်တမ်းများ မပါပါ (ပွိုင့်ဇယားကို \"ပွိုင့်ဇယား မျှဝေခြင်း\" ဖြင့် ပေးပါ)။",
+    app_btn: "💾 ဤကိရိယာကို ဖိုင်အဖြစ် သိမ်းမည်",
+    app_done: "သိမ်းပြီးပါပြီ: {name}",
+    app_fail_file: "ဖိုင်မှ တိုက်ရိုက်ဖွင့်ထားသဖြင့် ဤနေရာမှ မသိမ်းနိုင်ပါ။ သင့်ထံရှိ \"ポイント照合ツール.html\" ဖိုင်ကို မူလအတိုင်း ကူးပေးပါ",
+    app_fail: "မသိမ်းနိုင်ပါ။ အင်တာနက်ချိတ်ထားစဉ် ထပ်နှိပ်ပါ"
   },
   ne: {
     tab_check: "जाँच",
@@ -3181,7 +3224,13 @@ var I18N = {
     dr_saved: "अधुरो काम सेभ भयो: {name} (अर्को ट्याब्लेटमा \"अधुरो काम खोल्ने\" बाट जारी राख्न सकिन्छ। भिडियो समावेश छैन)",
     dr_bad: "यो अधुरो कामको फाइल होइन",
     dr_confirm: "अहिले हालेको सबै मेटिन्छ। अधुरो काम खोल्ने?",
-    dr_loaded: "खोलियो: {name}"
+    dr_loaded: "खोलियो: {name}",
+    app_h: "यो टुल अर्को ट्याब्लेटलाई दिनुहोस्",
+    app_note: "यो टुल (HTML) लाई फाइलको रूपमा सेभ गर्छ। USB वा Google Drive बाट अर्को ट्याब्लेटमा दिएर खोल्नुहोस् (इन्टरनेट चाहिँदैन)। पोइन्ट तालिका र अभिलेख समावेश हुँदैनन् (पोइन्ट तालिका \"पोइन्ट तालिका साझा गर्नुहोस्\" बाट दिनुहोस्)।",
+    app_btn: "💾 यो टुल फाइलको रूपमा सेभ गर्ने",
+    app_done: "सेभ भयो: {name}",
+    app_fail_file: "यो फाइलबाटै सिधै खोलिएकाले यहाँबाट सेभ गर्न मिल्दैन। तपाईंसँग भएको \"ポイント照合ツール.html\" फाइल जस्ताको तस्तै कपी गर्नुहोस्",
+    app_fail: "सेभ गर्न सकिएन। इन्टरनेट जोडिएको बेला फेरि थिच्नुहोस्"
   },
   bn: {
     tab_check: "যাচাই",
@@ -3535,7 +3584,13 @@ var I18N = {
     dr_saved: "অসমাপ্ত কাজ সেভ হয়েছে: {name} (অন্য ট্যাবলেটে \"অসমাপ্ত কাজ খুলুন\" দিয়ে চালিয়ে যান। ভিডিও থাকে না)",
     dr_bad: "এটি অসমাপ্ত কাজের ফাইল নয়",
     dr_confirm: "এখন যা লিখেছেন তা মুছে যাবে। অসমাপ্ত কাজ খুলবেন?",
-    dr_loaded: "খোলা হয়েছে: {name}"
+    dr_loaded: "খোলা হয়েছে: {name}",
+    app_h: "এই টুলটি অন্য ট্যাবলেটে দিন",
+    app_note: "এই টুল (HTML) নিজেই একটি ফাইল হিসেবে সেভ হবে। USB বা Google Drive দিয়ে অন্য ট্যাবলেটে দিয়ে শুধু খুললেই চলবে (ইন্টারনেট লাগবে না)। পয়েন্ট টেবিল ও রেকর্ড এতে থাকে না (পয়েন্ট টেবিল \"পয়েন্ট টেবিল শেয়ার করুন\" দিয়ে দিন)।",
+    app_btn: "💾 এই টুলটি ফাইল হিসেবে সেভ করুন",
+    app_done: "সেভ হয়েছে: {name}",
+    app_fail_file: "এটি সরাসরি ফাইল থেকে খোলা হয়েছে, তাই এখান থেকে সেভ করা যাবে না। আপনার \"ポイント照合ツール.html\" ফাইলটি যেমন আছে তেমন কপি করে দিন",
+    app_fail: "সেভ করা গেল না। ইন্টারনেটে যুক্ত থাকা অবস্থায় আবার চাপুন"
   },
   mn: {
     tab_check: "Шалгах",
@@ -3889,7 +3944,13 @@ var I18N = {
     dr_saved: "Дутуу ажил хадгалагдлаа: {name} (өөр таблет дээр \"Дутуу ажлыг нээх\"-ээр үргэлжлүүлнэ. Видео багтахгүй)",
     dr_bad: "Энэ нь дутуу ажлын файл биш байна",
     dr_confirm: "Одоо оруулсан зүйл устана. Дутуу ажлыг нээх үү?",
-    dr_loaded: "Нээгдлээ: {name}"
+    dr_loaded: "Нээгдлээ: {name}",
+    app_h: "Энэ хэрэгслийг өөр таблетад өгөх",
+    app_note: "Энэ хэрэгслийг (HTML) файл болгон хадгална. USB эсвэл Google Drive-аар өөр таблетад өгөөд нээхэд л болно (интернэт шаардлагагүй). Цэгийн хүснэгт болон бүртгэл орохгүй (цэгийн хүснэгтийг \"Цэгийн хүснэгт хуваалцах\"-аар дамжуул).",
+    app_btn: "💾 Энэ хэрэгслийг файл болгон хадгалах",
+    app_done: "Хадгаллаа: {name}",
+    app_fail_file: "Файлаас шууд нээсэн тул эндээс хадгалах боломжгүй. Өөрт байгаа \"ポイント照合ツール.html\" файлыг хэвээр нь хуулж өг",
+    app_fail: "Хадгалж чадсангүй. Интернэтэд холбогдсон үедээ дахин дар"
   },
   pt: {
     tab_check: "Verificar",
@@ -4243,7 +4304,13 @@ var I18N = {
     dr_saved: "Trabalho salvo: {name} (continue em outro tablet com \"Abrir trabalho em andamento\". Vídeos não estão incluídos)",
     dr_bad: "Este não é um arquivo de trabalho em andamento",
     dr_confirm: "O que você digitou agora será apagado. Abrir o trabalho salvo?",
-    dr_loaded: "Aberto: {name}"
+    dr_loaded: "Aberto: {name}",
+    app_h: "Passar esta ferramenta para outro tablet",
+    app_note: "Salva a própria ferramenta (HTML) como um arquivo. Passe para outro tablet por USB ou Google Drive e basta abrir (sem internet). Tabelas de pontos e registros não vão junto (passe as tabelas de pontos com \"Compartilhar tabelas de pontos\").",
+    app_btn: "💾 Salvar esta ferramenta como arquivo",
+    app_done: "Salvo: {name}",
+    app_fail_file: "Esta ferramenta foi aberta direto de um arquivo, então não dá para salvar daqui. Copie o seu arquivo \"ポイント照合ツール.html\" como está",
+    app_fail: "Não foi possível salvar. Toque de novo com a internet conectada"
   },
   si: {
     tab_check: "පරීක්ෂා කිරීම",
@@ -4597,7 +4664,13 @@ var I18N = {
     dr_saved: "අඩක් කළ වැඩ සුරැකුවා: {name} (වෙනත් ටැබ්ලටයක \"අඩක් කළ වැඩ විවෘත කරන්න\" මගින් දිගටම කරන්න. වීඩියෝ ඇතුළත් නොවේ)",
     dr_bad: "මෙය අඩක් කළ වැඩ ගොනුවක් නොවේ",
     dr_confirm: "දැන් ඇතුළත් කළ දේ මැකේ. සුරැකූ වැඩ විවෘත කරන්නද?",
-    dr_loaded: "විවෘත කළා: {name}"
+    dr_loaded: "විවෘත කළා: {name}",
+    app_h: "මෙම මෙවලම වෙනත් ටැබ්ලටයකට දෙන්න",
+    app_note: "මෙම මෙවලම (HTML) ගොනුවක් ලෙස සුරකියි. USB හෝ Google Drive මගින් වෙනත් ටැබ්ලටයකට දී විවෘත කළාම ඇති (අන්තර්ජාලය අවශ්‍ය නැත). ලකුණු වගු සහ වාර්තා ඇතුළත් නොවේ (ලකුණු වගු \"ලකුණු වගු හුවමාරු කරන්න\" මගින් දෙන්න).",
+    app_btn: "💾 මෙම මෙවලම ගොනුවක් ලෙස සුරකින්න",
+    app_done: "සුරැකුවා: {name}",
+    app_fail_file: "ගොනුවෙන් කෙලින්ම විවෘත කර ඇති නිසා මෙතැනින් සුරැකිය නොහැක. ඔබ සතු \"ポイント照合ツール.html\" ගොනුව එලෙසම පිටපත් කර දෙන්න",
+    app_fail: "සුරැකිය නොහැකි විය. අන්තර්ජාලයට සම්බන්ධව ඇති විට නැවත ඔබන්න"
   }
 };
 var LANG = 'ja';
@@ -5441,6 +5514,22 @@ $('pkApply').onclick = async function () {
   pkHide();
   await loadPdfIndex(); showPdfList(); updateHeader();
   toast(t('pk_done', { a: a, u: u, d: d }) + (vn ? ' ／ 🎬 ' + vn : '') + (cfOn ? ' ／ ⚙' : ''), 5000);
+};
+/** このツール本体（HTML）を、きれいな状態のまま、ファイルとして保存する。公開URL（https）で開いている時は、サーバーの元のHTMLを取って保存する。
+ *  ファイルから直接開いている時は、ブラウザの決まりで自分自身を読めないので、できない理由を知らせる（画面をそのまま保存すると、操作中の状態も入ってしまうため） */
+$('appSave').onclick = async function () {
+  var btn = this; btn.disabled = true;
+  try {
+    if (!/^https?:$/.test(location.protocol)) return toast(t('app_fail_file'), 7000);
+    var r = await fetch(location.href.split('#')[0].split('?')[0], { cache: 'no-cache' });
+    if (!r.ok) throw new Error('http ' + r.status);
+    var txt = await r.text(); if (txt.indexOf('<title>') < 0 || txt.length < 100000) throw new Error('bad');
+    var name = 'ポイント照合ツール.html';
+    var a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([txt], { type: 'text/html' })); a.download = name;
+    document.body.appendChild(a); a.click(); a.remove(); setTimeout(function () { URL.revokeObjectURL(a.href); }, 4000);
+    toast(t('app_done', { name: name }), 4000);
+  } catch (e) { toast(t('app_fail') + ' [' + errTxt(e) + ']', 6000); }
+  finally { btn.disabled = false; }
 };
 // ---------- Excelの一覧から、まとめてポイント表を作る ----------
 // 1行目は見出し。品番・収容数・ポイント（ポイント1、ポイント2…でも、1つのセルに改行で並べても可）・英語・インドネシア語・タガログ語。
