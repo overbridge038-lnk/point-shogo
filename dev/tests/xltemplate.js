@@ -9,6 +9,7 @@ const { chromium } = require('playwright'); const S = process.argv[2]; const fs 
   for (const [id, f] of [['xlTpl1', 'ポイント表一覧_ひな形.xlsx'], ['xlTpl2', 'ポイント表一覧_ひな形（自動翻訳）.xlsx']]) {
     const [dl] = await Promise.all([p.waitForEvent('download'), p.click('#' + id)]); const tmp = path.join(require('os').tmpdir(), 'dl_' + Date.now() + '.xlsx'); await dl.saveAs(tmp);
     console.log(id, dl.suggestedFilename(), '| 元のひな形と同じ:', Buffer.compare(fs.readFileSync(tmp), fs.readFileSync(path.join(SM, f))) === 0);
+    console.log('  案内の画面:', await p.evaluate(() => document.getElementById('gdView').classList.contains('on')), '|', (await p.locator('#gdView .gdSt').allInnerTexts()).length + '個の手順'); if (id === 'xlTpl1') await p.screenshot({ path: S + '/gd_screen.png' }); await p.click('#gdClose'); console.log('  閉じた:', await p.evaluate(() => !document.getElementById('gdView').classList.contains('on')));
   }
   // ひな形そのもの → 取り込める（入力例の1行）
   await p.setInputFiles('#xlIn', path.join(SM, 'ポイント表一覧_ひな形.xlsx')); await p.waitForFunction(() => document.getElementById('xlSum').textContent.length > 0, null, { timeout: 60000 });
