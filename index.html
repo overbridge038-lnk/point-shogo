@@ -363,11 +363,11 @@ html[lang=my],html[lang=ne],html[lang=bn],html[lang=si]{line-height:1.5} /* ミ�
     <button class="btn langBtn" data-lang="si"><span class="flag">🇱🇰</span>සිංහල</button>
   </div>
   <p id="startNote" style="font-size:13px">準備中…</p>
-  <p class="ver" style="font-size:12px;opacity:.85">ver.2026.11.02 13:47 (#79)</p>
+  <p class="ver" style="font-size:12px;opacity:.85">ver.2026.11.02 14:00 (#81)</p>
 </div>
 
 <header>
-  <h1><i class="logo" data-mascot="ok"></i><span>ポイント照合ツール</span><small class="ver" title="版（ビルドした日時）">ver.2026.11.02 13:47 (#79)</small></h1>
+  <h1><i class="logo" data-mascot="ok"></i><span>ポイント照合ツール</span><small class="ver" title="版（ビルドした日時）">ver.2026.11.02 14:00 (#81)</small></h1>
   <div class="tabs">
     <button class="tab on" data-v="check" data-i18n="tab_check">照合</button>
     <button class="tab" data-v="pdf" data-i18n="tab_pdf">ポイント表の登録</button>
@@ -6132,6 +6132,7 @@ function renderNg() {
 var codeBuf = '';
 (function buildPad() {
   var keys = ['1', '2', '3', '4', '5', '6', '7', '8', '9', 'C', '0', 'OK'], p = $('pad');
+  p.innerHTML = ''; // ブラウザの「ページを保存」で保存したHTMLを開くと、作ったボタンが残っているので、いちど空にする（2重にならないように）
   keys.forEach(function (k) {
     var b = document.createElement('button'); b.textContent = k; b.onclick = function () { padKey(k); }; p.appendChild(b);
   });
@@ -7285,7 +7286,7 @@ function askPin(title) {
 }
 function pinClose(v) { $('pinDlg').classList.remove('on'); var r = pinResolve; pinResolve = null; if (r) r(v); setTimeout(focusScan, 50); }
 (function buildPinPad() {
-  var p = $('pinPad');
+  var p = $('pinPad'); p.innerHTML = '';
   ['1', '2', '3', '4', '5', '6', '7', '8', '9', 'C', '0', '⌫'].forEach(function (k) {
     var b = document.createElement('button'); b.type = 'button'; b.textContent = k;
     b.onclick = function () {

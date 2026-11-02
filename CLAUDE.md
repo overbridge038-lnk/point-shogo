@@ -69,6 +69,7 @@ npm test                         # すべての回帰テスト（e2e の "log su
 - Excelの図形の形：四角・丸・角丸のほか、既製の矢印（右・左・上・下・左右・上下）・×（mathMultiply）・＋・－・三角・ひし形・五角形・山形（`presetPts()`）と、**自由な形**（`custGeom`。`readCust()`→`custD()`、円弧も）をSVGで描く。対応していない形は四角になる。テストは `tests/shapes.js`（`tests/make_shapes_fixture.py` で作った作り物）。
 - ファイルの読み込みは `readBuf()`（arrayBuffer が失敗したら FileReader）。**同じファイルを2回読まない**（タブレットによっては2回目が `NotReadableError` になる。Excelの一覧→資料の流れは1回読んだ中身を使い回す。テストは `tests/onceread.js`）。
 - 古いタブレットでは pdf.js（PDFを描く部品）が動かないことがある。読み込みに失敗しても起動は止めず、**このアプリが作った画像だけのPDF**（Excel変換・「つくる」）は `openDoc()` が中のJPEGを取り出して表示する（普通のPDFは開けない。画面に `[pdf.js: …]` と原因を出す。テストは `tests/nopdfjs.js`）。
+- **ブラウザの「ページを保存（Ctrl+S）」で保存したHTMLを開いても壊れない**：起動時に作る部品（テンキー `#pad`・`#pinPad`）は、作る前にいちど空にする（保存したHTMLには、作られたボタンが入っているため、2重になった）。**配布には `dev/dist/ポイント照合ツール.html` を使う**（Ctrl+S の保存は、そのときの画面の状態も入るのでおすすめしない）。テストは `tests/resave.js`。
 - 照合画面のポイント表はズーム可能（ボタン・ピンチ・ダブルタップ）。
 
 ## 公開（デプロイ）
