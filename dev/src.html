@@ -495,7 +495,7 @@ html[lang=my],html[lang=ne],html[lang=bn],html[lang=si]{line-height:1.5} /* ミ�
             <div id="tplDropTxt"><div class="dropTtl">写真・PDFをドラッグ＆ドロップ（最大4枚）</div><div class="dropSub">タップするとファイル選択・撮影ができます。まとめて選んでもOK（コピーした画像は Ctrl＋V でも可）</div></div>
           </div>
           <div class="btnrow" style="margin-top:8px"><button type="button" class="btn pri" id="tplShot" data-i18n="tp_shot">📷 写真を撮る</button></div>
-          <input type="file" id="tplPhotoIn" accept="image/*,application/pdf,.pdf,video/*,.mp4,.m4v,.webm,.mov" multiple hidden>
+          <input type="file" id="tplPhotoIn" accept="image/*,application/pdf,.pdf,video/*,.mp4,.m4v,.webm,.mov,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,.xlsx,.xlsm,application/vnd.ms-excel.sheet.macroEnabled.12" multiple hidden>
           <input type="file" id="tplShotIn" accept="image/*" capture="environment" hidden>
           <div class="tplPhotoMsg" id="tplPhotoMsg"></div>
         </div>
@@ -1020,7 +1020,8 @@ var I18N = {
     vid_pick: "🎬 動画を選ぶ",
     vid_rm: "✕ 外す",
     vid_will: "登録するときにつけます：{name}",
-    vid_has: "この品番には、すでに動画がついています（選ぶと入れ替え）"
+    vid_has: "この品番には、すでに動画がついています（選ぶと入れ替え）",
+    tp_drop_more: "Excel（.xlsx）・動画も、ここに入れられます"
   },
   id: {
     tab_check: "Cek",
@@ -1354,7 +1355,8 @@ var I18N = {
     vid_pick: "🎬 Pilih video",
     vid_rm: "✕ Lepas",
     vid_will: "Akan dipasang saat mendaftar: {name}",
-    vid_has: "Nomor part ini sudah punya video (memilih akan menggantinya)"
+    vid_has: "Nomor part ini sudah punya video (memilih akan menggantinya)",
+    tp_drop_more: "File Excel (.xlsx) atau video juga bisa dimasukkan di sini"
   },
   tl: {
     tab_check: "Suriin",
@@ -1688,7 +1690,8 @@ var I18N = {
     vid_pick: "🎬 Pumili ng video",
     vid_rm: "✕ Alisin",
     vid_will: "Ikakabit kapag nagrehistro: {name}",
-    vid_has: "May video na ang part number na ito (papalitan kapag pumili)"
+    vid_has: "May video na ang part number na ito (papalitan kapag pumili)",
+    tp_drop_more: "Maaari ring ilagay dito ang Excel (.xlsx) file o video"
   },
   en: {
     tab_check: "Check",
@@ -2022,7 +2025,8 @@ var I18N = {
     vid_pick: "🎬 Choose a video",
     vid_rm: "✕ Remove",
     vid_will: "It will be attached when you register: {name}",
-    vid_has: "This part number already has a video (choosing one replaces it)"
+    vid_has: "This part number already has a video (choosing one replaces it)",
+    tp_drop_more: "You can also drop an Excel (.xlsx) file or a video here"
   },
   vi: {
     tab_check: "Kiểm tra",
@@ -2356,7 +2360,8 @@ var I18N = {
     vid_pick: "🎬 Chọn video",
     vid_rm: "✕ Bỏ",
     vid_will: "Sẽ gắn khi đăng ký: {name}",
-    vid_has: "Mã hàng này đã có video (chọn sẽ thay thế)"
+    vid_has: "Mã hàng này đã có video (chọn sẽ thay thế)",
+    tp_drop_more: "Bạn cũng có thể thả file Excel (.xlsx) hoặc video vào đây"
   },
   my: {
     tab_check: "စစ်ဆေးခြင်း",
@@ -2690,7 +2695,8 @@ var I18N = {
     vid_pick: "🎬 ဗီဒီယို ရွေးမည်",
     vid_rm: "✕ ဖယ်မည်",
     vid_will: "မှတ်ပုံတင်ချိန်တွင် ကပ်မည်: {name}",
-    vid_has: "ဤပစ္စည်းနံပါတ်တွင် ဗီဒီယိုရှိပြီးဖြစ်သည် (ရွေးလျှင် အစားထိုးမည်)"
+    vid_has: "ဤပစ္စည်းနံပါတ်တွင် ဗီဒီယိုရှိပြီးဖြစ်သည် (ရွေးလျှင် အစားထိုးမည်)",
+    tp_drop_more: "Excel (.xlsx) ဖိုင် သို့မဟုတ် ဗီဒီယိုကိုလည်း ဤနေရာတွင် ထည့်နိုင်သည်"
   },
   ne: {
     tab_check: "जाँच",
@@ -3024,7 +3030,8 @@ var I18N = {
     vid_pick: "🎬 भिडियो छान्ने",
     vid_rm: "✕ हटाउने",
     vid_will: "दर्ता गर्दा जोडिनेछ: {name}",
-    vid_has: "यो पार्ट नम्बरमा पहिले नै भिडियो छ (छान्दा बदलिन्छ)"
+    vid_has: "यो पार्ट नम्बरमा पहिले नै भिडियो छ (छान्दा बदलिन्छ)",
+    tp_drop_more: "Excel (.xlsx) फाइल वा भिडियो पनि यहाँ राख्न सकिन्छ"
   },
   bn: {
     tab_check: "যাচাই",
@@ -3358,7 +3365,8 @@ var I18N = {
     vid_pick: "🎬 ভিডিও বাছুন",
     vid_rm: "✕ সরান",
     vid_will: "নিবন্ধনের সময় যুক্ত হবে: {name}",
-    vid_has: "এই পার্ট নম্বরে আগেই ভিডিও আছে (বাছলে বদলে যাবে)"
+    vid_has: "এই পার্ট নম্বরে আগেই ভিডিও আছে (বাছলে বদলে যাবে)",
+    tp_drop_more: "Excel (.xlsx) ফাইল বা ভিডিওও এখানে দেওয়া যায়"
   },
   mn: {
     tab_check: "Шалгах",
@@ -3692,7 +3700,8 @@ var I18N = {
     vid_pick: "🎬 Видео сонгох",
     vid_rm: "✕ Авах",
     vid_will: "Бүртгэхэд хавсарна: {name}",
-    vid_has: "Энэ эдийн дугаарт видео аль хэдийн байна (сонговол солигдоно)"
+    vid_has: "Энэ эдийн дугаарт видео аль хэдийн байна (сонговол солигдоно)",
+    tp_drop_more: "Excel (.xlsx) файл эсвэл видеог мөн энд оруулж болно"
   },
   pt: {
     tab_check: "Verificar",
@@ -4026,7 +4035,8 @@ var I18N = {
     vid_pick: "🎬 Escolher um vídeo",
     vid_rm: "✕ Remover",
     vid_will: "Será anexado ao cadastrar: {name}",
-    vid_has: "Este código de peça já tem um vídeo (escolher substitui)"
+    vid_has: "Este código de peça já tem um vídeo (escolher substitui)",
+    tp_drop_more: "Você também pode soltar aqui um arquivo Excel (.xlsx) ou um vídeo"
   },
   si: {
     tab_check: "පරීක්ෂා කිරීම",
@@ -4360,7 +4370,8 @@ var I18N = {
     vid_pick: "🎬 වීඩියෝවක් තෝරන්න",
     vid_rm: "✕ ඉවත් කරන්න",
     vid_will: "ලියාපදිංචි කරන විට සම්බන්ධ වේ: {name}",
-    vid_has: "මෙම කොටස් අංකයට දැනටමත් වීඩියෝවක් ඇත (තෝරා ගත්විට මාරු වේ)"
+    vid_has: "මෙම කොටස් අංකයට දැනටමත් වීඩියෝවක් ඇත (තෝරා ගත්විට මාරු වේ)",
+    tp_drop_more: "Excel (.xlsx) ගොනු හෝ වීඩියෝද මෙතැනට දැමිය හැක"
   }
 };
 var LANG = 'ja';
@@ -5285,7 +5296,7 @@ async function xlHandleFile(f) {
 $('xlIn').onchange = function () { var f = this.files && this.files[0]; this.value = ''; xlHandleFile(f); };
 /** ドラッグ＆ドロップ：1件なら一覧／資料を自動で見分ける。2件以上は、すべて資料としてPDFに変換して登録する */
 async function xlDropFiles(dt) {
-  var fs = Array.prototype.slice.call((dt && dt.files) || []).filter(isXlsx), msg = $('xlMsg');
+  var fs = (Array.isArray(dt) ? dt : Array.prototype.slice.call((dt && dt.files) || [])).filter(isXlsx), msg = $('xlMsg');
   if (!fs.length) { msg.innerHTML = '<span style="color:var(--ng);font-weight:800">⚠ ' + esc(t('xl_drop_none')) + '</span>'; return; }
   if (fs.length === 1) return xlHandleFile(fs[0]);
   xlHide(); msg.textContent = t('pk_busy'); await importFiles(fs); msg.innerHTML = $('impMsg').innerHTML;
@@ -5919,6 +5930,19 @@ async function tplSetPdf(file) {
     tplPhotoMsg(esc(t('tp_pdf_err', { f: file.name || '' })));
   }
 }
+/** Excel(.xlsx)を、写真として入れる（1枚目のシートを、見たままの絵にする）。ポイントの文字は、あとで入力して翻訳する */
+async function tplSetExcel(file) {
+  tplPhotoMsg(t('tp_pdf_loading'));
+  try {
+    var pages = await xlsxToPages(await readBuf(file)), pg = pages[0];
+    var im = await new Promise(function (res, rej) { var x = new Image(); x.onload = function () { res(x); }; x.onerror = function () { rej(new Error('jpeg')); }; x.src = URL.createObjectURL(new Blob([pg.jpeg], { type: 'image/jpeg' })); });
+    var cv = document.createElement('canvas'); cv.width = im.naturalWidth; cv.height = im.naturalHeight;
+    var cx = cv.getContext('2d'); cx.fillStyle = '#fff'; cx.fillRect(0, 0, cv.width, cv.height); cx.drawImage(im, 0, 0);
+    cv = trimWhite(cv);
+    var blob = await new Promise(function (res) { cv.toBlob(res, 'image/png'); });
+    await tplSetPhoto(new File([blob], (file.name || 'excel') + '.png', { type: 'image/png' }), pages.length > 1 ? t('tp_pdf_page1', { n: pages.length }) : '');
+  } catch (e) { tplPhotoMsg(esc(t('xl_bad') + ' (' + (file.name || '') + ') [' + errTxt(e) + ']')); }
+}
 function isImageFile(f) { return !!f && (/^image\//.test(f.type) || /\.(jpe?g|png|webp|gif|bmp|heic|heif)$/i.test(f.name || '')); }
 /** 写真を1枚追加（最大4枚）。note があれば知らせる */
 function tplSetPhoto(file, note) {
@@ -5945,13 +5969,14 @@ function tplSetPhoto(file, note) {
 }
 /** 何枚かまとめて追加（入りきらない分は知らせる） */
 function tplAddFiles(files) {
-  var ok = files.filter(function (f) { return isImageFile(f) || isPdfFile(f); }), room = TPL_MAX - TPL.imgs.length;
+  var ok = files.filter(function (f) { return isImageFile(f) || isPdfFile(f) || isXlsx(f); }), room = TPL_MAX - TPL.imgs.length;
   if (!ok.length) return false;
   if (room <= 0) { tplPhotoMsg(esc(t('tp_max'))); return true; }
   var use = ok.slice(0, room);
   (async function () {
     for (var i = 0; i < use.length; i++) {
       if (isPdfFile(use[i])) await tplSetPdf(use[i]);
+      else if (isXlsx(use[i])) await tplSetExcel(use[i]);
       else await tplSetPhoto(use[i]);
     }
     if (ok.length > room) tplPhotoMsg(esc(t('tp_max_skip', { n: ok.length - room })));
@@ -5970,8 +5995,8 @@ function tplRenderPhotos() {
   $('tplDrop').classList.toggle('full', n >= TPL_MAX);
   $('tplShot').hidden = n >= TPL_MAX;
   $('tplDropTxt').innerHTML = n
-    ? '<div class="dropTtl">' + esc(t('tp_add_t', { n: TPL_MAX - n })) + '</div><div class="dropSub">' + esc(t('tp_add_s')) + '</div>'
-    : '<div class="dropTtl">' + esc(t('tp_drop_t')) + '</div><div class="dropSub">' + esc(t('tp_drop_s')) + '</div>';
+    ? '<div class="dropTtl">' + esc(t('tp_add_t', { n: TPL_MAX - n })) + '</div><div class="dropSub">' + esc(t('tp_add_s')) + '</div><div class="dropSub">' + esc(t('tp_drop_more')) + '</div>'
+    : '<div class="dropTtl">' + esc(t('tp_drop_t')) + '</div><div class="dropSub">' + esc(t('tp_drop_s')) + '</div><div class="dropSub">' + esc(t('tp_drop_more')) + '</div>';
 }
 $('tplPhotos').addEventListener('click', function (e) {
   var rm = e.target.closest('[data-rm]'), up = e.target.closest('[data-up]');
@@ -6192,7 +6217,9 @@ function jpegsToPdf(pages) {
 }
 function blobToDataUrl(b) { return new Promise(function (res) { var fr = new FileReader(); fr.onload = function () { res(fr.result); }; fr.readAsDataURL(b); }); }
 /** Excel(.xlsx)をPDFに変換する。シートを画面と同じ絵に描いて（図形・矢印・写真・罫線も）、1シート＝1ページの画像PDFにする */
-async function xlsxToPdf(buf) {
+async function xlsxToPdf(buf) { return jpegsToPdf(await xlsxToPages(buf)); }
+/** Excelの各シートを、画面と同じ絵のJPEGにして返す（PDF化にも、「つくる」の写真にも使う） */
+async function xlsxToPages(buf) {
   var sheets = await XV.parse(buf.slice(0)), host = document.createElement('div');
   try {
     host.style.cssText = 'position:fixed;left:-30000px;top:0;visibility:hidden;width:max-content';
@@ -6212,7 +6239,7 @@ async function xlsxToPdf(buf) {
       pages.push({ jpeg: new Uint8Array(await blob.arrayBuffer()), w: cv.width, h: cv.height });
     }
     if (!pages.length) throw new Error('empty');
-    return jpegsToPdf(pages);
+    return pages;
   } finally { host.remove(); XV.release(sheets); }
 }
 function jpegToPdf(jpeg, pxW, pxH) {
