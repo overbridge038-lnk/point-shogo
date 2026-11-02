@@ -4991,6 +4991,7 @@ function renderNg() {
 var codeBuf = '';
 (function buildPad() {
   var keys = ['1', '2', '3', '4', '5', '6', '7', '8', '9', 'C', '0', 'OK'], p = $('pad');
+  p.innerHTML = ''; // ブラウザの「ページを保存」で保存したHTMLを開くと、作ったボタンが残っているので、いちど空にする（2重にならないように）
   keys.forEach(function (k) {
     var b = document.createElement('button'); b.textContent = k; b.onclick = function () { padKey(k); }; p.appendChild(b);
   });
@@ -6144,7 +6145,7 @@ function askPin(title) {
 }
 function pinClose(v) { $('pinDlg').classList.remove('on'); var r = pinResolve; pinResolve = null; if (r) r(v); setTimeout(focusScan, 50); }
 (function buildPinPad() {
-  var p = $('pinPad');
+  var p = $('pinPad'); p.innerHTML = '';
   ['1', '2', '3', '4', '5', '6', '7', '8', '9', 'C', '0', '⌫'].forEach(function (k) {
     var b = document.createElement('button'); b.type = 'button'; b.textContent = k;
     b.onclick = function () {
