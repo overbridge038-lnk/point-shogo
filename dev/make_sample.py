@@ -2,7 +2,7 @@
   ① ポイント表一覧_ひな形.xlsx … 品番・収容数・ポイント＋10言語の翻訳（入力例つき）
   ② ポイント表一覧_ひな形（自動翻訳）.xlsx … ①と同じ列。翻訳の列に GOOGLETRANSLATE の式が入っている。
      Googleスプレッドシートに取り込むと、日本語のポイントから10言語が自動で入る（そのままダウンロードして .xlsx にすると、訳した結果が残る）
-使い方: cd dev && python3 make_sample.py   （openpyxl が必要）"""
+使い方: cd dev && python3 make_sample.py   （openpyxl と Pillow が必要。図は sample/写真の貼りかた.png）"""
 import openpyxl
 from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
 from openpyxl.utils import get_column_letter as L
@@ -48,7 +48,7 @@ def build(path, auto):
     g = wb.create_sheet('使い方'); g.column_dimensions['A'].width = 110
     lines = ['【使い方】', '1. 「ポイント表一覧」の2行目の入力例を消して、自分の内容を書きます。1行が1つのポイント表です。',
      '2. 黄色の列に、日本語で入力します。ポイントは、1つのセルに書き、行を変えるときは Alt＋Enter を押します（1行に1ポイント）。',
-     '3. 写真は、その行のセルに貼り付けます（4枚まで）。写真がなくてもポイント表はできます。']
+     '3. 写真は、N列〜Q列に、その品番の行に合わせて貼り付けます（4枚まで）。写真の左上の角が、その行のセルの中にあれば、その行の写真になります。左にある写真から順に使います。写真がなくてもポイント表はできます（下の図を見てください）。']
     if auto:
         lines += ['4. このファイルを Google ドライブにアップロードして、Googleスプレッドシートで開きます（右クリック → アプリで開く → Googleスプレッドシート）。',
          '5. 薄紫の列（英語〜シンハラ語）に、日本語のポイントから自動で翻訳が入ります（式：GOOGLETRANSLATE）。インターネットが必要です。',
@@ -64,6 +64,12 @@ def build(path, auto):
     for i, t in enumerate(lines, 1):
         g.cell(i, 1, t).alignment = Alignment(wrap_text=True)
     g['A1'].font = Font(bold=True, size=13)
+    # 写真の貼りかた（図）
+    import os
+    from openpyxl.drawing.image import Image as XImg
+    png = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'sample', '写真の貼りかた.png')
+    if os.path.exists(png):
+        im = XImg(png); im.width, im.height = 900, int(900 * im.height / im.width); g.add_image(im, 'A%d' % (len(lines) + 3))
     wb.save(path)
 
 build('sample/ポイント表一覧_ひな形.xlsx', False)
