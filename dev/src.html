@@ -225,6 +225,9 @@ label.f{display:flex;flex-direction:column;gap:6px;font-size:14px;font-weight:80
 #vidView.on{display:flex}
 #vidEl{width:100%;max-height:70vh;background:#000;border-radius:10px}
 #vidBtn{min-height:34px;padding:2px 12px;font-size:14px}
+.chk{display:flex;align-items:flex-start;gap:8px;font-weight:700;font-size:14px;line-height:1.5}
+.chk[hidden]{display:none}
+.chk input{width:20px;height:20px;margin-top:2px;flex:none}
 .pvbox{background:var(--card);border:var(--line);border-radius:22px;box-shadow:var(--pop);width:min(1100px,100%);max-height:100%;display:flex;flex-direction:column;overflow:hidden}
 .pvhead{display:flex;align-items:center;gap:10px;padding:10px 16px;border-bottom:var(--line);background:var(--sun-soft)}
 .pvhead b{font-size:20px;font-weight:900}
@@ -531,6 +534,11 @@ html[lang=my],html[lang=ne],html[lang=bn],html[lang=si]{line-height:1.5} /* ミ�
           <button class="btn" id="tplDl" data-i18n="tp_dl">PDFを保存</button>
           <button class="btn" id="tplClear" data-i18n="tp_clear">クリア</button>
         </div>
+        <div class="btnrow">
+          <button class="btn" id="drSave" data-i18n="dr_save">💾 作りかけを保存</button>
+          <button class="btn" id="drOpen" data-i18n="dr_open">📂 作りかけを開く</button>
+          <input type="file" id="drIn" accept=".ptdraft,application/json,.json" hidden>
+        </div>
       </div>
       <div class="tplPrev">
         <div class="tplLbl" data-i18n="tp_prev">できあがりの見本</div>
@@ -564,10 +572,14 @@ html[lang=my],html[lang=ne],html[lang=bn],html[lang=si]{line-height:1.5} /* ミ�
         <button class="btn" id="pkPick" data-i18n="pk_in">📥 一式ファイルを取り込む</button>
         <input type="file" id="pkIn" hidden>
       </div>
+      <label class="chk"><input type="checkbox" id="pkWithVid" checked> <span data-i18n="pk_with_vid">🎬 動画も入れる（ファイルが大きくなります）</span></label>
+      <label class="chk"><input type="checkbox" id="pkWithCf" checked> <span data-i18n="pk_with_cf">⚙ 設定（音・解除番号・パスワード）も入れる ※ファイルを見た人に解除番号がわかります。保管に注意</span></label>
       <div id="pkBox" hidden style="display:none;gap:10px">
         <div class="note" id="pkFrom" style="margin:0"></div>
         <label class="f"><span data-i18n="pk_mode">取り込み方</span>
           <select id="pkMode"><option value="merge" data-i18n="pk_m_merge">追加・上書き（今あるものは残す）</option><option value="replace" data-i18n="pk_m_replace">全部入れ替え（一式にないものは削除）</option></select></label>
+        <label class="chk" id="pkInVidL" hidden><input type="checkbox" id="pkInVid" checked> <span id="pkInVidT"></span></label>
+        <label class="chk" id="pkInCfL" hidden><input type="checkbox" id="pkInCf" checked> <span data-i18n="pk_in_cf">⚙ 設定（音・解除番号・パスワード）も取り込む</span></label>
         <div class="card" id="pkPrev" style="margin:0;font-weight:800"></div>
         <div class="btnrow"><button class="btn pri" id="pkApply" data-i18n="pk_apply">この内容で取り込む</button><button class="btn" id="pkCancel" data-i18n="pk_cancel">やめる</button></div>
       </div>
@@ -1034,7 +1046,18 @@ var I18N = {
     xl_tr_auto: "🌐 空の翻訳を自動で入れる（オンライン）",
     xl_c_tr: "翻訳",
     xl_tr_done: "翻訳を入れました：{n}か所（失敗 {f}か所）。登録する前に、内容を見てください",
-    xl_tr_none: "翻訳が必要な所はありません（すべて入っています）"
+    xl_tr_none: "翻訳が必要な所はありません（すべて入っています）",
+    pk_with_vid: "🎬 動画も入れる（ファイルが大きくなります）",
+    pk_with_cf: "⚙ 設定（音・解除番号・パスワード）も入れる ※ファイルを見た人に解除番号がわかります。保管に注意",
+    pk_in_vid: "動画 {n} 本も取り込む",
+    pk_in_cf: "⚙ 設定（音・解除番号・パスワード）も取り込む",
+    dr_save: "💾 作りかけを保存",
+    dr_open: "📂 作りかけを開く",
+    dr_empty: "保存する内容がありません",
+    dr_saved: "作りかけを保存しました：{name}（別のタブレットで「作りかけを開く」から続きができます。動画は含まれません）",
+    dr_bad: "作りかけのファイルではありません",
+    dr_confirm: "いま入力している内容は消えます。作りかけを開きますか？",
+    dr_loaded: "作りかけを開きました：{name}"
   },
   id: {
     tab_check: "Cek",
@@ -1377,7 +1400,18 @@ var I18N = {
     xl_tr_auto: "🌐 Isi terjemahan yang kosong otomatis (online)",
     xl_c_tr: "Terjemahan",
     xl_tr_done: "Terjemahan terisi: {n} tempat (gagal {f}). Periksa dulu sebelum mendaftar",
-    xl_tr_none: "Tidak ada yang perlu diterjemahkan (semua sudah terisi)"
+    xl_tr_none: "Tidak ada yang perlu diterjemahkan (semua sudah terisi)",
+    pk_with_vid: "🎬 Sertakan video (file jadi lebih besar)",
+    pk_with_cf: "⚙ Sertakan pengaturan (suara, kode buka, kata sandi) * Siapa pun yang melihat file bisa tahu kode buka. Simpan dengan hati-hati",
+    pk_in_vid: "Impor juga {n} video",
+    pk_in_cf: "⚙ Impor juga pengaturan (suara, kode buka, kata sandi)",
+    dr_save: "💾 Simpan pekerjaan yang belum selesai",
+    dr_open: "📂 Buka pekerjaan yang belum selesai",
+    dr_empty: "Tidak ada yang disimpan",
+    dr_saved: "Pekerjaan disimpan: {name} (lanjutkan di tablet lain dengan \"Buka pekerjaan yang belum selesai\". Video tidak termasuk)",
+    dr_bad: "Ini bukan file pekerjaan yang belum selesai",
+    dr_confirm: "Isian saat ini akan terhapus. Buka pekerjaan yang disimpan?",
+    dr_loaded: "Dibuka: {name}"
   },
   tl: {
     tab_check: "Suriin",
@@ -1720,7 +1754,18 @@ var I18N = {
     xl_tr_auto: "🌐 Awtomatikong punan ang mga walang salin (online)",
     xl_c_tr: "Salin",
     xl_tr_done: "Napunan ang salin: {n} (nabigo {f}). Pakisuri bago magrehistro",
-    xl_tr_none: "Walang kailangang isalin (puno na lahat)"
+    xl_tr_none: "Walang kailangang isalin (puno na lahat)",
+    pk_with_vid: "🎬 Isama ang mga video (lalaki ang file)",
+    pk_with_cf: "⚙ Isama ang mga setting (tunog, unlock code, password) * Malalaman ng sinumang makakita ng file ang unlock code. Ingatan ito",
+    pk_in_vid: "I-import din ang {n} video",
+    pk_in_cf: "⚙ I-import din ang mga setting (tunog, unlock code, password)",
+    dr_save: "💾 I-save ang hindi pa tapos",
+    dr_open: "📂 Buksan ang hindi pa tapos",
+    dr_empty: "Walang ise-save",
+    dr_saved: "Na-save ang hindi pa tapos: {name} (ipagpatuloy sa ibang tablet gamit ang \"Buksan ang hindi pa tapos\". Hindi kasama ang video)",
+    dr_bad: "Hindi ito file ng hindi pa tapos na gawa",
+    dr_confirm: "Mabubura ang kasalukuyang inilagay. Buksan ang na-save?",
+    dr_loaded: "Nabuksan: {name}"
   },
   en: {
     tab_check: "Check",
@@ -2063,7 +2108,18 @@ var I18N = {
     xl_tr_auto: "🌐 Fill empty translations automatically (online)",
     xl_c_tr: "Translations",
     xl_tr_done: "Translations filled in: {n} (failed: {f}). Please check them before registering",
-    xl_tr_none: "Nothing to translate (everything is already filled in)"
+    xl_tr_none: "Nothing to translate (everything is already filled in)",
+    pk_with_vid: "🎬 Include videos (the file gets larger)",
+    pk_with_cf: "⚙ Include settings (sound, unlock code, password) * Anyone who sees the file can learn the unlock code. Keep it safe",
+    pk_in_vid: "Also import {n} video(s)",
+    pk_in_cf: "⚙ Also import settings (sound, unlock code, password)",
+    dr_save: "💾 Save work in progress",
+    dr_open: "📂 Open work in progress",
+    dr_empty: "There is nothing to save",
+    dr_saved: "Work in progress saved: {name} (continue on another tablet with \"Open work in progress\". Videos are not included)",
+    dr_bad: "This is not a work-in-progress file",
+    dr_confirm: "What you have entered now will be erased. Open the saved work?",
+    dr_loaded: "Opened: {name}"
   },
   vi: {
     tab_check: "Kiểm tra",
@@ -2406,7 +2462,18 @@ var I18N = {
     xl_tr_auto: "🌐 Tự điền các bản dịch còn trống (có mạng)",
     xl_c_tr: "Bản dịch",
     xl_tr_done: "Đã điền bản dịch: {n} chỗ (lỗi {f} chỗ). Hãy kiểm tra trước khi đăng ký",
-    xl_tr_none: "Không có chỗ nào cần dịch (đã điền đủ)"
+    xl_tr_none: "Không có chỗ nào cần dịch (đã điền đủ)",
+    pk_with_vid: "🎬 Gồm cả video (file sẽ lớn hơn)",
+    pk_with_cf: "⚙ Gồm cả cài đặt (âm thanh, mã mở khóa, mật khẩu) * Ai xem file đều biết được mã mở khóa. Hãy giữ cẩn thận",
+    pk_in_vid: "Nhập cả {n} video",
+    pk_in_cf: "⚙ Nhập cả cài đặt (âm thanh, mã mở khóa, mật khẩu)",
+    dr_save: "💾 Lưu bản đang làm dở",
+    dr_open: "📂 Mở bản đang làm dở",
+    dr_empty: "Không có nội dung để lưu",
+    dr_saved: "Đã lưu bản làm dở: {name} (tiếp tục trên máy tính bảng khác bằng \"Mở bản đang làm dở\". Không gồm video)",
+    dr_bad: "Đây không phải file bản làm dở",
+    dr_confirm: "Nội dung đang nhập sẽ bị xóa. Mở bản làm dở?",
+    dr_loaded: "Đã mở: {name}"
   },
   my: {
     tab_check: "စစ်ဆေးခြင်း",
@@ -2749,7 +2816,18 @@ var I18N = {
     xl_tr_auto: "🌐 ဗလာဘာသာပြန်များကို အလိုအလျောက် ဖြည့်မည် (အွန်လိုင်း)",
     xl_c_tr: "ဘာသာပြန်",
     xl_tr_done: "ဘာသာပြန် ဖြည့်ပြီး: {n} ခု (မအောင်မြင် {f} ခု)။ မှတ်ပုံမတင်မီ စစ်ကြည့်ပါ",
-    xl_tr_none: "ဘာသာပြန်ရန် မလိုပါ (အားလုံး ဖြည့်ပြီးသား)"
+    xl_tr_none: "ဘာသာပြန်ရန် မလိုပါ (အားလုံး ဖြည့်ပြီးသား)",
+    pk_with_vid: "🎬 ဗီဒီယိုပါ ထည့်မည် (ဖိုင် ပိုကြီးမည်)",
+    pk_with_cf: "⚙ ဆက်တင် (အသံ၊ လော့ခ်ဖွင့်ကုဒ်၊ စကားဝှက်) ပါ ထည့်မည် ※ ဖိုင်ကိုမြင်သူက လော့ခ်ဖွင့်ကုဒ်ကို သိနိုင်သည်။ သတိထားသိမ်းပါ",
+    pk_in_vid: "ဗီဒီယို {n} ခုပါ ထည့်သွင်းမည်",
+    pk_in_cf: "⚙ ဆက်တင် (အသံ၊ လော့ခ်ဖွင့်ကုဒ်၊ စကားဝှက်) ပါ ထည့်သွင်းမည်",
+    dr_save: "💾 လုပ်လက်စကို သိမ်းမည်",
+    dr_open: "📂 လုပ်လက်စကို ဖွင့်မည်",
+    dr_empty: "သိမ်းရန် အကြောင်းအရာ မရှိပါ",
+    dr_saved: "လုပ်လက်စ သိမ်းပြီး: {name} (အခြားတက်ဘလက်တွင် \"လုပ်လက်စကို ဖွင့်မည်\" ဖြင့် ဆက်လုပ်နိုင်သည်။ ဗီဒီယိုမပါပါ)",
+    dr_bad: "ဤဖိုင်သည် လုပ်လက်စဖိုင် မဟုတ်ပါ",
+    dr_confirm: "ယခုထည့်ထားသည်များ ပျက်သွားမည်။ လုပ်လက်စကို ဖွင့်မလား?",
+    dr_loaded: "ဖွင့်ပြီး: {name}"
   },
   ne: {
     tab_check: "जाँच",
@@ -3092,7 +3170,18 @@ var I18N = {
     xl_tr_auto: "🌐 खाली अनुवाद आफैं भर्ने (अनलाइन)",
     xl_c_tr: "अनुवाद",
     xl_tr_done: "अनुवाद भरियो: {n} ठाउँ (असफल {f})। दर्ता गर्नुअघि जाँच्नुहोस्",
-    xl_tr_none: "अनुवाद गर्नुपर्ने ठाउँ छैन (सबै भरिएको छ)"
+    xl_tr_none: "अनुवाद गर्नुपर्ने ठाउँ छैन (सबै भरिएको छ)",
+    pk_with_vid: "🎬 भिडियो पनि राख्ने (फाइल ठूलो हुन्छ)",
+    pk_with_cf: "⚙ सेटिङ (आवाज, अनलक कोड, पासवर्ड) पनि राख्ने ※ फाइल हेर्ने जोसुकैले अनलक कोड थाहा पाउँछ। सुरक्षित राख्नुहोस्",
+    pk_in_vid: "{n} वटा भिडियो पनि आयात गर्ने",
+    pk_in_cf: "⚙ सेटिङ (आवाज, अनलक कोड, पासवर्ड) पनि आयात गर्ने",
+    dr_save: "💾 अधुरो काम सेभ गर्ने",
+    dr_open: "📂 अधुरो काम खोल्ने",
+    dr_empty: "सेभ गर्ने कुरा छैन",
+    dr_saved: "अधुरो काम सेभ भयो: {name} (अर्को ट्याब्लेटमा \"अधुरो काम खोल्ने\" बाट जारी राख्न सकिन्छ। भिडियो समावेश छैन)",
+    dr_bad: "यो अधुरो कामको फाइल होइन",
+    dr_confirm: "अहिले हालेको सबै मेटिन्छ। अधुरो काम खोल्ने?",
+    dr_loaded: "खोलियो: {name}"
   },
   bn: {
     tab_check: "যাচাই",
@@ -3435,7 +3524,18 @@ var I18N = {
     xl_tr_auto: "🌐 ফাঁকা অনুবাদ নিজে থেকে ভরুন (অনলাইনে)",
     xl_c_tr: "অনুবাদ",
     xl_tr_done: "অনুবাদ ভরা হয়েছে: {n}টি (ব্যর্থ {f}টি)। নিবন্ধনের আগে দেখে নিন",
-    xl_tr_none: "অনুবাদ করার মতো কিছু নেই (সব ভরা আছে)"
+    xl_tr_none: "অনুবাদ করার মতো কিছু নেই (সব ভরা আছে)",
+    pk_with_vid: "🎬 ভিডিওও রাখুন (ফাইল বড় হবে)",
+    pk_with_cf: "⚙ সেটিংসও রাখুন (শব্দ, আনলক কোড, পাসওয়ার্ড) ※ যে ফাইল দেখবে সে আনলক কোড জানতে পারবে। সাবধানে রাখুন",
+    pk_in_vid: "{n}টি ভিডিওও ইমপোর্ট করুন",
+    pk_in_cf: "⚙ সেটিংসও ইমপোর্ট করুন (শব্দ, আনলক কোড, পাসওয়ার্ড)",
+    dr_save: "💾 অসমাপ্ত কাজ সেভ করুন",
+    dr_open: "📂 অসমাপ্ত কাজ খুলুন",
+    dr_empty: "সেভ করার মতো কিছু নেই",
+    dr_saved: "অসমাপ্ত কাজ সেভ হয়েছে: {name} (অন্য ট্যাবলেটে \"অসমাপ্ত কাজ খুলুন\" দিয়ে চালিয়ে যান। ভিডিও থাকে না)",
+    dr_bad: "এটি অসমাপ্ত কাজের ফাইল নয়",
+    dr_confirm: "এখন যা লিখেছেন তা মুছে যাবে। অসমাপ্ত কাজ খুলবেন?",
+    dr_loaded: "খোলা হয়েছে: {name}"
   },
   mn: {
     tab_check: "Шалгах",
@@ -3778,7 +3878,18 @@ var I18N = {
     xl_tr_auto: "🌐 Хоосон орчуулгыг автоматаар бөглөх (онлайн)",
     xl_c_tr: "Орчуулга",
     xl_tr_done: "Орчуулга бөглөгдлөө: {n} (амжилтгүй {f}). Бүртгэхээсээ өмнө шалгаарай",
-    xl_tr_none: "Орчуулах зүйл алга (бүгд бөглөгдсөн)"
+    xl_tr_none: "Орчуулах зүйл алга (бүгд бөглөгдсөн)",
+    pk_with_vid: "🎬 Видеог ч оруулах (файл томорно)",
+    pk_with_cf: "⚙ Тохиргоог (дуу, нээх код, нууц үг) ч оруулах ※ Файлыг харсан хүн нээх кодыг мэдэх болно. Болгоомжтой хадгал",
+    pk_in_vid: "{n} видеог ч оруулах",
+    pk_in_cf: "⚙ Тохиргоог (дуу, нээх код, нууц үг) ч оруулах",
+    dr_save: "💾 Дутуу ажлыг хадгалах",
+    dr_open: "📂 Дутуу ажлыг нээх",
+    dr_empty: "Хадгалах зүйл алга",
+    dr_saved: "Дутуу ажил хадгалагдлаа: {name} (өөр таблет дээр \"Дутуу ажлыг нээх\"-ээр үргэлжлүүлнэ. Видео багтахгүй)",
+    dr_bad: "Энэ нь дутуу ажлын файл биш байна",
+    dr_confirm: "Одоо оруулсан зүйл устана. Дутуу ажлыг нээх үү?",
+    dr_loaded: "Нээгдлээ: {name}"
   },
   pt: {
     tab_check: "Verificar",
@@ -4121,7 +4232,18 @@ var I18N = {
     xl_tr_auto: "🌐 Preencher traduções vazias automaticamente (online)",
     xl_c_tr: "Traduções",
     xl_tr_done: "Traduções preenchidas: {n} (falhas: {f}). Confira antes de cadastrar",
-    xl_tr_none: "Nada a traduzir (tudo já está preenchido)"
+    xl_tr_none: "Nada a traduzir (tudo já está preenchido)",
+    pk_with_vid: "🎬 Incluir vídeos (o arquivo fica maior)",
+    pk_with_cf: "⚙ Incluir configurações (som, código de liberação, senha) * Quem vir o arquivo poderá saber o código de liberação. Guarde com cuidado",
+    pk_in_vid: "Importar também {n} vídeo(s)",
+    pk_in_cf: "⚙ Importar também as configurações (som, código de liberação, senha)",
+    dr_save: "💾 Salvar trabalho em andamento",
+    dr_open: "📂 Abrir trabalho em andamento",
+    dr_empty: "Não há nada para salvar",
+    dr_saved: "Trabalho salvo: {name} (continue em outro tablet com \"Abrir trabalho em andamento\". Vídeos não estão incluídos)",
+    dr_bad: "Este não é um arquivo de trabalho em andamento",
+    dr_confirm: "O que você digitou agora será apagado. Abrir o trabalho salvo?",
+    dr_loaded: "Aberto: {name}"
   },
   si: {
     tab_check: "පරීක්ෂා කිරීම",
@@ -4464,7 +4586,18 @@ var I18N = {
     xl_tr_auto: "🌐 හිස් පරිවර්තන ස්වයංක්‍රීයව පුරවන්න (අන්තර්ජාලය ඇති විට)",
     xl_c_tr: "පරිවර්තන",
     xl_tr_done: "පරිවර්තන පුරවා ඇත: {n} (අසාර්ථක {f}). ලියාපදිංචි කිරීමට පෙර පරීක්ෂා කරන්න",
-    xl_tr_none: "පරිවර්තනය කිරීමට දෙයක් නැත (සියල්ල පිරී ඇත)"
+    xl_tr_none: "පරිවර්තනය කිරීමට දෙයක් නැත (සියල්ල පිරී ඇත)",
+    pk_with_vid: "🎬 වීඩියෝද ඇතුළත් කරන්න (ගොනුව විශාල වේ)",
+    pk_with_cf: "⚙ සැකසුම් (ශබ්දය, අගුළු හැරීමේ කේතය, මුරපදය) ද ඇතුළත් කරන්න ※ ගොනුව දකින ඕනෑම අයෙකුට අගුළු හැරීමේ කේතය දැනගත හැක. ප්‍රවේශමෙන් තබන්න",
+    pk_in_vid: "වීඩියෝ {n}ක්ද ආනයනය කරන්න",
+    pk_in_cf: "⚙ සැකසුම් (ශබ්දය, අගුළු හැරීමේ කේතය, මුරපදය) ද ආනයනය කරන්න",
+    dr_save: "💾 අඩක් කළ වැඩ සුරකින්න",
+    dr_open: "📂 අඩක් කළ වැඩ විවෘත කරන්න",
+    dr_empty: "සුරැකීමට දෙයක් නැත",
+    dr_saved: "අඩක් කළ වැඩ සුරැකුවා: {name} (වෙනත් ටැබ්ලටයක \"අඩක් කළ වැඩ විවෘත කරන්න\" මගින් දිගටම කරන්න. වීඩියෝ ඇතුළත් නොවේ)",
+    dr_bad: "මෙය අඩක් කළ වැඩ ගොනුවක් නොවේ",
+    dr_confirm: "දැන් ඇතුළත් කළ දේ මැකේ. සුරැකූ වැඩ විවෘත කරන්නද?",
+    dr_loaded: "විවෘත කළා: {name}"
   }
 };
 var LANG = 'ja';
@@ -5235,13 +5368,20 @@ $('pkOut').onclick = async function () {
       var rec = await getPdf(keys[i]); if (!rec) continue;
       items.push({ key: rec.key, name: rec.name, at: rec.at, size: rec.data.byteLength, src: rec.src || null, kind: rec.kind || null, xl: rec.xl || null }); parts.push(rec.data);
     }
-    var hdr = new TextEncoder().encode(JSON.stringify({ v: 1, term: CF.term, at: today() + ' ' + nowTime(), items: items }));
+    // 動画（任意）：PDFのあとに続けて入れる。設定（任意）：端末番号と言語は入れない（端末ごとにちがうため）
+    var vids = [], withVid = $('pkWithVid').checked, withCf = $('pkWithCf').checked;
+    if (withVid) for (var vk in VID_INDEX) {
+      if (!PDF_INDEX[vk]) continue;
+      var vr = await tx('kv', 'readonly', function (st) { return st.get('vid:' + vk); }); if (!vr) continue;
+      var vb = await vr.blob.arrayBuffer(); vids.push({ key: vk, name: vr.name, at: vr.at, type: vr.blob.type, size: vb.byteLength }); parts.push(vb);
+    }
+    var hdr = new TextEncoder().encode(JSON.stringify({ v: 1, term: CF.term, at: today() + ' ' + nowTime(), items: items, videos: vids, cf: withCf ? { sound: CF.sound, code: CF.code, setpw: CF.setpw } : null }));
     var top = new Uint8Array(12); top.set(new TextEncoder().encode('PTPACK1\n'), 0);
     new DataView(top.buffer).setUint32(8, hdr.length);
     var fname = 'ポイント表一式_' + today() + '_' + CF.term + '.ptpack';
     var a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([top, hdr].concat(parts), { type: 'application/octet-stream' })); a.download = fname;
     document.body.appendChild(a); a.click(); a.remove();
-    toast(t('pk_out_done', { n: items.length, f: fname }), 5000);
+    toast(t('pk_out_done', { n: items.length, f: fname }) + (vids.length ? ' ／ 🎬 ' + vids.length : '') + (withCf ? ' ／ ⚙' : ''), 5000);
   } finally { btn.disabled = false; }
 };
 $('pkPick').onclick = function () { $('pkIn').value = ''; $('pkIn').click(); };
@@ -5255,11 +5395,14 @@ $('pkIn').onchange = async function () {
     if (buf.byteLength < 12 || new TextDecoder().decode(buf.slice(0, 8)) !== 'PTPACK1\n') throw 0;
     var hl = new DataView(buf).getUint32(8), meta = JSON.parse(new TextDecoder().decode(buf.slice(12, 12 + hl))), off = 12 + hl, items = [];
     meta.items.forEach(function (m) { items.push({ key: m.key, name: m.name, at: m.at, src: m.src || null, kind: m.kind || null, xl: m.xl || null, data: buf.slice(off, off + m.size) }); off += m.size; });
+    var vids = (meta.videos || []).map(function (m) { var v = { key: m.key, name: m.name, at: m.at, blob: new Blob([buf.slice(off, off + m.size)], { type: m.type || 'video/mp4' }), size: m.size }; off += m.size; return v; });
     if (off > buf.byteLength) throw 0;
-    PK = { meta: meta, items: items };
+    PK = { meta: meta, items: items, vids: vids };
   } catch (e) { PK = null; return toast(t('pk_bad'), 4000); }
   $('pkBox').style.display = 'grid';
   $('pkFrom').textContent = t('pk_from', { term: PK.meta.term, at: PK.meta.at, n: PK.items.length });
+  $('pkInVidL').hidden = !PK.vids.length; $('pkInVidT').textContent = '🎬 ' + t('pk_in_vid', { n: PK.vids.length });
+  $('pkInCfL').hidden = !PK.meta.cf;
   pkPreview();
 };
 $('pkMode').onchange = function () { if (PK) pkPreview(); };
@@ -5287,9 +5430,16 @@ $('pkApply').onclick = async function () {
     });
     PK.del.forEach(function (k) { st.delete(k); });
   });
+  // 動画：取り込む／ポイント表を消したぶんの動画も消す
+  var vn = 0, cfOn = !!PK.meta.cf && $('pkInCf').checked, vids = $('pkInVid').checked ? PK.vids : [];
+  if (vids.length || PK.del.length) await tx('kv', 'readwrite', function (st) {
+    vids.forEach(function (v) { st.put({ k: 'vid:' + v.key, blob: v.blob, name: v.name, size: v.size, at: v.at }); vn++; });
+    PK.del.forEach(function (k) { st.delete('vid:' + k); });
+  });
+  if (cfOn) { CF.sound = PK.meta.cf.sound; CF.code = PK.meta.cf.code; CF.setpw = PK.meta.cf.setpw; await saveCfStore(); }
   pkHide();
   await loadPdfIndex(); showPdfList(); updateHeader();
-  toast(t('pk_done', { a: a, u: u, d: d }), 5000);
+  toast(t('pk_done', { a: a, u: u, d: d }) + (vn ? ' ／ 🎬 ' + vn : '') + (cfOn ? ' ／ ⚙' : ''), 5000);
 };
 // ---------- Excelの一覧から、まとめてポイント表を作る ----------
 // 1行目は見出し。品番・収容数・ポイント（ポイント1、ポイント2…でも、1つのセルに改行で並べても可）・英語・インドネシア語・タガログ語。
@@ -6409,6 +6559,30 @@ function tplSource() {
     photos: TPL.imgs.map(function (p) { return imgToDataUrl(p.im); })
   };
 }
+// ---- 作りかけ（入力の途中）を1つのファイルに保存して、別のタブレットで開いて続ける ----
+$('drSave').onclick = function () {
+  var d = { magic: 'PTDRAFT1', at: today() + ' ' + nowTime(), term: CF.term, pn: $('tplPn').value, qty: $('tplQty').value, pts: $('tplPts').value,
+    tr: (function () { var o = {}; TRL.forEach(function (l) { o[l] = $('tplTr_' + l).value; }); return o; })(), photos: TPL.imgs.map(function (p) { return imgToDataUrl(p.im); }) };
+  if (!d.pn && !d.qty && !d.pts && !d.photos.length) return toast(t('dr_empty'));
+  var name = '作りかけ_' + (d.pn.trim().replace(/[\\/:*?"<>|]/g, '_') || today()) + '.ptdraft';
+  var a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([JSON.stringify(d)], { type: 'application/json' })); a.download = name;
+  document.body.appendChild(a); a.click(); a.remove(); setTimeout(function () { URL.revokeObjectURL(a.href); }, 4000);
+  toast(t('dr_saved', { name: name }), 4000);
+};
+$('drOpen').onclick = function () { $('drIn').value = ''; $('drIn').click(); };
+$('drIn').onchange = async function () {
+  var f = this.files && this.files[0]; this.value = ''; if (!f) return;
+  var d; try { d = JSON.parse(new TextDecoder().decode(await readBuf(f))); if (d.magic !== 'PTDRAFT1') throw 0; } catch (e) { return toast(t('dr_bad'), 4000); }
+  if (($('tplPn').value || $('tplPts').value || TPL.imgs.length) && !confirm(t('dr_confirm'))) return;
+  tplEditEnd(); tplReset();
+  $('tplPn').value = d.pn || ''; $('tplQty').value = d.qty || ''; $('tplPts').value = d.pts || '';
+  TRL.forEach(function (l) { $('tplTr_' + l).value = (d.tr && d.tr[l]) || ''; });
+  if (TRL.some(function (l) { return d.tr && d.tr[l]; })) $('tplTrBox').open = true;
+  for (var i = 0; i < (d.photos || []).length && i < TPL_MAX; i++) {
+    var bl = await (await fetch(d.photos[i])).blob(); await tplSetPhoto(new File([bl], 'draft' + (i + 1) + '.jpg', { type: bl.type || 'image/jpeg' }));
+  }
+  tplTrCheck(); tplDraw(); toast(t('dr_loaded', { name: f.name }), 3500);
+};
 $('tplSave').onclick = async function () {
   var r = await tplBuild(); if (!r) return;
   if (!r.key) return toast(t('tp_pn_check'));
