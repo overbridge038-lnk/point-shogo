@@ -1,7 +1,7 @@
 const { chromium } = require('playwright'); const S=process.argv[2];
 (async()=>{const b=await chromium.launch({executablePath: process.env.CHROME_PATH || undefined});
 const ctx=await b.newContext({viewport:{width:853,height:533},deviceScaleFactor:1.5,hasTouch:true}); const p=await ctx.newPage(); p.on('pageerror',e=>console.log('pageerror',e.message));
-await p.goto('file://'+S+'/../../dist/ポイント表照合.html'); await p.waitForFunction(()=>/登録済み/.test(document.getElementById('startNote').textContent)); await p.click('.langBtn[data-lang=ja]');
+await p.goto('file://'+S+'/../../dist/ポイント照合ツール.html'); await p.waitForFunction(()=>/登録済み/.test(document.getElementById('startNote').textContent)); await p.click('.langBtn[data-lang=ja]');
 await p.click('.tab[data-v=pdf]'); for(const k of '0000') await p.click(`#pinPad button:text-is("${k}")`); await p.click('#pinOk');
 await p.setInputFiles('#fileIn',[S+'/tpl_pc.pdf']); await p.waitForFunction(()=>/取込完了/.test(document.getElementById('impMsg').textContent));
 await p.click('.tab[data-v=check]'); await p.evaluate(()=>{document.getElementById('toast').style.display='none'; onScan('TPLPC')});

@@ -4,7 +4,7 @@ const { chromium } = require('playwright'); const S = process.argv[2]; const fs 
   const b = await chromium.launch({ executablePath: process.env.CHROME_PATH || undefined });
   const ctx = await b.newContext({ viewport: { width: 1280, height: 800 } });
   const p = await ctx.newPage(); const errs = []; p.on('pageerror', e => errs.push(e.message));
-  await p.goto('file://' + S + '/../../dist/ポイント表照合.html'); await p.waitForFunction(() => /登録済み/.test(document.getElementById('startNote').textContent)); await p.click('.langBtn[data-lang=ja]');
+  await p.goto('file://' + S + '/../../dist/ポイント照合ツール.html'); await p.waitForFunction(() => /登録済み/.test(document.getElementById('startNote').textContent)); await p.click('.langBtn[data-lang=ja]');
   await p.evaluate(() => { pdfjs = null; PDFJS_ERR = 'test'; }); // pdf.js が動かない状態にする
   await p.click('.tab[data-v=set]'); for (const k of '0000') await p.click(`#pinPad button:text-is("${k}")`); await p.click('#pinOk');
   p.once('dialog', d => d.accept());

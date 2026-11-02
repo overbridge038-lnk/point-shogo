@@ -6,7 +6,7 @@ const { chromium } = require('playwright'); const S = process.argv[2]; const fs 
   async function tablet() {
     const ctx = await b.newContext({ viewport: { width: 1280, height: 800 }, acceptDownloads: true });
     const p = await ctx.newPage(); p.on('pageerror', e => errs.push(e.message));
-    await p.goto('file://' + S + '/../../dist/ポイント表照合.html');
+    await p.goto('file://' + S + '/../../dist/ポイント照合ツール.html');
     await p.waitForFunction(() => /登録済み/.test(document.getElementById('startNote').textContent));
     await p.click('.langBtn[data-lang=ja]'); return p;
   }

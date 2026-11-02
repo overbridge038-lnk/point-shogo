@@ -10,7 +10,7 @@ const { chromium } = require('playwright'); const S = process.argv[2];
     if (mode === 'fail') return r.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ responseData: { translatedText: 'MYMEMORY WARNING: QUOTA' }, responseStatus: 429 }) });
     r.fulfill({ status: 200, contentType: 'application/json', headers: { 'access-control-allow-origin': '*' }, body: JSON.stringify({ responseData: { translatedText: '[' + lp.split('|')[1] + '] ' + q + ' it&#39;s' }, responseStatus: 200 }) });
   });
-  await p.goto('file://' + S + '/../../dist/ポイント表照合.html');
+  await p.goto('file://' + S + '/../../dist/ポイント照合ツール.html');
   await p.waitForFunction(() => /登録済み/.test(document.getElementById('startNote').textContent)); await p.click('.langBtn[data-lang=ja]');
   await p.click('.tab[data-v=set]'); for (const k of '0000') await p.click(`#pinPad button:text-is("${k}")`); await p.click('#pinOk');
   await p.locator('#tplTrBox summary').click();

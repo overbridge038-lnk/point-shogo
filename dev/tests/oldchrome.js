@@ -6,7 +6,7 @@ const { chromium } = require('playwright'); const S = process.argv[2]; const fs 
   // ブラウザ標準の展開を、使えない状態にする（古いChromeを再現）
   await ctx.addInitScript(() => { delete window.DecompressionStream; });
   const p = await ctx.newPage(); const errs = []; p.on('pageerror', e => errs.push(e.message));
-  await p.goto('file://' + S + '/../../dist/ポイント表照合.html'); await p.waitForFunction(() => /登録済み/.test(document.getElementById('startNote').textContent)); await p.click('.langBtn[data-lang=ja]');
+  await p.goto('file://' + S + '/../../dist/ポイント照合ツール.html'); await p.waitForFunction(() => /登録済み/.test(document.getElementById('startNote').textContent)); await p.click('.langBtn[data-lang=ja]');
   console.log('native deflate-raw usable:', await p.evaluate(() => { return typeof DecompressionStream !== 'undefined'; }));
   await p.click('.tab[data-v=pdf]'); for (const k of '0000') await p.click(`#pinPad button:text-is("${k}")`); await p.click('#pinOk');
   await p.setInputFiles('#fileIn', [{ name: 'A0PP,A023.xlsx', mimeType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', buffer: fs.readFileSync(S + '/かんばん回収.xlsx') }]);

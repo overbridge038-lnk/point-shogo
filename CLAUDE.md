@@ -1,4 +1,4 @@
-# ポイント表照合（point-shogo）
+# ポイント照合ツール（point-shogo）
 
 製造現場のタブレットで使う、誤品防止のオフラインツール。
 かんばんのQRを読む → **ファイル名＝品番（または資料名）** のポイント表（PDF または Excel）を探す → あれば OK（表示）、なければ NG で止める。
@@ -36,7 +36,7 @@ dev/tests/*.js        … Playwright の回帰テスト（fixtures/ にテスト
 ```
 cd dev
 npm install                      # pdfjs-dist 6.2.108 と playwright
-python build.py                  # → ../index.html と dev/dist/ポイント表照合.html
+python build.py                  # → ../index.html と dev/dist/ポイント照合ツール.html
 npx playwright install chromium  # 初回だけ
 npm test                         # すべての回帰テスト（e2e の "log sums 6 5 1" が基準値）
 ```

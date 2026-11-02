@@ -1,6 +1,6 @@
-"""ポイント表照合をビルドする。
+"""ポイント照合ツールをビルドする。
   src.html + pdf.js（pdfjs-dist 6.2.108）+ qrdecode.js + xlsxview.js を1つのHTMLにまとめる。
-  出力1: dev/dist/ポイント表照合.html … 1ファイル版（USBなどで配る用）
+  出力1: dev/dist/ポイント照合ツール.html … 1ファイル版（USBなどで配る用）
   出力2: ../index.html               … GitHub Pages 用（PWAのmanifest・Service Worker登録つき）
 使い方:  cd dev && npm install && python build.py
 """
@@ -21,7 +21,7 @@ h = h.replace('@@WORKER@@', base64.b64encode((P / 'pdf.worker.min.mjs').read_byt
 h = h.replace('@@QRDECODE@@', (d / 'qrdecode.js').read_text(encoding='utf-8'))
 h = h.replace('@@XLSXVIEW@@', (d / 'xlsxview.js').read_text(encoding='utf-8'))
 (d / 'dist').mkdir(exist_ok=True)
-(d / 'dist/ポイント表照合.html').write_text(h, encoding='utf-8')
+(d / 'dist/ポイント照合ツール.html').write_text(h, encoding='utf-8')
 
 head = ('<link rel="manifest" href="manifest.webmanifest">\n<meta name="theme-color" content="#8B5CF6">\n'
         '<link rel="icon" href="icon-192.png">\n<link rel="apple-touch-icon" href="icon-192.png">\n')
@@ -31,4 +31,4 @@ sw = ("<script>\nif ('serviceWorker' in navigator && location.protocol === 'http
 p = h.replace('</head>', head + '</head>', 1)
 i = p.rindex('</body>'); p = p[:i] + sw + p[i:]
 (d.parent / 'index.html').write_text(p, encoding='utf-8')
-print('built', len(h) // 1024, 'KB  ->  dev/dist/ポイント表照合.html , index.html')
+print('built', len(h) // 1024, 'KB  ->  dev/dist/ポイント照合ツール.html , index.html')

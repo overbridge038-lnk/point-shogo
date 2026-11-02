@@ -3,7 +3,7 @@ const { chromium } = require('playwright'); const S = process.argv[2]; const LS 
 (async () => {
   const b = await chromium.launch({ executablePath: process.env.CHROME_PATH || undefined });
   const p = await b.newPage({ viewport: { width: 1280, height: 800 } }); const errs = []; p.on('pageerror', e => errs.push(e.message)); p.on('dialog', d => d.accept());
-  await p.goto('file://' + S + '/../../dist/ポイント表照合.html'); await p.waitForFunction(() => /登録済み/.test(document.getElementById('startNote').textContent));
+  await p.goto('file://' + S + '/../../dist/ポイント照合ツール.html'); await p.waitForFunction(() => /登録済み/.test(document.getElementById('startNote').textContent));
   console.log('開始画面の言語ボタン:', await p.locator('#start .langBtn').count(), '| スクロール不要で全部見える:', await p.evaluate(() => [...document.querySelectorAll('#start .langBtn')].every(b => { const r = b.getBoundingClientRect(); return r.top >= 0 && r.bottom <= innerHeight; })));
   // 全言語のキーと {置換} がそろっているか
   const bad = await p.evaluate(() => { const o = [], ph = x => (String(x).match(/\{\w+\}/g) || []).sort().join(); for (const l in I18N) for (const k in I18N.ja) { if (!I18N[l][k]) o.push(l + ':' + k + ' なし'); else if (ph(I18N[l][k]) !== ph(I18N.ja[k])) o.push(l + ':' + k + ' {}ちがい'); } for (const l in I18N) for (const k in I18N[l]) if (!(k in I18N.ja)) o.push(l + ':' + k + ' 余分'); return o; });

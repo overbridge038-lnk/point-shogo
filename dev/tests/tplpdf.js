@@ -1,7 +1,7 @@
 const { chromium } = require('playwright'); const S=process.argv[2];
 (async()=>{const b=await chromium.launch({executablePath: process.env.CHROME_PATH || undefined,env:{...process.env,LANG:'C.UTF-8'}});
 const ctx=await b.newContext({viewport:{width:1280,height:800}}); const p=await ctx.newPage(); p.on('pageerror',e=>console.log('pageerror',e.message));
-await p.goto('file://'+S+'/../../dist/ポイント表照合.html'); await p.waitForFunction(()=>/登録済み/.test(document.getElementById('startNote').textContent)); await p.click('.langBtn[data-lang=ja]');
+await p.goto('file://'+S+'/../../dist/ポイント照合ツール.html'); await p.waitForFunction(()=>/登録済み/.test(document.getElementById('startNote').textContent)); await p.click('.langBtn[data-lang=ja]');
 await p.click('.tab[data-v=set]'); for(const k of '0000') await p.click(`#pinPad button:text-is("${k}")`); await p.click('#pinOk');
 await p.locator('#tplDrop').scrollIntoViewIfNeeded(); const cdp=await ctx.newCDPSession(p); const box=await p.locator('#tplDrop').boundingBox();
 const drop=async(f)=>{ for (const type of ['dragEnter','dragOver','drop']) await cdp.send('Input.dispatchDragEvent',{type,x:box.x+100,y:box.y+50,data:{dragOperationsMask:1,items:[],files:[f]}}); await p.waitForTimeout(1500); };
