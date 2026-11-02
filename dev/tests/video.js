@@ -3,7 +3,7 @@ const { chromium } = require('playwright'); const S = process.argv[2]; const fs 
 (async () => {
   const b = await chromium.launch({ executablePath: process.env.CHROME_PATH || undefined });
   const p = await b.newPage({ viewport: { width: 1280, height: 800 } }); const errs = []; p.on('pageerror', e => errs.push(e.message)); p.on('dialog', d => d.accept());
-  await p.goto('file://' + S + '/../../dist/ポイント表照合.html'); await p.waitForFunction(() => /登録済み/.test(document.getElementById('startNote').textContent)); await p.click('.langBtn[data-lang=ja]');
+  await p.goto('file://' + S + '/../../dist/ポイント照合ツール.html'); await p.waitForFunction(() => /登録済み/.test(document.getElementById('startNote').textContent)); await p.click('.langBtn[data-lang=ja]');
   const pin = async c => { for (const k of c) await p.click(`#pinPad button:text-is("${k}")`); await p.click('#pinOk'); };
   const goPdf = async () => { await p.click('.tab[data-v=pdf]'); if (await p.locator('#pinPad').isVisible()) await pin('0000'); };
   await goPdf();

@@ -1,6 +1,6 @@
 {
-  "name": "ポイント表照合",
-  "short_name": "ポイント表照合",
+  "name": "ポイント照合ツール",
+  "short_name": "ポイント照合ツール",
   "description": "かんばんを読むと、品番と同じポイント表を開いてOK／NGを判定します",
   "start_url": "./index.html",
   "scope": "./",

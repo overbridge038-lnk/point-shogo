@@ -4,7 +4,7 @@ const { chromium } = require('playwright'); const S = process.argv[2];
   const b = await chromium.launch({ executablePath: process.env.CHROME_PATH || undefined, args: ['--use-fake-ui-for-media-stream', '--use-fake-device-for-media-stream'] });
   const ctx = await b.newContext({ viewport: { width: 1280, height: 800 }, permissions: ['camera'] }); const p = await ctx.newPage();
   const errs = []; p.on('pageerror', e => errs.push(e.message));
-  await p.goto('file://' + S + '/../../dist/ポイント表照合.html');
+  await p.goto('file://' + S + '/../../dist/ポイント照合ツール.html');
   await p.waitForFunction(() => /登録済み/.test(document.getElementById('startNote').textContent)); await p.click('.langBtn[data-lang=ja]');
   await p.click('.tab[data-v=set]'); for (const k of '0000') await p.click(`#pinPad button:text-is("${k}")`); await p.click('#pinOk');
   const n = () => p.evaluate(() => TPL.imgs.length);

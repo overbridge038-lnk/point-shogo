@@ -3,7 +3,7 @@ const { chromium } = require('playwright'); const S = process.argv[2]; const fs 
 (async () => {
   const b = await chromium.launch({ executablePath: process.env.CHROME_PATH || undefined });
   const p = await b.newPage({ viewport: { width: 1280, height: 900 } }); const errs = []; p.on('pageerror', e => errs.push(e.message));
-  await p.goto('file://' + S + '/../../dist/ポイント表照合.html'); await p.waitForFunction(() => /登録済み/.test(document.getElementById('startNote').textContent)); await p.click('.langBtn[data-lang=ja]');
+  await p.goto('file://' + S + '/../../dist/ポイント照合ツール.html'); await p.waitForFunction(() => /登録済み/.test(document.getElementById('startNote').textContent)); await p.click('.langBtn[data-lang=ja]');
   await p.click('.tab[data-v=pdf]'); for (const k of '0000') await p.click(`#pinPad button:text-is("${k}")`); await p.click('#pinOk');
   const d = fs.mkdtempSync(path.join(os.tmpdir(), 'pick')); const src = fs.readFileSync(S + '/in/12345-67890.pdf'), other = fs.readFileSync(S + '/in/23456-78901.pdf');
   fs.writeFileSync(d + '/17850-V1010,A0AK.pdf', src); fs.writeFileSync(d + '/17850-V1010,A0AK - コピー.pdf', src); fs.writeFileSync(d + '/17850-V1010,B999.pdf', other);

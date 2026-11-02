@@ -3,7 +3,7 @@ const { chromium } = require('playwright'); const S = process.argv[2]; const fs 
 (async () => {
   const b = await chromium.launch({ executablePath: process.env.CHROME_PATH || undefined }); const p = await b.newPage({ viewport: { width: 900, height: 600 } });
   const errs = []; p.on('pageerror', e => errs.push(e.message));
-  await p.goto('file://' + S + '/../../dist/ポイント表照合.html'); await p.waitForFunction(() => window.XV);
+  await p.goto('file://' + S + '/../../dist/ポイント照合ツール.html'); await p.waitForFunction(() => window.XV);
   const buf = [...fs.readFileSync(S + '/図形.xlsx')];
   const r = await p.evaluate(async arr => {
     const sh = await XV.parse(new Uint8Array(arr).buffer), host = document.createElement('div'); document.body.appendChild(host); XV.render(sh, host);

@@ -10,7 +10,7 @@ const { chromium } = require('playwright'); const S = process.argv[2]; const fs 
     const ra = FileReader.prototype.readAsArrayBuffer; FileReader.prototype.readAsArrayBuffer = function (f) { try { fail(f); } catch (e) { const fr = this; setTimeout(() => { Object.defineProperty(fr, 'error', { value: e }); fr.onerror && fr.onerror(); }, 0); return; } return ra.call(this, f); };
   });
   const p = await ctx.newPage(); const errs = []; p.on('pageerror', e => errs.push(e.message));
-  await p.goto('file://' + S + '/../../dist/ポイント表照合.html'); await p.waitForFunction(() => /登録済み/.test(document.getElementById('startNote').textContent)); await p.click('.langBtn[data-lang=ja]');
+  await p.goto('file://' + S + '/../../dist/ポイント照合ツール.html'); await p.waitForFunction(() => /登録済み/.test(document.getElementById('startNote').textContent)); await p.click('.langBtn[data-lang=ja]');
   await p.click('.tab[data-v=set]'); for (const k of '0000') await p.click(`#pinPad button:text-is("${k}")`); await p.click('#pinOk');
   p.once('dialog', d => d.accept());
   await p.setInputFiles('#xlIn', [{ name: 'A16Z,A170.xlsx', mimeType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', buffer: fs.readFileSync(S + '/かんばん回収.xlsx') }]);

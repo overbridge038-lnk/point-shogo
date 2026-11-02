@@ -5,7 +5,7 @@ const S = process.argv[2];
   const p = await b.newPage({ viewport: { width: 1280, height: 800 } });
   p.on('console', m => { if (m.type()==='error' || m.type()==='warning') console.log('console:', m.text().slice(0,200)); });
   p.on('pageerror', e => console.log('pageerror:', e.message));
-  await p.goto('file://' + S + '/../../dist/ポイント表照合.html');
+  await p.goto('file://' + S + '/../../dist/ポイント照合ツール.html');
   await p.waitForFunction(() => /登録済み|エラー/.test(document.getElementById('startNote').textContent), null, {timeout:20000});
   console.log('start:', await p.textContent('#startNote'));
   await p.screenshot({path:S+'/shot_start.png'}); await p.click('.langBtn[data-lang=ja]');
