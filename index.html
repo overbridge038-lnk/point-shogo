@@ -387,11 +387,11 @@ html[lang=my],html[lang=ne],html[lang=bn],html[lang=si]{line-height:1.5} /* ミ�
     <button class="btn langBtn" data-lang="si"><span class="flag">🇱🇰</span>සිංහල</button>
   </div>
   <p id="startNote" style="font-size:13px">準備中…</p>
-  <p class="ver" style="font-size:12px;opacity:.85">ver.2026.11.02 15:36 (#93)</p>
+  <p class="ver" style="font-size:12px;opacity:.85">ver.2026.11.02 16:04 (#94)</p>
 </div>
 
 <header>
-  <h1><i class="logo" data-mascot="ok"></i><span>ポイント照合ツール</span><small class="ver" title="版（ビルドした日時）">ver.2026.11.02 15:36 (#93)</small></h1>
+  <h1><i class="logo" data-mascot="ok"></i><span>ポイント照合ツール</span><small class="ver" title="版（ビルドした日時）">ver.2026.11.02 16:04 (#94)</small></h1>
   <div class="tabs">
     <button class="tab on" data-v="check" data-i18n="tab_check">照合</button>
     <button class="tab" data-v="pdf" data-i18n="tab_pdf">ポイント表の登録</button>
@@ -596,6 +596,8 @@ html[lang=my],html[lang=ne],html[lang=bn],html[lang=si]{line-height:1.5} /* ミ�
     <div style="display:grid;gap:12px;max-width:560px">
       <p class="note" style="margin:0" data-i18n="app_note"></p>
       <div class="btnrow"><button class="btn pri" id="appSave" data-i18n="app_btn">💾 このツールをファイルとして保存</button></div>
+      <p class="note" style="margin:0" data-i18n="man_note">使用要領書（手順書）はインターネットにつながる時に開けます。</p>
+      <div class="btnrow"><a class="btn" id="manBtn" data-i18n="man_btn" href="https://claude.ai/artifact/SGjaYPtRL5Y7gd1bNt5yLj" target="_blank" rel="noopener" style="text-decoration:none;display:inline-flex;align-items:center">📖 手順書を開く</a></div>
     </div>
   </div>
   <div class="card" id="pkCard">
@@ -2252,6 +2254,8 @@ var I18N = {
     app_h: "このツールをほかのタブレットに渡す",
     app_note: "このツール本体（HTML）を、ファイルとして保存します。USBやGoogleドライブでほかのタブレットに渡して、開くだけで使えます（インターネット不要）。ポイント表や記録は入りません（ポイント表は「受け渡し」で渡します）。",
     app_btn: "💾 このツールをファイルとして保存",
+    man_btn: "📖 手順書を開く",
+    man_note: "使用要領書（手順書）は、インターネットにつながっている時に開けます。",
     app_done: "保存しました：{name}",
     app_fail_file: "このファイルから直接開いているため、ここからは保存できません。お手元の「ポイント照合ツール.html」を、そのままコピーして渡してください",
     app_fail: "保存できませんでした。インターネットにつながっているときに、もう一度押してください",
@@ -2620,6 +2624,8 @@ var I18N = {
     app_h: "Berikan alat ini ke tablet lain",
     app_note: "Menyimpan alat ini (HTML) sebagai file. Berikan ke tablet lain lewat USB atau Google Drive lalu cukup buka (tanpa internet). Tabel poin dan riwayat tidak ikut (kirim tabel poin lewat \"Bagikan tabel poin\").",
     app_btn: "💾 Simpan alat ini sebagai file",
+    man_btn: "📖 Buka buku panduan",
+    man_note: "Buku panduan bisa dibuka saat terhubung ke internet.",
     app_done: "Disimpan: {name}",
     app_fail_file: "Alat ini dibuka langsung dari file sehingga tidak bisa disimpan dari sini. Salin file \"ポイント照合ツール.html\" Anda apa adanya",
     app_fail: "Gagal menyimpan. Tekan lagi saat terhubung ke internet",
@@ -2988,6 +2994,8 @@ var I18N = {
     app_h: "Ibigay ang tool na ito sa ibang tablet",
     app_note: "Sine-save ang mismong tool (HTML) bilang file. Ibigay sa ibang tablet sa pamamagitan ng USB o Google Drive at buksan lang (hindi kailangan ng internet). Hindi kasama ang mga point table at talaan (ipasa ang mga point table gamit ang \"Ibahagi ang mga point table\").",
     app_btn: "💾 I-save ang tool na ito bilang file",
+    man_btn: "📖 Buksan ang manwal",
+    man_note: "Mabubuksan ang manwal kapag nakakonekta sa internet.",
     app_done: "Na-save: {name}",
     app_fail_file: "Direktang binuksan ang tool na ito mula sa file kaya hindi ito ma-save mula rito. Kopyahin nang buo ang iyong \"ポイント照合ツール.html\"",
     app_fail: "Hindi na-save. Pindutin muli kapag nakakonekta sa internet",
@@ -3356,6 +3364,8 @@ var I18N = {
     app_h: "Pass this tool to another tablet",
     app_note: "Saves the tool itself (HTML) as a file. Hand it to another tablet by USB or Google Drive and just open it (no internet needed). Point tables and records are not included (pass point tables with \"Share point tables\").",
     app_btn: "💾 Save this tool as a file",
+    man_btn: "📖 Open the manual",
+    man_note: "The manual can be opened while connected to the internet.",
     app_done: "Saved: {name}",
     app_fail_file: "This tool was opened directly from a file, so it cannot be saved from here. Copy your \"ポイント照合ツール.html\" file as it is",
     app_fail: "Could not save. Press it again while connected to the internet",
@@ -3724,6 +3734,8 @@ var I18N = {
     app_h: "Chuyển công cụ này sang máy tính bảng khác",
     app_note: "Lưu chính công cụ này (HTML) thành một file. Chuyển sang máy tính bảng khác bằng USB hoặc Google Drive rồi chỉ cần mở ra (không cần internet). Bảng điểm và lịch sử không được kèm theo (hãy chuyển bảng điểm bằng \"Chia sẻ bảng điểm\").",
     app_btn: "💾 Lưu công cụ này thành file",
+    man_btn: "📖 Mở sách hướng dẫn",
+    man_note: "Có thể mở sách hướng dẫn khi có kết nối internet.",
     app_done: "Đã lưu: {name}",
     app_fail_file: "Công cụ đang được mở trực tiếp từ một file nên không thể lưu từ đây. Hãy sao chép nguyên file \"ポイント照合ツール.html\" của bạn",
     app_fail: "Không lưu được. Hãy nhấn lại khi có kết nối internet",
@@ -4092,6 +4104,8 @@ var I18N = {
     app_h: "ဤကိရိယာကို အခြားတက်ဘလက်သို့ ပေးခြင်း",
     app_note: "ဤကိရိယာ (HTML) ကို ဖိုင်အဖြစ် သိမ်းသည်။ USB သို့မဟုတ် Google Drive ဖြင့် အခြားတက်ဘလက်သို့ ပေးပြီး ဖွင့်ရုံဖြင့် သုံးနိုင်သည် (အင်တာနက်မလို)။ ပွိုင့်ဇယားနှင့် မှတ်တမ်းများ မပါပါ (ပွိုင့်ဇယားကို \"ပွိုင့်ဇယား မျှဝေခြင်း\" ဖြင့် ပေးပါ)။",
     app_btn: "💾 ဤကိရိယာကို ဖိုင်အဖြစ် သိမ်းမည်",
+    man_btn: "📖 လက်စွဲစာအုပ် ဖွင့်မည်",
+    man_note: "အင်တာနက်ချိတ်ထားစဉ် လက်စွဲစာအုပ်ကို ဖွင့်နိုင်သည်။",
     app_done: "သိမ်းပြီးပါပြီ: {name}",
     app_fail_file: "ဖိုင်မှ တိုက်ရိုက်ဖွင့်ထားသဖြင့် ဤနေရာမှ မသိမ်းနိုင်ပါ။ သင့်ထံရှိ \"ポイント照合ツール.html\" ဖိုင်ကို မူလအတိုင်း ကူးပေးပါ",
     app_fail: "မသိမ်းနိုင်ပါ။ အင်တာနက်ချိတ်ထားစဉ် ထပ်နှိပ်ပါ",
@@ -4460,6 +4474,8 @@ var I18N = {
     app_h: "यो टुल अर्को ट्याब्लेटलाई दिनुहोस्",
     app_note: "यो टुल (HTML) लाई फाइलको रूपमा सेभ गर्छ। USB वा Google Drive बाट अर्को ट्याब्लेटमा दिएर खोल्नुहोस् (इन्टरनेट चाहिँदैन)। पोइन्ट तालिका र अभिलेख समावेश हुँदैनन् (पोइन्ट तालिका \"पोइन्ट तालिका साझा गर्नुहोस्\" बाट दिनुहोस्)।",
     app_btn: "💾 यो टुल फाइलको रूपमा सेभ गर्ने",
+    man_btn: "📖 म्यानुअल खोल्ने",
+    man_note: "इन्टरनेट जोडिएको बेला म्यानुअल खोल्न सकिन्छ।",
     app_done: "सेभ भयो: {name}",
     app_fail_file: "यो फाइलबाटै सिधै खोलिएकाले यहाँबाट सेभ गर्न मिल्दैन। तपाईंसँग भएको \"ポイント照合ツール.html\" फाइल जस्ताको तस्तै कपी गर्नुहोस्",
     app_fail: "सेभ गर्न सकिएन। इन्टरनेट जोडिएको बेला फेरि थिच्नुहोस्",
@@ -4828,6 +4844,8 @@ var I18N = {
     app_h: "এই টুলটি অন্য ট্যাবলেটে দিন",
     app_note: "এই টুল (HTML) নিজেই একটি ফাইল হিসেবে সেভ হবে। USB বা Google Drive দিয়ে অন্য ট্যাবলেটে দিয়ে শুধু খুললেই চলবে (ইন্টারনেট লাগবে না)। পয়েন্ট টেবিল ও রেকর্ড এতে থাকে না (পয়েন্ট টেবিল \"পয়েন্ট টেবিল শেয়ার করুন\" দিয়ে দিন)।",
     app_btn: "💾 এই টুলটি ফাইল হিসেবে সেভ করুন",
+    man_btn: "📖 ম্যানুয়াল খুলুন",
+    man_note: "ইন্টারনেটে যুক্ত থাকলে ম্যানুয়াল খোলা যায়।",
     app_done: "সেভ হয়েছে: {name}",
     app_fail_file: "এটি সরাসরি ফাইল থেকে খোলা হয়েছে, তাই এখান থেকে সেভ করা যাবে না। আপনার \"ポイント照合ツール.html\" ফাইলটি যেমন আছে তেমন কপি করে দিন",
     app_fail: "সেভ করা গেল না। ইন্টারনেটে যুক্ত থাকা অবস্থায় আবার চাপুন",
@@ -5196,6 +5214,8 @@ var I18N = {
     app_h: "Энэ хэрэгслийг өөр таблетад өгөх",
     app_note: "Энэ хэрэгслийг (HTML) файл болгон хадгална. USB эсвэл Google Drive-аар өөр таблетад өгөөд нээхэд л болно (интернэт шаардлагагүй). Цэгийн хүснэгт болон бүртгэл орохгүй (цэгийн хүснэгтийг \"Цэгийн хүснэгт хуваалцах\"-аар дамжуул).",
     app_btn: "💾 Энэ хэрэгслийг файл болгон хадгалах",
+    man_btn: "📖 Гарын авлага нээх",
+    man_note: "Интернэтэд холбогдсон үед гарын авлагыг нээж болно.",
     app_done: "Хадгаллаа: {name}",
     app_fail_file: "Файлаас шууд нээсэн тул эндээс хадгалах боломжгүй. Өөрт байгаа \"ポイント照合ツール.html\" файлыг хэвээр нь хуулж өг",
     app_fail: "Хадгалж чадсангүй. Интернэтэд холбогдсон үедээ дахин дар",
@@ -5564,6 +5584,8 @@ var I18N = {
     app_h: "Passar esta ferramenta para outro tablet",
     app_note: "Salva a própria ferramenta (HTML) como um arquivo. Passe para outro tablet por USB ou Google Drive e basta abrir (sem internet). Tabelas de pontos e registros não vão junto (passe as tabelas de pontos com \"Compartilhar tabelas de pontos\").",
     app_btn: "💾 Salvar esta ferramenta como arquivo",
+    man_btn: "📖 Abrir o manual",
+    man_note: "O manual pode ser aberto com a internet conectada.",
     app_done: "Salvo: {name}",
     app_fail_file: "Esta ferramenta foi aberta direto de um arquivo, então não dá para salvar daqui. Copie o seu arquivo \"ポイント照合ツール.html\" como está",
     app_fail: "Não foi possível salvar. Toque de novo com a internet conectada",
@@ -5932,6 +5954,8 @@ var I18N = {
     app_h: "මෙම මෙවලම වෙනත් ටැබ්ලටයකට දෙන්න",
     app_note: "මෙම මෙවලම (HTML) ගොනුවක් ලෙස සුරකියි. USB හෝ Google Drive මගින් වෙනත් ටැබ්ලටයකට දී විවෘත කළාම ඇති (අන්තර්ජාලය අවශ්‍ය නැත). ලකුණු වගු සහ වාර්තා ඇතුළත් නොවේ (ලකුණු වගු \"ලකුණු වගු හුවමාරු කරන්න\" මගින් දෙන්න).",
     app_btn: "💾 මෙම මෙවලම ගොනුවක් ලෙස සුරකින්න",
+    man_btn: "📖 අත්පොත විවෘත කරන්න",
+    man_note: "අන්තර්ජාලයට සම්බන්ධව ඇති විට අත්පොත විවෘත කළ හැක.",
     app_done: "සුරැකුවා: {name}",
     app_fail_file: "ගොනුවෙන් කෙලින්ම විවෘත කර ඇති නිසා මෙතැනින් සුරැකිය නොහැක. ඔබ සතු \"ポイント照合ツール.html\" ගොනුව එලෙසම පිටපත් කර දෙන්න",
     app_fail: "සුරැකිය නොහැකි විය. අන්තර්ජාලයට සම්බන්ධව ඇති විට නැවත ඔබන්න",
