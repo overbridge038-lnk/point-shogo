@@ -682,12 +682,12 @@ html[lang=my],html[lang=ne],html[lang=bn],html[lang=si]{line-height:1.5} /* ミ�
       <p class="note" style="margin:0 0 6px" data-i18n-html="gd_sub"></p>
       <div style="overflow-x:auto"><div class="gdSheet"><div class="bar">ポイント表一覧.xlsx</div>
         <table>
-          <colgroup><col style="width:28px"><col style="width:100px"><col style="width:52px"><col style="width:150px"><col><col><col><col><col style="width:110px"><col style="width:110px"><col style="width:50px"></colgroup>
-          <tr><th></th><th>A</th><th>B</th><th>C</th><th>D</th><th>E</th><th>F</th><th>G</th><th>H</th><th>I</th><th>…</th></tr>
+          <colgroup><col style="width:28px"><col style="width:96px"><col style="width:52px"><col><col><col><col><col style="width:118px"><col style="width:118px"><col style="width:40px"><col style="width:100px"></colgroup>
+          <tr><th></th><th>A</th><th>B</th><th>C</th><th>D</th><th>E</th><th>F</th><th>G</th><th>H</th><th>I–N</th><th>O</th></tr>
           <tr><td class="rn">1</td><td colspan="10" style="padding:3px;background:#fff9db"><div class="gdCall" data-i18n-html="gd_call"></div></td></tr>
-          <tr><td class="rn">2</td><td class="h">品番</td><td class="h">収容数</td><td class="h">ポイント</td><td class="h ph">📷 ①</td><td class="h ph">📷 ②</td><td class="h ph">📷 ③</td><td class="h ph">📷 ④</td><td class="h">英語</td><td class="h">ベトナム語</td><td class="h">…</td></tr>
-          <tr class="r"><td class="rn">3</td><td>12345-67890</td><td>20</td><td class="ja">向きを確認する<br>キズ・打痕がないこと</td><td class="pc"><div class="gdPh c">①</div></td><td class="pc"><div class="gdPh">②</div></td><td class="pc"><div class="gdPh">③</div></td><td class="pc"><div class="gdPh">④</div></td><td class="tr">Check the direction…</td><td class="tr">Kiểm tra chiều…</td><td class="tr">…</td></tr>
-          <tr class="r"><td class="rn">4</td><td>55555-66666</td><td>10</td><td class="ja">刻印を確認する</td><td class="pc"><div class="gdPh c">①</div></td><td class="pc"><div class="gdPh">②</div></td><td></td><td></td><td class="tr">Check the stamp</td><td class="tr">Kiểm tra dấu khắc</td><td class="tr">…</td></tr>
+          <tr><td class="rn">2</td><td class="h">品番</td><td class="h">収容数</td><td class="h ph">📷 ①</td><td class="h ph">📷 ②</td><td class="h ph">📷 ③</td><td class="h ph">📷 ④</td><td class="h">ポイント1</td><td class="h">ポイント2</td><td class="h">…</td><td class="h">英語</td></tr>
+          <tr class="r"><td class="rn">3</td><td>12345-67890</td><td>20</td><td class="pc"><div class="gdPh c">①</div></td><td class="pc"><div class="gdPh">②</div></td><td class="pc"><div class="gdPh">③</div></td><td class="pc"><div class="gdPh">④</div></td><td class="ja">向きを確認する</td><td class="ja">キズ・打痕がないこと</td><td class="ja"></td><td class="tr">Check the direction…</td></tr>
+          <tr class="r"><td class="rn">4</td><td>55555-66666</td><td>10</td><td class="pc"><div class="gdPh c">①</div></td><td class="pc"><div class="gdPh">②</div></td><td></td><td></td><td class="ja">刻印を確認する</td><td class="ja"></td><td class="ja"></td><td class="tr">Check the stamp</td></tr>
         </table></div></div>
       <div class="gdSteps"><div class="gdSt"><i>1</i><span data-i18n-html="gd_s1"></span></div><div class="gdSt"><i>2</i><span data-i18n-html="gd_s2"></span></div><div class="gdSt"><i>3</i><span data-i18n-html="gd_s3"></span></div></div>
     </div>
@@ -1116,10 +1116,11 @@ var I18N = {
     gd_dl: "📥 ひな形をダウンロードしました。写真の貼りかたは、こちらです",
     gd_h: "写真の貼りかた（ひな形のExcel）",
     gd_sub: "写真は「その品番の行」に貼ります。<b>写真の左上の角</b>が、その行のセルの中にあれば、その行の写真になります（4枚まで・左から順に ① ② ③ ④）。",
-    gd_call: "📷 写真は <b>D列〜G列</b> に、その品番の行に合わせて貼ります",
+    gd_call: "📷 写真は <b>C列〜F列</b> に、その品番の行に合わせて貼ります",
     gd_s1: "Excelの <span class=\"kb\">挿入</span> → <span class=\"kb\">画像</span> → 「このデバイス」で、写真を選びます。",
-    gd_s2: "写真をドラッグして、<b>左上の角</b>を、その品番の行のセル（D列〜）に置きます。写真は<b>小さくしてOK</b>（元の大きさで読み込みます）。",
-    gd_s3: "1行に4枚まで。<b>左にある写真から ① ② ③ ④</b> の順になります。次の品番は、次の行に貼ります。"
+    gd_s2: "写真をドラッグして、<b>左上の角</b>を、その品番の行のセル（C列〜）に置きます。写真は<b>小さくしてOK</b>（元の大きさで読み込みます）。",
+    gd_s3: "1行に4枚まで。<b>左にある写真から ① ② ③ ④</b> の順になります。次の品番は、次の行に貼ります。",
+    xl_w_over: "ポイントが多くて、1枚に入りきりません（はみ出た分は切れます）"
   },
   id: {
     tab_check: "Cek",
@@ -1483,10 +1484,11 @@ var I18N = {
     gd_dl: "📥 Templat sudah diunduh. Ini cara menempel foto",
     gd_h: "Cara menempel foto (Excel templat)",
     gd_sub: "Tempel foto di baris nomor part tersebut. Jika <b>sudut kiri atas foto</b> berada di dalam sel baris itu, foto itu menjadi foto baris tersebut (maksimal 4, urut dari kiri: ① ② ③ ④).",
-    gd_call: "📷 Tempel foto di <b>kolom D–G</b>, sejajar dengan baris nomor part",
+    gd_call: "📷 Tempel foto di <b>kolom C–F</b>, sejajar dengan baris nomor part",
     gd_s1: "Di Excel: <span class=\"kb\">Insert（挿入）</span> → <span class=\"kb\">Pictures（画像）</span> → \"This Device\", lalu pilih foto.",
-    gd_s2: "Seret foto sehingga <b>sudut kiri atasnya</b> berada di sel baris nomor part itu (mulai kolom D). Foto boleh <b>dikecilkan</b> (yang diimpor adalah ukuran aslinya).",
-    gd_s3: "Maksimal 4 per baris. Dipakai berurutan <b>dari foto paling kiri: ① ② ③ ④</b>. Nomor part berikutnya ditempel di baris berikutnya."
+    gd_s2: "Seret foto sehingga <b>sudut kiri atasnya</b> berada di sel baris nomor part itu (mulai kolom C). Foto boleh <b>dikecilkan</b> (yang diimpor adalah ukuran aslinya).",
+    gd_s3: "Maksimal 4 per baris. Dipakai berurutan <b>dari foto paling kiri: ① ② ③ ④</b>. Nomor part berikutnya ditempel di baris berikutnya.",
+    xl_w_over: "Poin terlalu banyak untuk satu lembar (kelebihannya terpotong)"
   },
   tl: {
     tab_check: "Suriin",
@@ -1850,10 +1852,11 @@ var I18N = {
     gd_dl: "📥 Na-download na ang template. Ganito mag-paste ng litrato",
     gd_h: "Paano mag-paste ng litrato (template Excel)",
     gd_sub: "I-paste ang litrato sa row ng part number na iyon. Kapag ang <b>kaliwang-itaas na sulok ng litrato</b> ay nasa loob ng cell ng row na iyon, iyon ang litrato ng row (hanggang 4, ayon sa ayos mula kaliwa: ① ② ③ ④).",
-    gd_call: "📷 I-paste ang litrato sa <b>column D–G</b>, kapantay ng row ng part number",
+    gd_call: "📷 I-paste ang litrato sa <b>column C–F</b>, kapantay ng row ng part number",
     gd_s1: "Sa Excel: <span class=\"kb\">Insert（挿入）</span> → <span class=\"kb\">Pictures（画像）</span> → \"This Device\", at piliin ang litrato.",
-    gd_s2: "I-drag ang litrato para ang <b>kaliwang-itaas na sulok</b> nito ay nasa cell ng row ng part number (mula column D). Puwedeng <b>paliitin ang litrato</b> (orihinal na laki ang ii-import).",
-    gd_s3: "Hanggang 4 bawat row. Gagamitin ayon sa ayos <b>mula sa pinakakaliwang litrato: ① ② ③ ④</b>. I-paste ang susunod na part number sa susunod na row."
+    gd_s2: "I-drag ang litrato para ang <b>kaliwang-itaas na sulok</b> nito ay nasa cell ng row ng part number (mula column C). Puwedeng <b>paliitin ang litrato</b> (orihinal na laki ang ii-import).",
+    gd_s3: "Hanggang 4 bawat row. Gagamitin ayon sa ayos <b>mula sa pinakakaliwang litrato: ① ② ③ ④</b>. I-paste ang susunod na part number sa susunod na row.",
+    xl_w_over: "Masyadong marami ang punto para sa isang sheet (puputulin ang sobra)"
   },
   en: {
     tab_check: "Check",
@@ -2217,10 +2220,11 @@ var I18N = {
     gd_dl: "📥 The template was downloaded. Here is how to paste photos",
     gd_h: "How to paste photos (template Excel)",
     gd_sub: "Paste photos in the row of that part number. If the <b>top-left corner of a photo</b> is inside a cell of that row, it becomes that row's photo (up to 4, in order from the left: ① ② ③ ④).",
-    gd_call: "📷 Paste photos in <b>columns D–G</b>, lined up with the row of the part number",
+    gd_call: "📷 Paste photos in <b>columns C–F</b>, lined up with the row of the part number",
     gd_s1: "In Excel: <span class=\"kb\">Insert</span> → <span class=\"kb\">Pictures</span> → \"This Device\", and choose the photo.",
-    gd_s2: "Drag the photo so that its <b>top-left corner</b> is in a cell of that part number's row (column D onward). The photo can be <b>made small</b> (the original size is what gets imported).",
-    gd_s3: "Up to 4 per row. They are used in order, <b>from the leftmost photo: ① ② ③ ④</b>. Paste the next part number's photos in the next row."
+    gd_s2: "Drag the photo so that its <b>top-left corner</b> is in a cell of that part number's row (column C onward). The photo can be <b>made small</b> (the original size is what gets imported).",
+    gd_s3: "Up to 4 per row. They are used in order, <b>from the leftmost photo: ① ② ③ ④</b>. Paste the next part number's photos in the next row.",
+    xl_w_over: "Too many points to fit on one sheet (the extra ones are cut off)"
   },
   vi: {
     tab_check: "Kiểm tra",
@@ -2584,10 +2588,11 @@ var I18N = {
     gd_dl: "📥 Đã tải mẫu về. Cách dán ảnh như sau",
     gd_h: "Cách dán ảnh (Excel mẫu)",
     gd_sub: "Dán ảnh vào dòng của mã hàng đó. Nếu <b>góc trên bên trái của ảnh</b> nằm trong một ô của dòng đó, ảnh sẽ thuộc dòng đó (tối đa 4 ảnh, theo thứ tự từ trái: ① ② ③ ④).",
-    gd_call: "📷 Dán ảnh vào <b>cột D–G</b>, khớp với dòng của mã hàng",
+    gd_call: "📷 Dán ảnh vào <b>cột C–F</b>, khớp với dòng của mã hàng",
     gd_s1: "Trong Excel: <span class=\"kb\">Insert（挿入）</span> → <span class=\"kb\">Pictures（画像）</span> → \"This Device\", rồi chọn ảnh.",
-    gd_s2: "Kéo ảnh sao cho <b>góc trên bên trái</b> nằm trong ô của dòng mã hàng đó (từ cột D). Có thể <b>thu nhỏ ảnh</b> (ảnh được nhập theo kích thước gốc).",
-    gd_s3: "Tối đa 4 ảnh mỗi dòng. Dùng theo thứ tự <b>từ ảnh bên trái: ① ② ③ ④</b>. Mã hàng tiếp theo thì dán ở dòng tiếp theo."
+    gd_s2: "Kéo ảnh sao cho <b>góc trên bên trái</b> nằm trong ô của dòng mã hàng đó (từ cột C). Có thể <b>thu nhỏ ảnh</b> (ảnh được nhập theo kích thước gốc).",
+    gd_s3: "Tối đa 4 ảnh mỗi dòng. Dùng theo thứ tự <b>từ ảnh bên trái: ① ② ③ ④</b>. Mã hàng tiếp theo thì dán ở dòng tiếp theo.",
+    xl_w_over: "Quá nhiều điểm, không vừa một tờ (phần thừa sẽ bị cắt)"
   },
   my: {
     tab_check: "စစ်ဆေးခြင်း",
@@ -2951,10 +2956,11 @@ var I18N = {
     gd_dl: "📥 ပုံစံကို ဒေါင်းလုဒ်လုပ်ပြီးပါပြီ။ ဓာတ်ပုံကပ်ပုံ ဤသို့ဖြစ်သည်",
     gd_h: "ဓာတ်ပုံ ကပ်နည်း (ပုံစံ Excel)",
     gd_sub: "ဓာတ်ပုံကို ထိုပစ္စည်းနံပါတ်၏ တန်းတွင် ကပ်ပါ။ <b>ဓာတ်ပုံ၏ ဘယ်ဘက်အပေါ်ထောင့်</b> သည် ထိုတန်း၏ ဆဲလ်ထဲတွင် ရှိလျှင် ထိုတန်း၏ ဓာတ်ပုံဖြစ်သည် (အများဆုံး ၄ ပုံ၊ ဘယ်မှစ၍ ① ② ③ ④)။",
-    gd_call: "📷 ဓာတ်ပုံကို <b>D မှ G ကော်လံ</b> တွင် ပစ္စည်းနံပါတ်၏ တန်းနှင့် ကိုက်အောင် ကပ်ပါ",
+    gd_call: "📷 ဓာတ်ပုံကို <b>C မှ F ကော်လံ</b> တွင် ပစ္စည်းနံပါတ်၏ တန်းနှင့် ကိုက်အောင် ကပ်ပါ",
     gd_s1: "Excel တွင် <span class=\"kb\">Insert（挿入）</span> → <span class=\"kb\">Pictures（画像）</span> → \"This Device\" ဖြင့် ဓာတ်ပုံကို ရွေးပါ။",
-    gd_s2: "ဓာတ်ပုံကို ဆွဲပြီး <b>ဘယ်ဘက်အပေါ်ထောင့်</b> ကို ထိုပစ္စည်းနံပါတ်၏ တန်းရှိ ဆဲလ်ထဲ (D ကော်လံမှ) ထားပါ။ ဓာတ်ပုံကို <b>သေးအောင်လုပ်နိုင်သည်</b> (မူလအရွယ်အစားဖြင့် ထည့်သွင်းသည်)။",
-    gd_s3: "တစ်တန်းလျှင် အများဆုံး ၄ ပုံ။ <b>ဘယ်ဘက်ဆုံးပုံမှစ၍ ① ② ③ ④</b> အစဉ်အတိုင်း သုံးသည်။ နောက်ပစ္စည်းနံပါတ်ကို နောက်တန်းတွင် ကပ်ပါ။"
+    gd_s2: "ဓာတ်ပုံကို ဆွဲပြီး <b>ဘယ်ဘက်အပေါ်ထောင့်</b> ကို ထိုပစ္စည်းနံပါတ်၏ တန်းရှိ ဆဲလ်ထဲ (C ကော်လံမှ) ထားပါ။ ဓာတ်ပုံကို <b>သေးအောင်လုပ်နိုင်သည်</b> (မူလအရွယ်အစားဖြင့် ထည့်သွင်းသည်)။",
+    gd_s3: "တစ်တန်းလျှင် အများဆုံး ၄ ပုံ။ <b>ဘယ်ဘက်ဆုံးပုံမှစ၍ ① ② ③ ④</b> အစဉ်အတိုင်း သုံးသည်။ နောက်ပစ္စည်းနံပါတ်ကို နောက်တန်းတွင် ကပ်ပါ။",
+    xl_w_over: "ပွိုင့်များလွန်းသဖြင့် တစ်ရွက်တွင် မဆန့်ပါ (ကျန်သည့်အပိုင်း ပြတ်သွားမည်)"
   },
   ne: {
     tab_check: "जाँच",
@@ -3318,10 +3324,11 @@ var I18N = {
     gd_dl: "📥 नमूना डाउनलोड भयो। फोटो टाँस्ने तरिका यस्तो छ",
     gd_h: "फोटो टाँस्ने तरिका (नमूना Excel)",
     gd_sub: "फोटो त्यो पार्ट नम्बरको लाइनमा टाँस्नुहोस्। <b>फोटोको माथिल्लो-देब्रे कुना</b> त्यो लाइनको सेल भित्र परेमा त्यही लाइनको फोटो हुन्छ (४ सम्म, देब्रेबाट क्रमशः ① ② ③ ④)।",
-    gd_call: "📷 फोटो <b>D देखि G स्तम्भ</b> मा, पार्ट नम्बरको लाइनसँग मिलाएर टाँस्नुहोस्",
+    gd_call: "📷 फोटो <b>C देखि F स्तम्भ</b> मा, पार्ट नम्बरको लाइनसँग मिलाएर टाँस्नुहोस्",
     gd_s1: "Excel मा: <span class=\"kb\">Insert（挿入）</span> → <span class=\"kb\">Pictures（画像）</span> → \"This Device\" बाट फोटो छान्नुहोस्।",
-    gd_s2: "फोटो तानेर <b>माथिल्लो-देब्रे कुना</b> त्यो पार्ट नम्बरको लाइनको सेल (D स्तम्भदेखि) भित्र राख्नुहोस्। फोटो <b>सानो बनाए पनि हुन्छ</b> (मूल आकारमै आयात हुन्छ)।",
-    gd_s3: "एक लाइनमा ४ सम्म। <b>सबैभन्दा देब्रेको फोटोबाट ① ② ③ ④</b> क्रममा प्रयोग हुन्छ। अर्को पार्ट नम्बरको फोटो अर्को लाइनमा टाँस्नुहोस्।"
+    gd_s2: "फोटो तानेर <b>माथिल्लो-देब्रे कुना</b> त्यो पार्ट नम्बरको लाइनको सेल (C स्तम्भदेखि) भित्र राख्नुहोस्। फोटो <b>सानो बनाए पनि हुन्छ</b> (मूल आकारमै आयात हुन्छ)।",
+    gd_s3: "एक लाइनमा ४ सम्म। <b>सबैभन्दा देब्रेको फोटोबाट ① ② ③ ④</b> क्रममा प्रयोग हुन्छ। अर्को पार्ट नम्बरको फोटो अर्को लाइनमा टाँस्नुहोस्।",
+    xl_w_over: "पोइन्ट धेरै भएकाले एउटै पानामा अट्दैन (बढी भएको भाग कटिन्छ)"
   },
   bn: {
     tab_check: "যাচাই",
@@ -3685,10 +3692,11 @@ var I18N = {
     gd_dl: "📥 টেমপ্লেট ডাউনলোড হয়েছে। ছবি বসানোর নিয়ম এই রকম",
     gd_h: "ছবি বসানোর নিয়ম (টেমপ্লেট Excel)",
     gd_sub: "ছবি ওই পার্ট নম্বরের সারিতে বসান। <b>ছবির উপরের-বাম কোণ</b> ওই সারির কোনো ঘরের ভেতরে থাকলে সেটি ওই সারির ছবি হবে (সর্বোচ্চ ৪টি, বাঁ থেকে ক্রমে ① ② ③ ④)।",
-    gd_call: "📷 ছবি <b>D থেকে G কলামে</b>, পার্ট নম্বরের সারির সাথে মিলিয়ে বসান",
+    gd_call: "📷 ছবি <b>C থেকে F কলামে</b>, পার্ট নম্বরের সারির সাথে মিলিয়ে বসান",
     gd_s1: "Excel-এ: <span class=\"kb\">Insert（挿入）</span> → <span class=\"kb\">Pictures（画像）</span> → \"This Device\" থেকে ছবি বাছুন।",
-    gd_s2: "ছবি টেনে এমনভাবে রাখুন যেন এর <b>উপরের-বাম কোণ</b> ওই পার্ট নম্বরের সারির ঘরে (D কলাম থেকে) থাকে। ছবি <b>ছোট করলেও চলবে</b> (মূল আকারেই ইমপোর্ট হয়)।",
-    gd_s3: "প্রতি সারিতে সর্বোচ্চ ৪টি। <b>সবচেয়ে বাঁ দিকের ছবি থেকে ① ② ③ ④</b> ক্রমে ব্যবহার হয়। পরের পার্ট নম্বরের ছবি পরের সারিতে বসান।"
+    gd_s2: "ছবি টেনে এমনভাবে রাখুন যেন এর <b>উপরের-বাম কোণ</b> ওই পার্ট নম্বরের সারির ঘরে (C কলাম থেকে) থাকে। ছবি <b>ছোট করলেও চলবে</b> (মূল আকারেই ইমপোর্ট হয়)।",
+    gd_s3: "প্রতি সারিতে সর্বোচ্চ ৪টি। <b>সবচেয়ে বাঁ দিকের ছবি থেকে ① ② ③ ④</b> ক্রমে ব্যবহার হয়। পরের পার্ট নম্বরের ছবি পরের সারিতে বসান।",
+    xl_w_over: "পয়েন্ট এত বেশি যে এক পাতায় ধরবে না (বাড়তি অংশ কেটে যাবে)"
   },
   mn: {
     tab_check: "Шалгах",
@@ -4052,10 +4060,11 @@ var I18N = {
     gd_dl: "📥 Загварыг татлаа. Зураг наах арга энэ байна",
     gd_h: "Зураг наах арга (загвар Excel)",
     gd_sub: "Зургийг тухайн эдийн дугаарын мөрөнд наана. <b>Зургийн зүүн дээд өнцөг</b> тэр мөрийн нүдэн дотор байвал тэр мөрийн зураг болно (дээд тал нь 4, зүүнээс дарааллаар ① ② ③ ④).",
-    gd_call: "📷 Зургийг <b>D–G баганад</b>, эдийн дугаарын мөртэй тааруулж наана",
+    gd_call: "📷 Зургийг <b>C–F баганад</b>, эдийн дугаарын мөртэй тааруулж наана",
     gd_s1: "Excel дээр: <span class=\"kb\">Insert（挿入）</span> → <span class=\"kb\">Pictures（画像）</span> → \"This Device\"-ээр зургаа сонго.",
-    gd_s2: "Зургийн <b>зүүн дээд өнцөг</b> тухайн эдийн дугаарын мөрийн нүдэнд (D баганаас) орохоор чирж тавь. Зургийг <b>жижигрүүлж болно</b> (анхны хэмжээгээр нь оруулна).",
-    gd_s3: "Нэг мөрөнд дээд тал нь 4. <b>Хамгийн зүүн талын зургаас ① ② ③ ④</b> дарааллаар ашиглана. Дараагийн эдийн дугаарын зургийг дараагийн мөрөнд наана."
+    gd_s2: "Зургийн <b>зүүн дээд өнцөг</b> тухайн эдийн дугаарын мөрийн нүдэнд (C баганаас) орохоор чирж тавь. Зургийг <b>жижигрүүлж болно</b> (анхны хэмжээгээр нь оруулна).",
+    gd_s3: "Нэг мөрөнд дээд тал нь 4. <b>Хамгийн зүүн талын зургаас ① ② ③ ④</b> дарааллаар ашиглана. Дараагийн эдийн дугаарын зургийг дараагийн мөрөнд наана.",
+    xl_w_over: "Цэг хэт олон тул нэг хуудсанд багтахгүй (илүү хэсэг тасарна)"
   },
   pt: {
     tab_check: "Verificar",
@@ -4419,10 +4428,11 @@ var I18N = {
     gd_dl: "📥 O modelo foi baixado. Veja como colar as fotos",
     gd_h: "Como colar fotos (Excel modelo)",
     gd_sub: "Cole as fotos na linha do código da peça. Se o <b>canto superior esquerdo da foto</b> estiver dentro de uma célula dessa linha, ela vira a foto dessa linha (até 4, em ordem da esquerda: ① ② ③ ④).",
-    gd_call: "📷 Cole as fotos nas <b>colunas D–G</b>, alinhadas com a linha do código da peça",
+    gd_call: "📷 Cole as fotos nas <b>colunas C–F</b>, alinhadas com a linha do código da peça",
     gd_s1: "No Excel: <span class=\"kb\">Inserir（挿入）</span> → <span class=\"kb\">Imagens（画像）</span> → \"Este dispositivo\" e escolha a foto.",
-    gd_s2: "Arraste a foto para que o <b>canto superior esquerdo</b> fique numa célula da linha desse código (a partir da coluna D). A foto pode ficar <b>pequena</b> (o que é importado é o tamanho original).",
-    gd_s3: "Até 4 por linha. São usadas em ordem, <b>da foto mais à esquerda: ① ② ③ ④</b>. As fotos do próximo código vão na próxima linha."
+    gd_s2: "Arraste a foto para que o <b>canto superior esquerdo</b> fique numa célula da linha desse código (a partir da coluna C). A foto pode ficar <b>pequena</b> (o que é importado é o tamanho original).",
+    gd_s3: "Até 4 por linha. São usadas em ordem, <b>da foto mais à esquerda: ① ② ③ ④</b>. As fotos do próximo código vão na próxima linha.",
+    xl_w_over: "Pontos demais para caber em uma folha (o excesso será cortado)"
   },
   si: {
     tab_check: "පරීක්ෂා කිරීම",
@@ -4786,10 +4796,11 @@ var I18N = {
     gd_dl: "📥 ආකෘතිය බාගත කළා. ඡායාරූප අලවන ආකාරය මෙයයි",
     gd_h: "ඡායාරූප අලවන ආකාරය (ආකෘති Excel)",
     gd_sub: "ඡායාරූපය එම කොටස් අංකයේ පේළියේ අලවන්න. <b>ඡායාරූපයේ ඉහළ-වම් කොන</b> එම පේළියේ කොටුවක් තුළ තිබුණොත් එය එම පේළියේ ඡායාරූපය වේ (උපරිම 4, වමේ සිට පිළිවෙළට ① ② ③ ④).",
-    gd_call: "📷 ඡායාරූප <b>D–G තීරුවල</b>, කොටස් අංකයේ පේළියට ගැළපෙන සේ අලවන්න",
+    gd_call: "📷 ඡායාරූප <b>C–F තීරුවල</b>, කොටස් අංකයේ පේළියට ගැළපෙන සේ අලවන්න",
     gd_s1: "Excel හි: <span class=\"kb\">Insert（挿入）</span> → <span class=\"kb\">Pictures（画像）</span> → \"This Device\" මගින් ඡායාරූපය තෝරන්න.",
-    gd_s2: "ඡායාරූපය ඇද එහි <b>ඉහළ-වම් කොන</b> එම කොටස් අංකයේ පේළියේ කොටුව තුළ (D තීරුවේ සිට) තබන්න. ඡායාරූපය <b>කුඩා කළත් කමක් නැත</b> (මුල් ප්‍රමාණයෙන්ම ආනයනය වේ).",
-    gd_s3: "පේළියකට උපරිම 4. <b>වමේම ඡායාරූපයෙන් ① ② ③ ④</b> පිළිවෙළට භාවිත වේ. ඊළඟ කොටස් අංකයේ ඡායාරූප ඊළඟ පේළියේ අලවන්න."
+    gd_s2: "ඡායාරූපය ඇද එහි <b>ඉහළ-වම් කොන</b> එම කොටස් අංකයේ පේළියේ කොටුව තුළ (C තීරුවේ සිට) තබන්න. ඡායාරූපය <b>කුඩා කළත් කමක් නැත</b> (මුල් ප්‍රමාණයෙන්ම ආනයනය වේ).",
+    gd_s3: "පේළියකට උපරිම 4. <b>වමේම ඡායාරූපයෙන් ① ② ③ ④</b> පිළිවෙළට භාවිත වේ. ඊළඟ කොටස් අංකයේ ඡායාරූප ඊළඟ පේළියේ අලවන්න.",
+    xl_w_over: "ලකුණු ඉතා වැඩි නිසා එක පත්‍රයකට ඇතුළු නොවේ (වැඩිපුර ඇති කොටස කැපේ)"
   }
 };
 var LANG = 'ja';
@@ -5671,10 +5682,26 @@ function xlKind(h) {
   if (/^(シンハラ語|シンハラ|sinhala|sinhalese|සිංහල|si)\d*$/.test(h)) return 'si';
   return '';
 }
-function xlLines(cells, row, cols) { // 指定した列のセルを順に読み、改行でも分けて、空でない行だけ返す
-  var out = []; cols.forEach(function (c) { var x = cells[row + ',' + c]; if (x) x.v.split(/\r?\n/).forEach(function (l) { l = l.trim(); if (l) out.push(l); }); }); return out;
+function xlLines(cells, row, cols, spl) { // 指定した列のセルを順に読み、改行でも分けて、空でない行だけ返す。spl（ポイント・翻訳）のときは、空白が2つ以上つづく所でも分ける（改行のかわりに空白を並べて書いたExcel対策）
+  var out = []; cols.forEach(function (c) { var x = cells[row + ',' + c]; if (x) x.v.split(/\r?\n/).forEach(function (l) { (spl ? l.split(/[ \u3000\t]{2,}/) : [l]).forEach(function (m) { m = m.trim(); if (m) out.push(m); }); }); }); return out;
 }
 function xlLoadImg(url) { return new Promise(function (res) { var im = new Image(); im.onload = function () { res(im); }; im.onerror = function () { res(null); }; im.src = url; }); }
+/** Excelに貼った向きのままの写真にする：切り抜き → 左右・上下の反転 → 回転（Excelで回した角度）の順に直した絵を返す。何も直さなくてよい写真は、そのまま返す */
+async function xlLoadOriented(x) {
+  var im = await xlLoadImg(x.url); if (!im) return null;
+  var rot = (((x.rot || 0) % 360) + 360) % 360, cr = x.crop;
+  if (!rot && !x.flipH && !x.flipV && !cr) return im;
+  var w = im.naturalWidth, h = im.naturalHeight, sx = 0, sy = 0, sw = w, sh = h;
+  if (cr) { sx = Math.round(w * cr.l); sy = Math.round(h * cr.t); sw = Math.max(1, Math.round(w * (1 - cr.l - cr.r))); sh = Math.max(1, Math.round(h * (1 - cr.t - cr.b))); }
+  var a = rot * Math.PI / 180, cs = Math.abs(Math.cos(a)), sn = Math.abs(Math.sin(a));
+  var ow = Math.max(1, Math.round(sw * cs + sh * sn)), oh = Math.max(1, Math.round(sw * sn + sh * cs));
+  if (rot % 90 === 0) { ow = rot % 180 ? sh : sw; oh = rot % 180 ? sw : sh; }
+  var cv = document.createElement('canvas'); cv.width = ow; cv.height = oh; var cx = cv.getContext('2d');
+  if (rot % 90 !== 0) { cx.fillStyle = '#fff'; cx.fillRect(0, 0, ow, oh); }
+  cx.translate(ow / 2, oh / 2); cx.rotate(a); cx.scale(x.flipH ? -1 : 1, x.flipV ? -1 : 1);
+  cx.drawImage(im, sx, sy, sw, sh, -sw / 2, -sh / 2, sw, sh);
+  var out = await xlLoadImg(cv.toDataURL('image/jpeg', 0.92)); return out || im;
+}
 async function xlRead(buf) {
   var sheets = await XV.parse(buf), sh = null, hr = 0, cols = {};
   for (var i = 0; i < sheets.length && !sh; i++) {
@@ -5690,17 +5717,17 @@ async function xlRead(buf) {
   for (var r2 = hr + 1; r2 <= sh.maxR; r2++) {
     var pnl = xlLines(sh.cells, r2, cols.pn), pn = toHalf(pnl[0] || '').normalize('NFKC').trim();
     var qty = toHalf(xlLines(sh.cells, r2, cols.qty || [])[0] || '').normalize('NFKC').trim();
-    var pts = xlLines(sh.cells, r2, cols.pts || []);
+    var pts = xlLines(sh.cells, r2, cols.pts || [], true);
     var urls = sh.images.filter(function (im) { return im.from.r + 1 === r2; }).sort(function (a, b) { return a.from.c - b.from.c; }).slice(0, TPL_MAX);
     if (!pn && !qty && !pts.length && !urls.length) continue; // 空の行は飛ばす
     var row = { line: r2, pn: pn, qty: qty, pts: pts, urls: urls, tr: {}, err: '', warn: '' };
-    TRL.forEach(function (l) { row.tr[l] = xlLines(sh.cells, r2, cols[l] || []).join('\n'); });
+    TRL.forEach(function (l) { row.tr[l] = xlLines(sh.cells, r2, cols[l] || [], true).join('\n'); });
     var key = norm(pn.replace(/[\\/:*?"<>|]/g, '_') + '.pdf');
     if (!pn || !key) row.err = 'xl_e_pn';
     else if (!/^[1-9][0-9]*$/.test(qty)) row.err = 'xl_e_qty';
     else if (!pts.length) row.err = 'xl_e_pts';
     else if (seen[key]) row.err = 'xl_e_dup';
-    if (!row.err) { seen[key] = 1; row.key = key; row.over = !!PDF_INDEX[key]; if (!urls.length) row.warn = 'xl_w_nophoto'; }
+    if (!row.err) { seen[key] = 1; row.key = key; row.over = !!PDF_INDEX[key]; if (!urls.length) row.warn = 'xl_w_nophoto'; if (!tplPtsFit(document.createElement('canvas').getContext('2d'), pts).ok) row.warn2 = 'xl_w_over'; }
     rows.push(row);
   }
   return { rows: rows };
@@ -5711,7 +5738,7 @@ function xlShow() {
   $('xlSum').innerHTML = esc(t('xl_sum', { n: rows.length, a: a, u: u, e: e })) + (np ? '<br><span style="color:var(--red)">' + esc(t('xl_sum_np', { n: np })) + '</span>' : '');
   $('xlTbl').innerHTML = '<tr><th>' + esc(t('xl_c_row')) + '</th><th>' + esc(t('tp_pn')) + '</th><th>' + esc(t('tp_qty')) + '</th><th>' + esc(t('tp_pts')) + '</th><th>' + esc(t('xl_c_photo')) + '</th><th>' + esc(t('xl_c_tr')) + '</th><th>' + esc(t('xl_c_state')) + '</th></tr>' +
     rows.map(function (r) {
-      var st = r.err ? '<span style="color:var(--red);font-weight:900">✕ ' + esc(t(r.err)) + '</span>' : (r.over ? esc(t('xl_s_over')) : esc(t('xl_s_new'))) + (r.warn ? ' <span style="color:var(--red)">⚠ ' + esc(t(r.warn)) + '</span>' : '');
+      var st = r.err ? '<span style="color:var(--red);font-weight:900">✕ ' + esc(t(r.err)) + '</span>' : (r.over ? esc(t('xl_s_over')) : esc(t('xl_s_new'))) + (r.warn ? ' <span style="color:var(--red)">⚠ ' + esc(t(r.warn)) + '</span>' : '') + (r.warn2 ? ' <span style="color:var(--red)">⚠ ' + esc(t(r.warn2)) + '</span>' : '');
       return '<tr><td>' + r.line + '</td><td class="mono">' + esc(r.pn) + '</td><td>' + esc(r.qty) + '</td><td>' + r.pts.length + '</td><td>' + r.urls.length + '</td><td>' + TRL.filter(function (l) { return String(r.tr[l] || '').trim(); }).length + ' / ' + TRL.length + '</td><td>' + st + '</td></tr>';
     }).join('');
   $('xlGo').disabled = a + u === 0;
@@ -5794,7 +5821,7 @@ $('xlGo').onclick = async function () {
   try {
     for (var i = 0; i < todo.length; i++) {
       var r = todo[i]; msg.textContent = t('xl_busy', { i: i + 1, n: todo.length });
-      var ims = (await Promise.all(r.urls.map(function (x) { return xlLoadImg(x.url); }))).filter(Boolean);
+      var ims = (await Promise.all(r.urls.map(xlLoadOriented))).filter(Boolean);
       var cv = document.createElement('canvas'); cv.width = 1684; cv.height = 1191;
       tplPaint(cv, { pn: r.pn, qty: r.qty, pts: r.pts }, ims);
       var blob = await new Promise(function (res) { cv.toBlob(res, 'image/jpeg', 0.88); });
@@ -6596,9 +6623,22 @@ function wrapText(cx, text, maxW) {
 /** ひな形を描く（A4横・約144dpi：1684×1191） */
 function tplDraw() { tplPaint($('tplCanvas'), tplVal(), TPL.imgs.map(function (p) { return p.im; })); }
 /** ポイント表の絵を cv に描く（v＝品番・収容数・ポイント、ims＝写真）。入力欄の見本も、Excelからのまとめ作成も、これで描く */
+var TPL_F = '"Hiragino Kaku Gothic ProN","Yu Gothic UI","Meiryo","Noto Sans JP","Noto Sans CJK JP",sans-serif';
+/** ポイントを右の枠に入れるときの文字の大きさ（倍率）。多いときは、1.0 → 0.5 まで小さくして、できるだけ全部入れる。ok=false は、いちばん小さくしても入りきらない（はみ出た分は切れる）。
+ *  枠の大きさは tplPaint と同じ：用紙 1684×1191、右の枠の幅 754、ポイントの書き出し位置〜下端 633px */
+function tplPtsFit(cx, pts) {
+  var bw = 754, top = 104, maxY = 761 - 24;
+  for (var sc = 1; sc >= 0.5 - 1e-9; sc -= 0.05) {
+    var lh = Math.round(50 * sc), gap = Math.round(14 * sc), ly = top, last = top;
+    cx.font = '700 ' + Math.round(36 * sc) + 'px ' + TPL_F;
+    for (var i = 0; i < pts.length; i++) { var n = wrapText(cx, pts[i], bw - 110).length; last = ly + (n - 1) * lh; ly += n * lh + gap; }
+    if (!pts.length || last < maxY) return { sc: sc, ok: true };
+  }
+  return { sc: 0.5, ok: false };
+}
 function tplPaint(cv, v, ims) {
   var cx = cv.getContext('2d'), W = cv.width, H = cv.height;
-  var F = '"Hiragino Kaku Gothic ProN","Yu Gothic UI","Meiryo","Noto Sans JP","Noto Sans CJK JP",sans-serif';
+  var F = TPL_F;
   cx.fillStyle = '#fff'; cx.fillRect(0, 0, W, H);
   var M = 70;
   // 見出し帯
@@ -6652,19 +6692,19 @@ function tplPaint(cv, v, ims) {
   cx.strokeRect(bx, py, bw, ph);
   cx.fillStyle = '#FFD23F'; cx.fillRect(bx + 2, py + 2, bw - 4, 62);
   cx.fillStyle = '#241A4A'; cx.font = '900 34px ' + F; cx.fillText('ポイント', bx + 24, py + 34);
-  var ly = py + 104, lh = 50, maxY = py + ph - 24;
-  cx.font = '700 36px ' + F;
+  var ly = py + 104, maxY = py + ph - 24, fit = tplPtsFit(cx, v.pts), sc = fit.sc, lh = Math.round(50 * sc), gap = Math.round(14 * sc), fs = Math.round(36 * sc);
+  cx.font = '700 ' + fs + 'px ' + F;
   if (!v.pts.length) { cx.fillStyle = '#B9B0D6'; cx.fillText('（ポイントを入力）', bx + 24, ly); }
   for (var i = 0; i < v.pts.length && ly < maxY; i++) {
     cx.fillStyle = '#241A4A';
-    cx.beginPath(); cx.arc(bx + 44, ly, 22, 0, Math.PI * 2); cx.fill();
-    cx.fillStyle = '#fff'; cx.font = '900 26px ' + F; cx.textAlign = 'center'; cx.fillText(String(i + 1), bx + 44, ly + 1); cx.textAlign = 'left';
-    cx.fillStyle = '#241A4A'; cx.font = '700 36px ' + F;
+    cx.beginPath(); cx.arc(bx + 44, ly, 22 * Math.max(sc, 0.7), 0, Math.PI * 2); cx.fill();
+    cx.fillStyle = '#fff'; cx.font = '900 ' + Math.round(26 * Math.max(sc, 0.7)) + 'px ' + F; cx.textAlign = 'center'; cx.fillText(String(i + 1), bx + 44, ly + 1); cx.textAlign = 'left';
+    cx.fillStyle = '#241A4A'; cx.font = '700 ' + fs + 'px ' + F;
     var lines = wrapText(cx, v.pts[i], bw - 110);
     for (var k = 0; k < lines.length && ly < maxY; k++) { cx.fillText(lines[k], bx + 84, ly); ly += lh; }
-    ly += 14;
+    ly += gap;
   }
-  if (ly >= maxY && v.pts.length) { cx.fillStyle = '#FF3D5E'; cx.font = '700 24px ' + F; cx.fillText('※書ききれません。ポイントを短くしてください', bx + 24, py + ph - 14); }
+  if (!fit.ok && v.pts.length) { cx.fillStyle = '#FF3D5E'; cx.font = '700 24px ' + F; cx.fillText('※書ききれません。ポイントを短くしてください', bx + 24, py + ph - 14); }
   cx.textBaseline = 'alphabetic';
 }
 /** 入っていない必須項目を赤くする（soft=入力中は消すだけ） */

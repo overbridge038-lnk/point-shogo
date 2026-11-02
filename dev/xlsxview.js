@@ -391,7 +391,7 @@
         if (sr) it.crop = { l: +attr(sr, 'l', 0) / 100000, t: +attr(sr, 't', 0) / 100000, r: +attr(sr, 'r', 0) / 100000, b: +attr(sr, 'b', 0) / 100000 };
         it.line = lineOf(pr, null);
         // 一覧作成用：図形の位置ではなく、貼ってあるセルで行を決める
-        if (anchor && anchor.from) images.push({ url: it.url, from: anchor.from });
+        if (anchor && anchor.from) images.push({ url: it.url, from: anchor.from, rot: it.rot || 0, flipH: !!it.flipH, flipV: !!it.flipV, crop: it.crop || null }); // 回転・反転・切り抜きも持つ（Excelで貼った向きのまま使うため）
       } else {
         it.fill = kind === 'sp' ? fillOf(pr, st) : null; it.line = lineOf(pr, st);
         it.text = kind === 'sp' ? textOfShape(kid(el, 'txBody'), st) : null;
