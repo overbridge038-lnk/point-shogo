@@ -550,7 +550,7 @@ html[lang=my],html[lang=ne],html[lang=bn],html[lang=si]{line-height:1.5} /* ミ�
       <div id="xlBox" hidden style="display:none;gap:10px">
         <div class="card" id="xlSum" style="margin:0;font-weight:800"></div>
         <div style="max-height:340px;overflow:auto;border:var(--line);border-radius:12px"><table id="xlTbl"></table></div>
-        <div class="btnrow"><button class="btn pri" id="xlGo" data-i18n="xl_go">この内容で登録する</button><button class="btn" id="xlCancel" data-i18n="xl_cancel">やめる</button></div>
+        <div class="btnrow"><button class="btn" id="xlTrAuto" data-i18n="xl_tr_auto">🌐 空の翻訳を自動で入れる（オンライン）</button><button class="btn pri" id="xlGo" data-i18n="xl_go">この内容で登録する</button><button class="btn" id="xlCancel" data-i18n="xl_cancel">やめる</button></div>
       </div>
       <p class="note" id="xlMsg" style="margin:0"></p>
     </div>
@@ -1028,9 +1028,13 @@ var I18N = {
     vid_has: "この品番には、すでに動画がついています（選ぶと入れ替え）",
     tp_drop_more: "Excel（.xlsx）・動画も、ここに入れられます",
     xl_pc_h: "💻 PCで作ってから読み込むと、速くて楽です",
-    xl_pc_note: "① ひな形（Excel）をダウンロードして、PCで品番・収容数・ポイント（日本語）を入力します。<br>② 翻訳は、「ひな形（自動翻訳つき）」を <b>Googleスプレッドシート</b> で開くと、日本語から9言語が一度に自動で入ります（インターネットが必要）。直したいところは直せます。<br>③ 「ファイル → ダウンロード → Excel (.xlsx)」で保存して、下の枠に入れます。<br>タブレットの翻訳ボタンより速く、たくさんの品番をまとめて作れます。",
+    xl_pc_note: "① ひな形（Excel）をダウンロードして、PCのExcelで品番・収容数・ポイント（日本語）だけを入力します。<br>② 下の枠に入れて一覧が出たら、<b>「🌐 空の翻訳を自動で入れる」</b>を押すと、日本語から10言語が一度に入ります（インターネットが必要。押したときだけ通信します）。<br>③ 内容を見て、「この内容で登録する」を押します。<br>タブレットで1品番ずつ翻訳するより速く、たくさんの品番をまとめて作れます。<br>※ 先に自分で書いた翻訳は、そのまま使われます（空の所だけ自動で入ります）。Googleスプレッドシートで翻訳したいときは「ひな形（自動翻訳つき）」も使えます。",
     xl_tpl1: "📄 ひな形（Excel）をダウンロード",
-    xl_tpl2: "📄 ひな形（自動翻訳つき）をダウンロード"
+    xl_tpl2: "📄 ひな形（自動翻訳つき）をダウンロード",
+    xl_tr_auto: "🌐 空の翻訳を自動で入れる（オンライン）",
+    xl_c_tr: "翻訳",
+    xl_tr_done: "翻訳を入れました：{n}か所（失敗 {f}か所）。登録する前に、内容を見てください",
+    xl_tr_none: "翻訳が必要な所はありません（すべて入っています）"
   },
   id: {
     tab_check: "Cek",
@@ -1367,9 +1371,13 @@ var I18N = {
     vid_has: "Nomor part ini sudah punya video (memilih akan menggantinya)",
     tp_drop_more: "File Excel (.xlsx) atau video juga bisa dimasukkan di sini",
     xl_pc_h: "💻 Membuatnya di PC dulu lebih cepat dan mudah",
-    xl_pc_note: "① Unduh templat (Excel), lalu isi nomor part, isi per boks, dan poin (dalam bahasa Jepang) di PC.<br>② Untuk terjemahan, buka \"templat (terjemah otomatis)\" di <b>Google Sheets</b>: 9 bahasa lain terisi sekaligus dari bahasa Jepang (perlu internet). Bagian yang ingin diperbaiki bisa diubah.<br>③ Simpan dengan \"File → Download → Microsoft Excel (.xlsx)\" lalu masukkan ke kotak di bawah.<br>Lebih cepat daripada tombol terjemah di tablet dan bisa banyak nomor part sekaligus.",
+    xl_pc_note: "① Unduh templat (Excel), lalu di Excel pada PC isi hanya nomor part, isi per boks, dan poin (dalam bahasa Jepang).<br>② Masukkan ke kotak di bawah. Saat daftar muncul, tekan <b>\"🌐 Isi terjemahan yang kosong otomatis\"</b>: 10 bahasa lain terisi sekaligus dari bahasa Jepang (perlu internet, terhubung hanya saat ditekan).<br>③ Periksa isinya lalu tekan \"Daftarkan dengan hasil ini\".<br>Lebih cepat daripada menerjemahkan satu per satu di tablet dan bisa banyak nomor part sekaligus.<br>※ Terjemahan yang Anda tulis sendiri tetap dipakai (hanya yang kosong diisi). Untuk menerjemahkan dengan Google Sheets, bisa pakai \"templat (terjemah otomatis)\".",
     xl_tpl1: "📄 Unduh templat (Excel)",
-    xl_tpl2: "📄 Unduh templat (terjemah otomatis)"
+    xl_tpl2: "📄 Unduh templat (terjemah otomatis)",
+    xl_tr_auto: "🌐 Isi terjemahan yang kosong otomatis (online)",
+    xl_c_tr: "Terjemahan",
+    xl_tr_done: "Terjemahan terisi: {n} tempat (gagal {f}). Periksa dulu sebelum mendaftar",
+    xl_tr_none: "Tidak ada yang perlu diterjemahkan (semua sudah terisi)"
   },
   tl: {
     tab_check: "Suriin",
@@ -1706,9 +1714,13 @@ var I18N = {
     vid_has: "May video na ang part number na ito (papalitan kapag pumili)",
     tp_drop_more: "Maaari ring ilagay dito ang Excel (.xlsx) file o video",
     xl_pc_h: "💻 Mas mabilis at madali kung gagawin muna sa PC",
-    xl_pc_note: "① I-download ang template (Excel) at ilagay sa PC ang part number, dami at mga punto (sa Japanese).<br>② Para sa salin, buksan ang \"template (auto-translate)\" sa <b>Google Sheets</b>: sabay-sabay na mapupunan ang 9 pang wika mula sa Japanese (kailangan ng internet). Maaaring ayusin ang gustong baguhin.<br>③ I-save gamit ang \"File → Download → Microsoft Excel (.xlsx)\" at ilagay sa kahon sa ibaba.<br>Mas mabilis ito kaysa sa translate button ng tablet at kayang gawin ang maraming part number nang sabay.",
+    xl_pc_note: "① I-download ang template (Excel) at sa Excel sa PC, ilagay lang ang part number, dami at mga punto (sa Japanese).<br>② Ilagay sa kahon sa ibaba. Kapag lumabas ang listahan, pindutin ang <b>\"🌐 Awtomatikong punan ang mga walang salin\"</b>: sabay-sabay na mapupunan ang 10 pang wika mula sa Japanese (kailangan ng internet; kumokonekta lang kapag pinindot).<br>③ Suriin ang laman at pindutin ang \"Magrehistro gamit ang mga resultang ito\".<br>Mas mabilis ito kaysa isa-isang pagsasalin sa tablet at kayang gawin ang maraming part number nang sabay.<br>※ Mananatili ang salin na isinulat mo mismo (mga walang laman lang ang pupunan). Para magsalin gamit ang Google Sheets, magagamit ang \"template (auto-translate)\".",
     xl_tpl1: "📄 I-download ang template (Excel)",
-    xl_tpl2: "📄 I-download ang template (may auto-translate)"
+    xl_tpl2: "📄 I-download ang template (may auto-translate)",
+    xl_tr_auto: "🌐 Awtomatikong punan ang mga walang salin (online)",
+    xl_c_tr: "Salin",
+    xl_tr_done: "Napunan ang salin: {n} (nabigo {f}). Pakisuri bago magrehistro",
+    xl_tr_none: "Walang kailangang isalin (puno na lahat)"
   },
   en: {
     tab_check: "Check",
@@ -2045,9 +2057,13 @@ var I18N = {
     vid_has: "This part number already has a video (choosing one replaces it)",
     tp_drop_more: "You can also drop an Excel (.xlsx) file or a video here",
     xl_pc_h: "💻 Making it on a PC first is faster and easier",
-    xl_pc_note: "① Download the template (Excel) and enter the part number, quantity and points (in Japanese) on a PC.<br>② For translation, open the \"template (auto-translate)\" in <b>Google Sheets</b>: all 9 other languages are filled in from the Japanese at once (internet required). You can fix anything you want.<br>③ Save it with \"File → Download → Microsoft Excel (.xlsx)\" and put it into the box below.<br>It is faster than the translate button on the tablet and can handle many part numbers at once.",
+    xl_pc_note: "① Download the template (Excel) and, in Excel on a PC, enter only the part number, quantity and points (in Japanese).<br>② Put it into the box below. When the list appears, press <b>\"🌐 Fill empty translations automatically\"</b>: all 10 other languages are filled in from the Japanese at once (internet required; it connects only when you press).<br>③ Check the contents and press \"Register with these results\".<br>It is faster than translating one part number at a time on the tablet and can handle many part numbers at once.<br>* Translations you wrote yourself are kept (only empty ones are filled). To translate with Google Sheets instead, you can use the \"template (auto-translate)\".",
     xl_tpl1: "📄 Download the template (Excel)",
-    xl_tpl2: "📄 Download the template (with auto-translate)"
+    xl_tpl2: "📄 Download the template (with auto-translate)",
+    xl_tr_auto: "🌐 Fill empty translations automatically (online)",
+    xl_c_tr: "Translations",
+    xl_tr_done: "Translations filled in: {n} (failed: {f}). Please check them before registering",
+    xl_tr_none: "Nothing to translate (everything is already filled in)"
   },
   vi: {
     tab_check: "Kiểm tra",
@@ -2384,9 +2400,13 @@ var I18N = {
     vid_has: "Mã hàng này đã có video (chọn sẽ thay thế)",
     tp_drop_more: "Bạn cũng có thể thả file Excel (.xlsx) hoặc video vào đây",
     xl_pc_h: "💻 Làm trước trên máy tính sẽ nhanh và dễ hơn",
-    xl_pc_note: "① Tải mẫu (Excel) về và nhập mã hàng, số lượng, các điểm (bằng tiếng Nhật) trên máy tính.<br>② Về bản dịch, hãy mở \"mẫu (tự dịch)\" bằng <b>Google Sheets</b>: cả 9 ngôn ngữ còn lại được điền tự động cùng lúc từ tiếng Nhật (cần internet). Chỗ nào muốn sửa thì sửa được.<br>③ Lưu bằng \"Tệp → Tải xuống → Microsoft Excel (.xlsx)\" rồi đưa vào khung bên dưới.<br>Nhanh hơn nút dịch trên máy tính bảng và làm được nhiều mã hàng cùng lúc.",
+    xl_pc_note: "① Tải mẫu (Excel) về và trong Excel trên máy tính chỉ nhập mã hàng, số lượng và các điểm (bằng tiếng Nhật).<br>② Đưa vào khung bên dưới. Khi hiện danh sách, nhấn <b>\"🌐 Tự điền các bản dịch còn trống\"</b>: cả 10 ngôn ngữ còn lại được điền cùng lúc từ tiếng Nhật (cần internet, chỉ kết nối khi bạn nhấn).<br>③ Kiểm tra nội dung rồi nhấn \"Đăng ký theo kết quả này\".<br>Nhanh hơn việc dịch từng mã hàng trên máy tính bảng và làm được nhiều mã hàng cùng lúc.<br>※ Bản dịch bạn đã tự viết được giữ nguyên (chỉ điền chỗ trống). Muốn dịch bằng Google Sheets thì dùng \"mẫu (tự dịch)\".",
     xl_tpl1: "📄 Tải mẫu (Excel)",
-    xl_tpl2: "📄 Tải mẫu (có tự dịch)"
+    xl_tpl2: "📄 Tải mẫu (có tự dịch)",
+    xl_tr_auto: "🌐 Tự điền các bản dịch còn trống (có mạng)",
+    xl_c_tr: "Bản dịch",
+    xl_tr_done: "Đã điền bản dịch: {n} chỗ (lỗi {f} chỗ). Hãy kiểm tra trước khi đăng ký",
+    xl_tr_none: "Không có chỗ nào cần dịch (đã điền đủ)"
   },
   my: {
     tab_check: "စစ်ဆေးခြင်း",
@@ -2723,9 +2743,13 @@ var I18N = {
     vid_has: "ဤပစ္စည်းနံပါတ်တွင် ဗီဒီယိုရှိပြီးဖြစ်သည် (ရွေးလျှင် အစားထိုးမည်)",
     tp_drop_more: "Excel (.xlsx) ဖိုင် သို့မဟုတ် ဗီဒီယိုကိုလည်း ဤနေရာတွင် ထည့်နိုင်သည်",
     xl_pc_h: "💻 PC တွင် အရင်ပြုလုပ်ပါက ပိုမြန်ပြီး လွယ်သည်",
-    xl_pc_note: "① ပုံစံ (Excel) ကို ဒေါင်းလုဒ်လုပ်ပြီး PC တွင် ပစ္စည်းနံပါတ်၊ အရေအတွက်၊ ပွိုင့်များ (ဂျပန်ဘာသာ) ကို ထည့်ပါ။<br>② ဘာသာပြန်ရန် \"ပုံစံ (အလိုအလျောက်ဘာသာပြန်)\" ကို <b>Google Sheets</b> တွင် ဖွင့်ပါ — ကျန်ဘာသာစကား ၉ ခုလုံး ဂျပန်စာမှ တစ်ပြိုင်နက် အလိုအလျောက် ဖြည့်ပေးသည် (အင်တာနက်လိုသည်)။ ပြင်လိုသည်ကို ပြင်နိုင်သည်။<br>③ \"File → Download → Microsoft Excel (.xlsx)\" ဖြင့် သိမ်းပြီး အောက်ပါအကွက်ထဲ ထည့်ပါ။<br>တက်ဘလက်ရှိ ဘာသာပြန်ခလုတ်ထက် ပိုမြန်ပြီး ပစ္စည်းနံပါတ်များစွာကို တစ်ပြိုင်နက် ပြုလုပ်နိုင်သည်။",
+    xl_pc_note: "① ပုံစံ (Excel) ကို ဒေါင်းလုဒ်လုပ်ပြီး PC ၏ Excel တွင် ပစ္စည်းနံပါတ်၊ အရေအတွက်၊ ပွိုင့်များ (ဂျပန်ဘာသာ) ကိုသာ ထည့်ပါ။<br>② အောက်ပါအကွက်ထဲ ထည့်ပါ။ စာရင်းပေါ်လာလျှင် <b>\"🌐 ဗလာဘာသာပြန်များကို အလိုအလျောက် ဖြည့်မည်\"</b> ကိုနှိပ်ပါ — ကျန်ဘာသာစကား ၁၀ ခုလုံး ဂျပန်စာမှ တစ်ပြိုင်နက် ဖြည့်ပေးသည် (အင်တာနက်လိုသည်၊ နှိပ်သည့်အခါမှသာ ချိတ်ဆက်သည်)။<br>③ အကြောင်းအရာကို စစ်ကြည့်ပြီး \"ဤရလဒ်များအတိုင်း မှတ်ပုံတင်မည်\" ကိုနှိပ်ပါ။<br>တက်ဘလက်တွင် ပစ္စည်းနံပါတ်တစ်ခုချင်း ဘာသာပြန်သည်ထက် ပိုမြန်ပြီး ပစ္စည်းနံပါတ်များစွာကို တစ်ပြိုင်နက် ပြုလုပ်နိုင်သည်။<br>※ ကိုယ်တိုင်ရေးထားသော ဘာသာပြန်ကို ဆက်သုံးမည် (ဗလာကိုသာ ဖြည့်သည်)။ Google Sheets ဖြင့် ဘာသာပြန်လိုလျှင် \"ပုံစံ (အလိုအလျောက်ဘာသာပြန်ပါ)\" ကို သုံးနိုင်သည်။",
     xl_tpl1: "📄 ပုံစံ (Excel) ဒေါင်းလုဒ်",
-    xl_tpl2: "📄 ပုံစံ (အလိုအလျောက်ဘာသာပြန်ပါ) ဒေါင်းလုဒ်"
+    xl_tpl2: "📄 ပုံစံ (အလိုအလျောက်ဘာသာပြန်ပါ) ဒေါင်းလုဒ်",
+    xl_tr_auto: "🌐 ဗလာဘာသာပြန်များကို အလိုအလျောက် ဖြည့်မည် (အွန်လိုင်း)",
+    xl_c_tr: "ဘာသာပြန်",
+    xl_tr_done: "ဘာသာပြန် ဖြည့်ပြီး: {n} ခု (မအောင်မြင် {f} ခု)။ မှတ်ပုံမတင်မီ စစ်ကြည့်ပါ",
+    xl_tr_none: "ဘာသာပြန်ရန် မလိုပါ (အားလုံး ဖြည့်ပြီးသား)"
   },
   ne: {
     tab_check: "जाँच",
@@ -3062,9 +3086,13 @@ var I18N = {
     vid_has: "यो पार्ट नम्बरमा पहिले नै भिडियो छ (छान्दा बदलिन्छ)",
     tp_drop_more: "Excel (.xlsx) फाइल वा भिडियो पनि यहाँ राख्न सकिन्छ",
     xl_pc_h: "💻 पहिले PC मा बनाउँदा छिटो र सजिलो हुन्छ",
-    xl_pc_note: "① नमूना (Excel) डाउनलोड गरी PC मा पार्ट नम्बर, मात्रा र पोइन्ट (जापानी भाषामा) हाल्नुहोस्।<br>② अनुवादका लागि \"नमूना (स्वचालित अनुवाद)\" लाई <b>Google Sheets</b> मा खोल्नुहोस्: जापानीबाट अन्य ९ भाषा एकैचोटि आफैं भरिन्छन् (इन्टरनेट चाहिन्छ)। सच्याउनुपर्ने ठाउँ सच्याउन सकिन्छ।<br>③ \"File → Download → Microsoft Excel (.xlsx)\" ले सेभ गरी तलको बाकसमा राख्नुहोस्।<br>ट्याब्लेटको अनुवाद बटनभन्दा छिटो छ र धेरै पार्ट नम्बर एकैपटक बनाउन सकिन्छ।",
+    xl_pc_note: "① नमूना (Excel) डाउनलोड गरी PC को Excel मा पार्ट नम्बर, मात्रा र पोइन्ट (जापानी भाषामा) मात्र हाल्नुहोस्।<br>② तलको बाकसमा राख्नुहोस्। सूची देखिएपछि <b>\"🌐 खाली अनुवाद आफैं भर्ने\"</b> थिच्नुहोस्: जापानीबाट अन्य १० भाषा एकैचोटि भरिन्छन् (इन्टरनेट चाहिन्छ, थिच्दा मात्र जोडिन्छ)।<br>③ विवरण जाँचेर \"यी नतिजाअनुसार दर्ता गर्नुहोस्\" थिच्नुहोस्।<br>ट्याब्लेटमा एक-एक पार्ट नम्बर अनुवाद गर्नुभन्दा छिटो छ र धेरै पार्ट नम्बर एकैपटक बनाउन सकिन्छ।<br>※ आफैंले लेखेको अनुवाद जस्ताको तस्तै रहन्छ (खाली मात्र भरिन्छ)। Google Sheets बाट अनुवाद गर्न \"नमूना (स्वचालित अनुवाद)\" पनि प्रयोग गर्न सकिन्छ।",
     xl_tpl1: "📄 नमूना (Excel) डाउनलोड",
-    xl_tpl2: "📄 नमूना (स्वचालित अनुवाद सहित) डाउनलोड"
+    xl_tpl2: "📄 नमूना (स्वचालित अनुवाद सहित) डाउनलोड",
+    xl_tr_auto: "🌐 खाली अनुवाद आफैं भर्ने (अनलाइन)",
+    xl_c_tr: "अनुवाद",
+    xl_tr_done: "अनुवाद भरियो: {n} ठाउँ (असफल {f})। दर्ता गर्नुअघि जाँच्नुहोस्",
+    xl_tr_none: "अनुवाद गर्नुपर्ने ठाउँ छैन (सबै भरिएको छ)"
   },
   bn: {
     tab_check: "যাচাই",
@@ -3401,9 +3429,13 @@ var I18N = {
     vid_has: "এই পার্ট নম্বরে আগেই ভিডিও আছে (বাছলে বদলে যাবে)",
     tp_drop_more: "Excel (.xlsx) ফাইল বা ভিডিওও এখানে দেওয়া যায়",
     xl_pc_h: "💻 আগে PC-তে বানালে দ্রুত ও সহজ হয়",
-    xl_pc_note: "① টেমপ্লেট (Excel) ডাউনলোড করে PC-তে পার্ট নম্বর, পরিমাণ ও পয়েন্ট (জাপানি ভাষায়) লিখুন।<br>② অনুবাদের জন্য \"টেমপ্লেট (স্বয়ংক্রিয় অনুবাদ)\" <b>Google Sheets</b>-এ খুলুন: জাপানি থেকে বাকি ৯টি ভাষা একসাথে নিজে থেকে ভরে যাবে (ইন্টারনেট লাগবে)। যা বদলাতে চান বদলে নিতে পারবেন।<br>③ \"File → Download → Microsoft Excel (.xlsx)\" দিয়ে সেভ করে নিচের বাক্সে দিন।<br>ট্যাবলেটের অনুবাদ বোতামের চেয়ে দ্রুত এবং একসাথে অনেক পার্ট নম্বর বানানো যায়।",
+    xl_pc_note: "① টেমপ্লেট (Excel) ডাউনলোড করে PC-র Excel-এ শুধু পার্ট নম্বর, পরিমাণ ও পয়েন্ট (জাপানি ভাষায়) লিখুন।<br>② নিচের বাক্সে দিন। তালিকা এলে <b>\"🌐 ফাঁকা অনুবাদ নিজে থেকে ভরুন\"</b> চাপুন: জাপানি থেকে বাকি ১০টি ভাষা একসাথে ভরে যাবে (ইন্টারনেট লাগবে, চাপলেই শুধু যুক্ত হয়)।<br>③ বিষয়বস্তু দেখে \"এই ফলাফল অনুযায়ী নিবন্ধন করুন\" চাপুন।<br>ট্যাবলেটে একটি একটি পার্ট নম্বর অনুবাদের চেয়ে দ্রুত এবং একসাথে অনেক পার্ট নম্বর বানানো যায়।<br>※ নিজে লেখা অনুবাদ যেমন আছে তেমনই থাকবে (শুধু ফাঁকাগুলো ভরবে)। Google Sheets দিয়ে অনুবাদ করতে চাইলে \"টেমপ্লেট (স্বয়ংক্রিয় অনুবাদসহ)\" ব্যবহার করা যায়।",
     xl_tpl1: "📄 টেমপ্লেট (Excel) ডাউনলোড",
-    xl_tpl2: "📄 টেমপ্লেট (স্বয়ংক্রিয় অনুবাদসহ) ডাউনলোড"
+    xl_tpl2: "📄 টেমপ্লেট (স্বয়ংক্রিয় অনুবাদসহ) ডাউনলোড",
+    xl_tr_auto: "🌐 ফাঁকা অনুবাদ নিজে থেকে ভরুন (অনলাইনে)",
+    xl_c_tr: "অনুবাদ",
+    xl_tr_done: "অনুবাদ ভরা হয়েছে: {n}টি (ব্যর্থ {f}টি)। নিবন্ধনের আগে দেখে নিন",
+    xl_tr_none: "অনুবাদ করার মতো কিছু নেই (সব ভরা আছে)"
   },
   mn: {
     tab_check: "Шалгах",
@@ -3740,9 +3772,13 @@ var I18N = {
     vid_has: "Энэ эдийн дугаарт видео аль хэдийн байна (сонговол солигдоно)",
     tp_drop_more: "Excel (.xlsx) файл эсвэл видеог мөн энд оруулж болно",
     xl_pc_h: "💻 Эхлээд компьютер дээр хийвэл хурдан бөгөөд хялбар",
-    xl_pc_note: "① Загвар (Excel)-ыг татаж аваад компьютер дээр эдийн дугаар, тоо хэмжээ, цэгүүдийг (япон хэлээр) бич.<br>② Орчуулгын хувьд \"загвар (автомат орчуулга)\"-ыг <b>Google Sheets</b> дээр нээ: япон хэлнээс бусад 9 хэл нэг дор автоматаар бөглөгдөнө (интернэт хэрэгтэй). Засах хэсгээ засаж болно.<br>③ \"File → Download → Microsoft Excel (.xlsx)\"-ээр хадгалаад доорх хүрээнд оруул.<br>Таблетын орчуулах товчноос хурдан, олон эдийн дугаарыг нэг дор хийж болно.",
+    xl_pc_note: "① Загвар (Excel)-ыг татаж аваад компьютерын Excel дээр зөвхөн эдийн дугаар, тоо хэмжээ, цэгүүдийг (япон хэлээр) бич.<br>② Доорх хүрээнд оруул. Жагсаалт гарахад <b>\"🌐 Хоосон орчуулгыг автоматаар бөглөх\"</b>-ыг дар: япон хэлнээс бусад 10 хэл нэг дор бөглөгдөнө (интернэт хэрэгтэй, дарахад л холбогдоно).<br>③ Агуулгыг шалгаад \"Эдгээр үр дүнгээр бүртгэх\"-ийг дар.<br>Таблет дээр эдийн дугаар бүрийг тус тусад нь орчуулахаас хурдан бөгөөд олон эдийн дугаарыг нэг дор хийж болно.<br>※ Өөрийн бичсэн орчуулга хэвээр үлдэнэ (зөвхөн хоосныг бөглөнө). Google Sheets-ээр орчуулах бол \"загвар (автомат орчуулгатай)\"-г ашиглаж болно.",
     xl_tpl1: "📄 Загвар (Excel) татах",
-    xl_tpl2: "📄 Загвар (автомат орчуулгатай) татах"
+    xl_tpl2: "📄 Загвар (автомат орчуулгатай) татах",
+    xl_tr_auto: "🌐 Хоосон орчуулгыг автоматаар бөглөх (онлайн)",
+    xl_c_tr: "Орчуулга",
+    xl_tr_done: "Орчуулга бөглөгдлөө: {n} (амжилтгүй {f}). Бүртгэхээсээ өмнө шалгаарай",
+    xl_tr_none: "Орчуулах зүйл алга (бүгд бөглөгдсөн)"
   },
   pt: {
     tab_check: "Verificar",
@@ -4079,9 +4115,13 @@ var I18N = {
     vid_has: "Este código de peça já tem um vídeo (escolher substitui)",
     tp_drop_more: "Você também pode soltar aqui um arquivo Excel (.xlsx) ou um vídeo",
     xl_pc_h: "💻 Fazer primeiro no PC é mais rápido e fácil",
-    xl_pc_note: "① Baixe o modelo (Excel) e preencha no PC o código da peça, a quantidade e os pontos (em japonês).<br>② Para a tradução, abra o \"modelo (tradução automática)\" no <b>Google Planilhas</b>: os outros 9 idiomas são preenchidos de uma vez a partir do japonês (precisa de internet). Você pode corrigir o que quiser.<br>③ Salve com \"Arquivo → Fazer download → Microsoft Excel (.xlsx)\" e coloque na caixa abaixo.<br>É mais rápido que o botão de tradução do tablet e faz muitos códigos de uma vez.",
+    xl_pc_note: "① Baixe o modelo (Excel) e, no Excel do PC, preencha apenas o código da peça, a quantidade e os pontos (em japonês).<br>② Coloque na caixa abaixo. Quando a lista aparecer, toque em <b>\"🌐 Preencher traduções vazias automaticamente\"</b>: os outros 10 idiomas são preenchidos de uma vez a partir do japonês (precisa de internet; só conecta quando você toca).<br>③ Confira o conteúdo e toque em \"Cadastrar com estes resultados\".<br>É mais rápido que traduzir um código por vez no tablet e faz muitos códigos de uma vez.<br>※ As traduções que você escreveu são mantidas (só as vazias são preenchidas). Para traduzir com o Google Planilhas, use o \"modelo (tradução automática)\".",
     xl_tpl1: "📄 Baixar o modelo (Excel)",
-    xl_tpl2: "📄 Baixar o modelo (com tradução automática)"
+    xl_tpl2: "📄 Baixar o modelo (com tradução automática)",
+    xl_tr_auto: "🌐 Preencher traduções vazias automaticamente (online)",
+    xl_c_tr: "Traduções",
+    xl_tr_done: "Traduções preenchidas: {n} (falhas: {f}). Confira antes de cadastrar",
+    xl_tr_none: "Nada a traduzir (tudo já está preenchido)"
   },
   si: {
     tab_check: "පරීක්ෂා කිරීම",
@@ -4418,9 +4458,13 @@ var I18N = {
     vid_has: "මෙම කොටස් අංකයට දැනටමත් වීඩියෝවක් ඇත (තෝරා ගත්විට මාරු වේ)",
     tp_drop_more: "Excel (.xlsx) ගොනු හෝ වීඩියෝද මෙතැනට දැමිය හැක",
     xl_pc_h: "💻 මුලින් PC එකේ සෑදුවොත් වේගවත් සහ පහසුයි",
-    xl_pc_note: "① ආකෘතිය (Excel) බාගෙන PC එකේ කොටස් අංකය, ප්‍රමාණය සහ ලකුණු (ජපන් භාෂාවෙන්) ඇතුළත් කරන්න.<br>② පරිවර්තනය සඳහා \"ආකෘතිය (ස්වයංක්‍රීය පරිවර්තන)\" <b>Google Sheets</b> හි විවෘත කරන්න: ජපන් භාෂාවෙන් අනෙක් භාෂා 9 එකවර ස්වයංක්‍රීයව පිරේ (අන්තර්ජාලය අවශ්‍යයි). වෙනස් කිරීමට අවශ්‍ය දේ වෙනස් කළ හැක.<br>③ \"File → Download → Microsoft Excel (.xlsx)\" මගින් සුරකින්න, පහත කොටුවට දමන්න.<br>ටැබ්ලටයේ පරිවර්තන බොත්තමට වඩා වේගවත් වන අතර කොටස් අංක රාශියක් එකවර සෑදිය හැක.",
+    xl_pc_note: "① ආකෘතිය (Excel) බාගෙන PC එකේ Excel හි කොටස් අංකය, ප්‍රමාණය සහ ලකුණු (ජපන් භාෂාවෙන්) පමණක් ඇතුළත් කරන්න.<br>② පහත කොටුවට දමන්න. ලැයිස්තුව පෙනුණු විට <b>\"🌐 හිස් පරිවර්තන ස්වයංක්‍රීයව පුරවන්න\"</b> ඔබන්න: ජපන් භාෂාවෙන් අනෙක් භාෂා 10 එකවර පිරේ (අන්තර්ජාලය අවශ්‍යයි, ඔබන විට පමණක් සම්බන්ධ වේ).<br>③ අන්තර්ගතය පරීක්ෂා කර \"මෙම ප්‍රතිඵල අනුව ලියාපදිංචි කරන්න\" ඔබන්න.<br>ටැබ්ලටයේ කොටස් අංක එකින් එක පරිවර්තනය කිරීමට වඩා වේගවත් වන අතර කොටස් අංක රාශියක් එකවර සෑදිය හැක.<br>※ ඔබ ලියූ පරිවර්තන එලෙසම පවතී (හිස් ඒවා පමණක් පිරේ). Google Sheets මගින් පරිවර්තනය කිරීමට \"ආකෘතිය (ස්වයංක්‍රීය පරිවර්තන සහිත)\" භාවිත කළ හැක.",
     xl_tpl1: "📄 ආකෘතිය (Excel) බාගන්න",
-    xl_tpl2: "📄 ආකෘතිය (ස්වයංක්‍රීය පරිවර්තන සහිත) බාගන්න"
+    xl_tpl2: "📄 ආකෘතිය (ස්වයංක්‍රීය පරිවර්තන සහිත) බාගන්න",
+    xl_tr_auto: "🌐 හිස් පරිවර්තන ස්වයංක්‍රීයව පුරවන්න (අන්තර්ජාලය ඇති විට)",
+    xl_c_tr: "පරිවර්තන",
+    xl_tr_done: "පරිවර්තන පුරවා ඇත: {n} (අසාර්ථක {f}). ලියාපදිංචි කිරීමට පෙර පරීක්ෂා කරන්න",
+    xl_tr_none: "පරිවර්තනය කිරීමට දෙයක් නැත (සියල්ල පිරී ඇත)"
   }
 };
 var LANG = 'ja';
@@ -5306,14 +5350,36 @@ function xlShow() {
   var rows = XL.rows, a = 0, u = 0, e = 0, np = 0;
   rows.forEach(function (r) { if (r.err) e++; else { if (r.over) u++; else a++; if (r.warn) np++; } });
   $('xlSum').innerHTML = esc(t('xl_sum', { n: rows.length, a: a, u: u, e: e })) + (np ? '<br><span style="color:var(--red)">' + esc(t('xl_sum_np', { n: np })) + '</span>' : '');
-  $('xlTbl').innerHTML = '<tr><th>' + esc(t('xl_c_row')) + '</th><th>' + esc(t('tp_pn')) + '</th><th>' + esc(t('tp_qty')) + '</th><th>' + esc(t('tp_pts')) + '</th><th>' + esc(t('xl_c_photo')) + '</th><th>' + esc(t('xl_c_state')) + '</th></tr>' +
+  $('xlTbl').innerHTML = '<tr><th>' + esc(t('xl_c_row')) + '</th><th>' + esc(t('tp_pn')) + '</th><th>' + esc(t('tp_qty')) + '</th><th>' + esc(t('tp_pts')) + '</th><th>' + esc(t('xl_c_photo')) + '</th><th>' + esc(t('xl_c_tr')) + '</th><th>' + esc(t('xl_c_state')) + '</th></tr>' +
     rows.map(function (r) {
       var st = r.err ? '<span style="color:var(--red);font-weight:900">✕ ' + esc(t(r.err)) + '</span>' : (r.over ? esc(t('xl_s_over')) : esc(t('xl_s_new'))) + (r.warn ? ' <span style="color:var(--red)">⚠ ' + esc(t(r.warn)) + '</span>' : '');
-      return '<tr><td>' + r.line + '</td><td class="mono">' + esc(r.pn) + '</td><td>' + esc(r.qty) + '</td><td>' + r.pts.length + '</td><td>' + r.urls.length + '</td><td>' + st + '</td></tr>';
+      return '<tr><td>' + r.line + '</td><td class="mono">' + esc(r.pn) + '</td><td>' + esc(r.qty) + '</td><td>' + r.pts.length + '</td><td>' + r.urls.length + '</td><td>' + TRL.filter(function (l) { return String(r.tr[l] || '').trim(); }).length + ' / ' + TRL.length + '</td><td>' + st + '</td></tr>';
     }).join('');
   $('xlGo').disabled = a + u === 0;
   $('xlBox').style.display = 'grid';
 }
+/** 一覧で、翻訳が空の所だけ、日本語のポイントから自動で入れる（オンラインのとき・押したときだけ通信）。同じ行のポイントは1回でまとめて翻訳し、行数がずれたら1行ずつにやり直す */
+$('xlTrAuto').onclick = async function () {
+  if (!XL) return; var msg = $('xlMsg'), btn = this;
+  if (!navigator.onLine) { msg.innerHTML = '<span style="color:var(--ng);font-weight:800">⚠ ' + esc(t('tp_tr_offline')) + '</span>'; return; }
+  var jobs = [];
+  XL.rows.forEach(function (r) { if (!r.err) TRL.forEach(function (l) { if (!String(r.tr[l] || '').trim()) jobs.push([r, l]); }); });
+  if (!jobs.length) { msg.textContent = t('xl_tr_none'); return; }
+  var n = jobs.length, i = 0, ok = 0, fail = 0; btn.disabled = true;
+  var worker = async function () {
+    while (jobs.length) {
+      var jb = jobs.shift(), r = jb[0], l = jb[1]; msg.textContent = t('tp_tr_busy', { i: Math.min(++i, n), n: n });
+      try {
+        var all = r.pts.join('\n'), out = null;
+        if (all.length <= 400) { var one = (await trOne(all, l)).split(/\r?\n/).map(function (x) { return x.trim(); }).filter(Boolean); if (one.length === r.pts.length) out = one; }
+        if (!out) { out = []; for (var k = 0; k < r.pts.length; k++) out.push(await trOne(r.pts[k], l)); }
+        r.tr[l] = out.join('\n'); ok++;
+      } catch (e) { fail++; }
+    }
+  };
+  try { await Promise.all([1, 2, 3, 4, 5, 6].map(worker)); } finally { btn.disabled = false; }
+  xlShow(); msg.innerHTML = '<span style="color:' + (fail ? 'var(--ng)' : 'var(--ok)') + ';font-weight:900">' + esc(t('xl_tr_done', { n: ok, f: fail })) + '</span>';
+};
 function xlHide() { XL = null; $('xlBox').style.display = 'none'; $('xlSum').textContent = ''; }
 $('xlPick').onclick = function () { $('xlIn').value = ''; $('xlIn').click(); };
 $('xlDrop').onclick = $('xlPick').onclick;

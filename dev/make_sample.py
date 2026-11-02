@@ -1,7 +1,7 @@
 """PCでポイント表をつくる用のExcelひな形を作る（sample/ に出力）。
   ① ポイント表一覧_ひな形.xlsx … 品番・収容数・ポイント＋10言語の翻訳（入力例つき）
   ② ポイント表一覧_ひな形（自動翻訳）.xlsx … ①と同じ列。翻訳の列に GOOGLETRANSLATE の式が入っている。
-     Googleスプレッドシートに取り込むと、日本語のポイントから9言語が自動で入る（そのままダウンロードして .xlsx にすると、訳した結果が残る）
+     Googleスプレッドシートに取り込むと、日本語のポイントから10言語が自動で入る（そのままダウンロードして .xlsx にすると、訳した結果が残る）
 使い方: cd dev && python3 make_sample.py   （openpyxl が必要）"""
 import openpyxl
 from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
