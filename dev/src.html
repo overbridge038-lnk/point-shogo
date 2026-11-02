@@ -233,6 +233,7 @@ label.f{display:flex;flex-direction:column;gap:6px;font-size:14px;font-weight:80
 .gdSheet th{background:#e8e8e8;font-weight:400;color:#555;font-size:12px}
 .gdSheet td.rn{background:#e8e8e8;text-align:center;color:#555;width:28px}
 .gdSheet td.h{background:#4c2a9e;color:#fff;font-weight:700;text-align:center}
+.gdSheet td.h.ph{background:#e11d48}
 .gdSheet td.ja{background:#fff3c4;white-space:normal} .gdSheet td.tr{background:#ede7fb;font-size:11px}
 .gdSheet tr.r td{height:78px;vertical-align:top;position:relative}
 .gdSheet tr.r td.pc{padding:4px}
@@ -681,11 +682,12 @@ html[lang=my],html[lang=ne],html[lang=bn],html[lang=si]{line-height:1.5} /* ミ�
       <p class="note" style="margin:0 0 6px" data-i18n-html="gd_sub"></p>
       <div style="overflow-x:auto"><div class="gdSheet"><div class="bar">ポイント表一覧.xlsx</div>
         <table>
-          <colgroup><col style="width:28px"><col style="width:100px"><col style="width:52px"><col style="width:150px"><col style="width:100px"><col style="width:100px"><col style="width:46px"><col style="width:100px"><col><col><col><col></colgroup>
-          <tr><th></th><th>A</th><th>B</th><th>C</th><th>D</th><th>E</th><th>…</th><th>M</th><th>N</th><th>O</th><th>P</th><th>Q</th></tr>
-          <tr><td class="rn">1</td><td class="h">品番</td><td class="h">収容数</td><td class="h">ポイント</td><td class="h">英語</td><td class="h">ベトナム語</td><td class="h">…</td><td class="h">シンハラ語</td><td colspan="4" style="padding:2px"><div class="gdCall" data-i18n-html="gd_call"></div></td></tr>
-          <tr class="r"><td class="rn">2</td><td>12345-67890</td><td>20</td><td class="ja">向きを確認する<br>キズ・打痕がないこと</td><td class="tr">Check the direction…</td><td class="tr">Kiểm tra chiều…</td><td class="tr">…</td><td class="tr">දිශාව පරීක්ෂා…</td><td class="pc"><div class="gdPh c">①</div></td><td class="pc"><div class="gdPh">②</div></td><td class="pc"><div class="gdPh">③</div></td><td class="pc"><div class="gdPh">④</div></td></tr>
-          <tr class="r"><td class="rn">3</td><td>55555-66666</td><td>10</td><td class="ja">刻印を確認する</td><td class="tr">Check the stamp</td><td class="tr">Kiểm tra dấu khắc</td><td class="tr">…</td><td class="tr">සලකුණ පරීක්ෂා…</td><td class="pc"><div class="gdPh c">①</div></td><td class="pc"><div class="gdPh">②</div></td><td></td><td></td></tr>
+          <colgroup><col style="width:28px"><col style="width:100px"><col style="width:52px"><col style="width:150px"><col><col><col><col><col style="width:110px"><col style="width:110px"><col style="width:50px"></colgroup>
+          <tr><th></th><th>A</th><th>B</th><th>C</th><th>D</th><th>E</th><th>F</th><th>G</th><th>H</th><th>I</th><th>…</th></tr>
+          <tr><td class="rn">1</td><td colspan="10" style="padding:3px;background:#fff9db"><div class="gdCall" data-i18n-html="gd_call"></div></td></tr>
+          <tr><td class="rn">2</td><td class="h">品番</td><td class="h">収容数</td><td class="h">ポイント</td><td class="h ph">📷 ①</td><td class="h ph">📷 ②</td><td class="h ph">📷 ③</td><td class="h ph">📷 ④</td><td class="h">英語</td><td class="h">ベトナム語</td><td class="h">…</td></tr>
+          <tr class="r"><td class="rn">3</td><td>12345-67890</td><td>20</td><td class="ja">向きを確認する<br>キズ・打痕がないこと</td><td class="pc"><div class="gdPh c">①</div></td><td class="pc"><div class="gdPh">②</div></td><td class="pc"><div class="gdPh">③</div></td><td class="pc"><div class="gdPh">④</div></td><td class="tr">Check the direction…</td><td class="tr">Kiểm tra chiều…</td><td class="tr">…</td></tr>
+          <tr class="r"><td class="rn">4</td><td>55555-66666</td><td>10</td><td class="ja">刻印を確認する</td><td class="pc"><div class="gdPh c">①</div></td><td class="pc"><div class="gdPh">②</div></td><td></td><td></td><td class="tr">Check the stamp</td><td class="tr">Kiểm tra dấu khắc</td><td class="tr">…</td></tr>
         </table></div></div>
       <div class="gdSteps"><div class="gdSt"><i>1</i><span data-i18n-html="gd_s1"></span></div><div class="gdSt"><i>2</i><span data-i18n-html="gd_s2"></span></div><div class="gdSt"><i>3</i><span data-i18n-html="gd_s3"></span></div></div>
     </div>
@@ -1114,9 +1116,9 @@ var I18N = {
     gd_dl: "📥 ひな形をダウンロードしました。写真の貼りかたは、こちらです",
     gd_h: "写真の貼りかた（ひな形のExcel）",
     gd_sub: "写真は「その品番の行」に貼ります。<b>写真の左上の角</b>が、その行のセルの中にあれば、その行の写真になります（4枚まで・左から順に ① ② ③ ④）。",
-    gd_call: "📷 写真は <b>N列〜Q列</b> に、その品番の行に合わせて貼ります",
+    gd_call: "📷 写真は <b>D列〜G列</b> に、その品番の行に合わせて貼ります",
     gd_s1: "Excelの <span class=\"kb\">挿入</span> → <span class=\"kb\">画像</span> → 「このデバイス」で、写真を選びます。",
-    gd_s2: "写真をドラッグして、<b>左上の角</b>を、その品番の行のセル（N列〜）に置きます。写真は<b>小さくしてOK</b>（元の大きさで読み込みます）。",
+    gd_s2: "写真をドラッグして、<b>左上の角</b>を、その品番の行のセル（D列〜）に置きます。写真は<b>小さくしてOK</b>（元の大きさで読み込みます）。",
     gd_s3: "1行に4枚まで。<b>左にある写真から ① ② ③ ④</b> の順になります。次の品番は、次の行に貼ります。"
   },
   id: {
@@ -1481,9 +1483,9 @@ var I18N = {
     gd_dl: "📥 Templat sudah diunduh. Ini cara menempel foto",
     gd_h: "Cara menempel foto (Excel templat)",
     gd_sub: "Tempel foto di baris nomor part tersebut. Jika <b>sudut kiri atas foto</b> berada di dalam sel baris itu, foto itu menjadi foto baris tersebut (maksimal 4, urut dari kiri: ① ② ③ ④).",
-    gd_call: "📷 Tempel foto di <b>kolom N–Q</b>, sejajar dengan baris nomor part",
+    gd_call: "📷 Tempel foto di <b>kolom D–G</b>, sejajar dengan baris nomor part",
     gd_s1: "Di Excel: <span class=\"kb\">Insert（挿入）</span> → <span class=\"kb\">Pictures（画像）</span> → \"This Device\", lalu pilih foto.",
-    gd_s2: "Seret foto sehingga <b>sudut kiri atasnya</b> berada di sel baris nomor part itu (mulai kolom N). Foto boleh <b>dikecilkan</b> (yang diimpor adalah ukuran aslinya).",
+    gd_s2: "Seret foto sehingga <b>sudut kiri atasnya</b> berada di sel baris nomor part itu (mulai kolom D). Foto boleh <b>dikecilkan</b> (yang diimpor adalah ukuran aslinya).",
     gd_s3: "Maksimal 4 per baris. Dipakai berurutan <b>dari foto paling kiri: ① ② ③ ④</b>. Nomor part berikutnya ditempel di baris berikutnya."
   },
   tl: {
@@ -1848,9 +1850,9 @@ var I18N = {
     gd_dl: "📥 Na-download na ang template. Ganito mag-paste ng litrato",
     gd_h: "Paano mag-paste ng litrato (template Excel)",
     gd_sub: "I-paste ang litrato sa row ng part number na iyon. Kapag ang <b>kaliwang-itaas na sulok ng litrato</b> ay nasa loob ng cell ng row na iyon, iyon ang litrato ng row (hanggang 4, ayon sa ayos mula kaliwa: ① ② ③ ④).",
-    gd_call: "📷 I-paste ang litrato sa <b>column N–Q</b>, kapantay ng row ng part number",
+    gd_call: "📷 I-paste ang litrato sa <b>column D–G</b>, kapantay ng row ng part number",
     gd_s1: "Sa Excel: <span class=\"kb\">Insert（挿入）</span> → <span class=\"kb\">Pictures（画像）</span> → \"This Device\", at piliin ang litrato.",
-    gd_s2: "I-drag ang litrato para ang <b>kaliwang-itaas na sulok</b> nito ay nasa cell ng row ng part number (mula column N). Puwedeng <b>paliitin ang litrato</b> (orihinal na laki ang ii-import).",
+    gd_s2: "I-drag ang litrato para ang <b>kaliwang-itaas na sulok</b> nito ay nasa cell ng row ng part number (mula column D). Puwedeng <b>paliitin ang litrato</b> (orihinal na laki ang ii-import).",
     gd_s3: "Hanggang 4 bawat row. Gagamitin ayon sa ayos <b>mula sa pinakakaliwang litrato: ① ② ③ ④</b>. I-paste ang susunod na part number sa susunod na row."
   },
   en: {
@@ -2215,9 +2217,9 @@ var I18N = {
     gd_dl: "📥 The template was downloaded. Here is how to paste photos",
     gd_h: "How to paste photos (template Excel)",
     gd_sub: "Paste photos in the row of that part number. If the <b>top-left corner of a photo</b> is inside a cell of that row, it becomes that row's photo (up to 4, in order from the left: ① ② ③ ④).",
-    gd_call: "📷 Paste photos in <b>columns N–Q</b>, lined up with the row of the part number",
+    gd_call: "📷 Paste photos in <b>columns D–G</b>, lined up with the row of the part number",
     gd_s1: "In Excel: <span class=\"kb\">Insert</span> → <span class=\"kb\">Pictures</span> → \"This Device\", and choose the photo.",
-    gd_s2: "Drag the photo so that its <b>top-left corner</b> is in a cell of that part number's row (column N onward). The photo can be <b>made small</b> (the original size is what gets imported).",
+    gd_s2: "Drag the photo so that its <b>top-left corner</b> is in a cell of that part number's row (column D onward). The photo can be <b>made small</b> (the original size is what gets imported).",
     gd_s3: "Up to 4 per row. They are used in order, <b>from the leftmost photo: ① ② ③ ④</b>. Paste the next part number's photos in the next row."
   },
   vi: {
@@ -2582,9 +2584,9 @@ var I18N = {
     gd_dl: "📥 Đã tải mẫu về. Cách dán ảnh như sau",
     gd_h: "Cách dán ảnh (Excel mẫu)",
     gd_sub: "Dán ảnh vào dòng của mã hàng đó. Nếu <b>góc trên bên trái của ảnh</b> nằm trong một ô của dòng đó, ảnh sẽ thuộc dòng đó (tối đa 4 ảnh, theo thứ tự từ trái: ① ② ③ ④).",
-    gd_call: "📷 Dán ảnh vào <b>cột N–Q</b>, khớp với dòng của mã hàng",
+    gd_call: "📷 Dán ảnh vào <b>cột D–G</b>, khớp với dòng của mã hàng",
     gd_s1: "Trong Excel: <span class=\"kb\">Insert（挿入）</span> → <span class=\"kb\">Pictures（画像）</span> → \"This Device\", rồi chọn ảnh.",
-    gd_s2: "Kéo ảnh sao cho <b>góc trên bên trái</b> nằm trong ô của dòng mã hàng đó (từ cột N). Có thể <b>thu nhỏ ảnh</b> (ảnh được nhập theo kích thước gốc).",
+    gd_s2: "Kéo ảnh sao cho <b>góc trên bên trái</b> nằm trong ô của dòng mã hàng đó (từ cột D). Có thể <b>thu nhỏ ảnh</b> (ảnh được nhập theo kích thước gốc).",
     gd_s3: "Tối đa 4 ảnh mỗi dòng. Dùng theo thứ tự <b>từ ảnh bên trái: ① ② ③ ④</b>. Mã hàng tiếp theo thì dán ở dòng tiếp theo."
   },
   my: {
@@ -2949,9 +2951,9 @@ var I18N = {
     gd_dl: "📥 ပုံစံကို ဒေါင်းလုဒ်လုပ်ပြီးပါပြီ။ ဓာတ်ပုံကပ်ပုံ ဤသို့ဖြစ်သည်",
     gd_h: "ဓာတ်ပုံ ကပ်နည်း (ပုံစံ Excel)",
     gd_sub: "ဓာတ်ပုံကို ထိုပစ္စည်းနံပါတ်၏ တန်းတွင် ကပ်ပါ။ <b>ဓာတ်ပုံ၏ ဘယ်ဘက်အပေါ်ထောင့်</b> သည် ထိုတန်း၏ ဆဲလ်ထဲတွင် ရှိလျှင် ထိုတန်း၏ ဓာတ်ပုံဖြစ်သည် (အများဆုံး ၄ ပုံ၊ ဘယ်မှစ၍ ① ② ③ ④)။",
-    gd_call: "📷 ဓာတ်ပုံကို <b>N မှ Q ကော်လံ</b> တွင် ပစ္စည်းနံပါတ်၏ တန်းနှင့် ကိုက်အောင် ကပ်ပါ",
+    gd_call: "📷 ဓာတ်ပုံကို <b>D မှ G ကော်လံ</b> တွင် ပစ္စည်းနံပါတ်၏ တန်းနှင့် ကိုက်အောင် ကပ်ပါ",
     gd_s1: "Excel တွင် <span class=\"kb\">Insert（挿入）</span> → <span class=\"kb\">Pictures（画像）</span> → \"This Device\" ဖြင့် ဓာတ်ပုံကို ရွေးပါ။",
-    gd_s2: "ဓာတ်ပုံကို ဆွဲပြီး <b>ဘယ်ဘက်အပေါ်ထောင့်</b> ကို ထိုပစ္စည်းနံပါတ်၏ တန်းရှိ ဆဲလ်ထဲ (N ကော်လံမှ) ထားပါ။ ဓာတ်ပုံကို <b>သေးအောင်လုပ်နိုင်သည်</b> (မူလအရွယ်အစားဖြင့် ထည့်သွင်းသည်)။",
+    gd_s2: "ဓာတ်ပုံကို ဆွဲပြီး <b>ဘယ်ဘက်အပေါ်ထောင့်</b> ကို ထိုပစ္စည်းနံပါတ်၏ တန်းရှိ ဆဲလ်ထဲ (D ကော်လံမှ) ထားပါ။ ဓာတ်ပုံကို <b>သေးအောင်လုပ်နိုင်သည်</b> (မူလအရွယ်အစားဖြင့် ထည့်သွင်းသည်)။",
     gd_s3: "တစ်တန်းလျှင် အများဆုံး ၄ ပုံ။ <b>ဘယ်ဘက်ဆုံးပုံမှစ၍ ① ② ③ ④</b> အစဉ်အတိုင်း သုံးသည်။ နောက်ပစ္စည်းနံပါတ်ကို နောက်တန်းတွင် ကပ်ပါ။"
   },
   ne: {
@@ -3316,9 +3318,9 @@ var I18N = {
     gd_dl: "📥 नमूना डाउनलोड भयो। फोटो टाँस्ने तरिका यस्तो छ",
     gd_h: "फोटो टाँस्ने तरिका (नमूना Excel)",
     gd_sub: "फोटो त्यो पार्ट नम्बरको लाइनमा टाँस्नुहोस्। <b>फोटोको माथिल्लो-देब्रे कुना</b> त्यो लाइनको सेल भित्र परेमा त्यही लाइनको फोटो हुन्छ (४ सम्म, देब्रेबाट क्रमशः ① ② ③ ④)।",
-    gd_call: "📷 फोटो <b>N देखि Q स्तम्भ</b> मा, पार्ट नम्बरको लाइनसँग मिलाएर टाँस्नुहोस्",
+    gd_call: "📷 फोटो <b>D देखि G स्तम्भ</b> मा, पार्ट नम्बरको लाइनसँग मिलाएर टाँस्नुहोस्",
     gd_s1: "Excel मा: <span class=\"kb\">Insert（挿入）</span> → <span class=\"kb\">Pictures（画像）</span> → \"This Device\" बाट फोटो छान्नुहोस्।",
-    gd_s2: "फोटो तानेर <b>माथिल्लो-देब्रे कुना</b> त्यो पार्ट नम्बरको लाइनको सेल (N स्तम्भदेखि) भित्र राख्नुहोस्। फोटो <b>सानो बनाए पनि हुन्छ</b> (मूल आकारमै आयात हुन्छ)।",
+    gd_s2: "फोटो तानेर <b>माथिल्लो-देब्रे कुना</b> त्यो पार्ट नम्बरको लाइनको सेल (D स्तम्भदेखि) भित्र राख्नुहोस्। फोटो <b>सानो बनाए पनि हुन्छ</b> (मूल आकारमै आयात हुन्छ)।",
     gd_s3: "एक लाइनमा ४ सम्म। <b>सबैभन्दा देब्रेको फोटोबाट ① ② ③ ④</b> क्रममा प्रयोग हुन्छ। अर्को पार्ट नम्बरको फोटो अर्को लाइनमा टाँस्नुहोस्।"
   },
   bn: {
@@ -3683,9 +3685,9 @@ var I18N = {
     gd_dl: "📥 টেমপ্লেট ডাউনলোড হয়েছে। ছবি বসানোর নিয়ম এই রকম",
     gd_h: "ছবি বসানোর নিয়ম (টেমপ্লেট Excel)",
     gd_sub: "ছবি ওই পার্ট নম্বরের সারিতে বসান। <b>ছবির উপরের-বাম কোণ</b> ওই সারির কোনো ঘরের ভেতরে থাকলে সেটি ওই সারির ছবি হবে (সর্বোচ্চ ৪টি, বাঁ থেকে ক্রমে ① ② ③ ④)।",
-    gd_call: "📷 ছবি <b>N থেকে Q কলামে</b>, পার্ট নম্বরের সারির সাথে মিলিয়ে বসান",
+    gd_call: "📷 ছবি <b>D থেকে G কলামে</b>, পার্ট নম্বরের সারির সাথে মিলিয়ে বসান",
     gd_s1: "Excel-এ: <span class=\"kb\">Insert（挿入）</span> → <span class=\"kb\">Pictures（画像）</span> → \"This Device\" থেকে ছবি বাছুন।",
-    gd_s2: "ছবি টেনে এমনভাবে রাখুন যেন এর <b>উপরের-বাম কোণ</b> ওই পার্ট নম্বরের সারির ঘরে (N কলাম থেকে) থাকে। ছবি <b>ছোট করলেও চলবে</b> (মূল আকারেই ইমপোর্ট হয়)।",
+    gd_s2: "ছবি টেনে এমনভাবে রাখুন যেন এর <b>উপরের-বাম কোণ</b> ওই পার্ট নম্বরের সারির ঘরে (D কলাম থেকে) থাকে। ছবি <b>ছোট করলেও চলবে</b> (মূল আকারেই ইমপোর্ট হয়)।",
     gd_s3: "প্রতি সারিতে সর্বোচ্চ ৪টি। <b>সবচেয়ে বাঁ দিকের ছবি থেকে ① ② ③ ④</b> ক্রমে ব্যবহার হয়। পরের পার্ট নম্বরের ছবি পরের সারিতে বসান।"
   },
   mn: {
@@ -4050,9 +4052,9 @@ var I18N = {
     gd_dl: "📥 Загварыг татлаа. Зураг наах арга энэ байна",
     gd_h: "Зураг наах арга (загвар Excel)",
     gd_sub: "Зургийг тухайн эдийн дугаарын мөрөнд наана. <b>Зургийн зүүн дээд өнцөг</b> тэр мөрийн нүдэн дотор байвал тэр мөрийн зураг болно (дээд тал нь 4, зүүнээс дарааллаар ① ② ③ ④).",
-    gd_call: "📷 Зургийг <b>N–Q баганад</b>, эдийн дугаарын мөртэй тааруулж наана",
+    gd_call: "📷 Зургийг <b>D–G баганад</b>, эдийн дугаарын мөртэй тааруулж наана",
     gd_s1: "Excel дээр: <span class=\"kb\">Insert（挿入）</span> → <span class=\"kb\">Pictures（画像）</span> → \"This Device\"-ээр зургаа сонго.",
-    gd_s2: "Зургийн <b>зүүн дээд өнцөг</b> тухайн эдийн дугаарын мөрийн нүдэнд (N баганаас) орохоор чирж тавь. Зургийг <b>жижигрүүлж болно</b> (анхны хэмжээгээр нь оруулна).",
+    gd_s2: "Зургийн <b>зүүн дээд өнцөг</b> тухайн эдийн дугаарын мөрийн нүдэнд (D баганаас) орохоор чирж тавь. Зургийг <b>жижигрүүлж болно</b> (анхны хэмжээгээр нь оруулна).",
     gd_s3: "Нэг мөрөнд дээд тал нь 4. <b>Хамгийн зүүн талын зургаас ① ② ③ ④</b> дарааллаар ашиглана. Дараагийн эдийн дугаарын зургийг дараагийн мөрөнд наана."
   },
   pt: {
@@ -4417,9 +4419,9 @@ var I18N = {
     gd_dl: "📥 O modelo foi baixado. Veja como colar as fotos",
     gd_h: "Como colar fotos (Excel modelo)",
     gd_sub: "Cole as fotos na linha do código da peça. Se o <b>canto superior esquerdo da foto</b> estiver dentro de uma célula dessa linha, ela vira a foto dessa linha (até 4, em ordem da esquerda: ① ② ③ ④).",
-    gd_call: "📷 Cole as fotos nas <b>colunas N–Q</b>, alinhadas com a linha do código da peça",
+    gd_call: "📷 Cole as fotos nas <b>colunas D–G</b>, alinhadas com a linha do código da peça",
     gd_s1: "No Excel: <span class=\"kb\">Inserir（挿入）</span> → <span class=\"kb\">Imagens（画像）</span> → \"Este dispositivo\" e escolha a foto.",
-    gd_s2: "Arraste a foto para que o <b>canto superior esquerdo</b> fique numa célula da linha desse código (a partir da coluna N). A foto pode ficar <b>pequena</b> (o que é importado é o tamanho original).",
+    gd_s2: "Arraste a foto para que o <b>canto superior esquerdo</b> fique numa célula da linha desse código (a partir da coluna D). A foto pode ficar <b>pequena</b> (o que é importado é o tamanho original).",
     gd_s3: "Até 4 por linha. São usadas em ordem, <b>da foto mais à esquerda: ① ② ③ ④</b>. As fotos do próximo código vão na próxima linha."
   },
   si: {
@@ -4784,9 +4786,9 @@ var I18N = {
     gd_dl: "📥 ආකෘතිය බාගත කළා. ඡායාරූප අලවන ආකාරය මෙයයි",
     gd_h: "ඡායාරූප අලවන ආකාරය (ආකෘති Excel)",
     gd_sub: "ඡායාරූපය එම කොටස් අංකයේ පේළියේ අලවන්න. <b>ඡායාරූපයේ ඉහළ-වම් කොන</b> එම පේළියේ කොටුවක් තුළ තිබුණොත් එය එම පේළියේ ඡායාරූපය වේ (උපරිම 4, වමේ සිට පිළිවෙළට ① ② ③ ④).",
-    gd_call: "📷 ඡායාරූප <b>N–Q තීරුවල</b>, කොටස් අංකයේ පේළියට ගැළපෙන සේ අලවන්න",
+    gd_call: "📷 ඡායාරූප <b>D–G තීරුවල</b>, කොටස් අංකයේ පේළියට ගැළපෙන සේ අලවන්න",
     gd_s1: "Excel හි: <span class=\"kb\">Insert（挿入）</span> → <span class=\"kb\">Pictures（画像）</span> → \"This Device\" මගින් ඡායාරූපය තෝරන්න.",
-    gd_s2: "ඡායාරූපය ඇද එහි <b>ඉහළ-වම් කොන</b> එම කොටස් අංකයේ පේළියේ කොටුව තුළ (N තීරුවේ සිට) තබන්න. ඡායාරූපය <b>කුඩා කළත් කමක් නැත</b> (මුල් ප්‍රමාණයෙන්ම ආනයනය වේ).",
+    gd_s2: "ඡායාරූපය ඇද එහි <b>ඉහළ-වම් කොන</b> එම කොටස් අංකයේ පේළියේ කොටුව තුළ (D තීරුවේ සිට) තබන්න. ඡායාරූපය <b>කුඩා කළත් කමක් නැත</b> (මුල් ප්‍රමාණයෙන්ම ආනයනය වේ).",
     gd_s3: "පේළියකට උපරිම 4. <b>වමේම ඡායාරූපයෙන් ① ② ③ ④</b> පිළිවෙළට භාවිත වේ. ඊළඟ කොටස් අංකයේ ඡායාරූප ඊළඟ පේළියේ අලවන්න."
   }
 };
