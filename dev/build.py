@@ -18,6 +18,8 @@ ver = 'ver.' + datetime.datetime.now(datetime.timezone(datetime.timedelta(hours=
 h = h.replace('@@VERSION@@', ver)
 h = h.replace('@@PDFJS@@', base64.b64encode((P / 'pdf.min.mjs').read_bytes()).decode())
 h = h.replace('@@WORKER@@', base64.b64encode((P / 'pdf.worker.min.mjs').read_bytes()).decode())
+h = h.replace('@@TPL1@@', base64.b64encode((d / 'sample/ポイント表一覧_ひな形.xlsx').read_bytes()).decode())
+h = h.replace('@@TPL2@@', base64.b64encode((d / 'sample/ポイント表一覧_ひな形（自動翻訳）.xlsx').read_bytes()).decode())
 h = h.replace('@@QRDECODE@@', (d / 'qrdecode.js').read_text(encoding='utf-8'))
 h = h.replace('@@XLSXVIEW@@', (d / 'xlsxview.js').read_text(encoding='utf-8'))
 (d / 'dist').mkdir(exist_ok=True)
