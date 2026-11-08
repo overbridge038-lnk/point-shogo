@@ -5081,7 +5081,7 @@ function resetView() {
   S = { state: 'k', kRaw: '', kKey: '', pdfName: '' };
   CARD = { kPn: '―', kRaw: '', pPn: '―', pRaw: '', pHow: '' };
   setSteps(1); setJudge('wait', 'wait_big', 'wait_msg');
-  $('pdfName').textContent = '―'; $('zoomBar').hidden = true; ZM.z = 1; TRREC = null; renderTrans(); VIDKEY = null; $('vidBtn').hidden = true; if (XLCUR) { XV.release(XLCUR); XLCUR = null; }
+  $('pdfName').textContent = '―'; $('zoomBar').hidden = true; ZM.z = 1; ZM.pages = []; sharpClear(); TRREC = null; renderTrans(); VIDKEY = null; $('vidBtn').hidden = true; if (XLCUR) { XV.release(XLCUR); XLCUR = null; }
   $('pdfbox').innerHTML = '<div class="empty">' + mascot('wait') + esc(t('empty')) + '</div>';
   renderCards();
 }
@@ -5241,9 +5241,11 @@ function padKey(k) {
 
 // ---------- PDF表示とQR自動読取 ----------
 // ---- ポイント表の表示と拡大（写真の細かい所まで見られるように） ----
-var ZM = { z: 1, fitW: 0, xl: 1 }, Z_MAX = 4;
+// 最大 800%。見にくいという声があり 400% → 800% に引き上げ（高倍率でもぼやけないよう、見えている所だけ描き直す）
+var ZM = { z: 1, fitW: 0, xl: 1, pages: [] }, Z_MAX = 8;
 async function renderPdf(data) {
   var doc = await openDoc(data);
+  sharpClear(); ZM.pages = [];
   var box = $('pdfbox'); box.innerHTML = '';
   var pages = [], fitW = Math.max(300, box.clientWidth - 32), dpr = window.devicePixelRatio || 1;
   ZM.z = 1; ZM.fitW = fitW;
@@ -5257,13 +5259,14 @@ async function renderPdf(data) {
     await page.render({ canvasContext: cv.getContext('2d'), viewport: vp }).promise;
     pages.push({ page: page, canvas: cv });
   }
+  ZM.pages = pages;
   $('zoomBar').hidden = false; zoomLabel();
   return pages;
 }
 /** Excel(.xlsx)を照合画面に出す。幅に合わせて縮め、ズームは同じボタン・ピンチ・ダブルタップで */
 var XLCUR = null;
 async function renderXlsx(data) {
-  var sheets = await XV.parse(data.slice(0)), box = $('pdfbox');
+  var sheets = await XV.parse(data.slice(0)), box = $('pdfbox'); ZM.pages = [];
   if (XLCUR) XV.release(XLCUR); XLCUR = sheets;
   box.innerHTML = ''; XV.render(sheets, box);
   var fitW = Math.max(300, box.clientWidth - 32), wmax = 0;
@@ -5283,11 +5286,48 @@ function setZoom(z, cx, cy) {
   box.querySelectorAll('canvas').forEach(function (cv) { cv.style.width = (ZM.fitW * z) + 'px'; });
   box.querySelectorAll('.xlwrap').forEach(function (e) { e.style.zoom = ZM.xl * z; });
   box.scrollLeft = sx * r - cx; box.scrollTop = sy * r - cy;
-  zoomLabel();
+  zoomLabel(); sharpClear(); sharpLater();
 }
+/* ---- 高倍率でもくっきり：拡大が止まったら、画面に見えている部分だけを高い解像度で描き直して重ねる ----
+   ページ全体を高解像度にするとタブレットのメモリが足りなくなるため、見えている範囲だけにしている。 */
+var SHARP = { timer: 0, tasks: [], gen: 0 };
+function sharpClear() {
+  SHARP.gen++; SHARP.tasks.forEach(function (t) { try { t.cancel(); } catch (e) {} }); SHARP.tasks = [];
+  document.querySelectorAll('#pdfbox canvas.sharp').forEach(function (c) { c.remove(); });
+}
+function sharpLater() { clearTimeout(SHARP.timer); SHARP.timer = setTimeout(sharpDraw, 220); }
+async function sharpDraw() {
+  var box = $('pdfbox'), dpr = window.devicePixelRatio || 1, gen = ++SHARP.gen;
+  SHARP.tasks.forEach(function (t) { try { t.cancel(); } catch (e) {} }); SHARP.tasks = [];
+  box.querySelectorAll('canvas.sharp').forEach(function (c) { c.remove(); });
+  if (!ZM.pages.length) return;
+  var br = box.getBoundingClientRect();
+  for (var i = 0; i < ZM.pages.length; i++) {
+    var pg = ZM.pages[i], cv = pg.canvas; if (!cv.isConnected) return;
+    var cssW = ZM.fitW * ZM.z, cr = cv.getBoundingClientRect();
+    if (cssW * dpr <= cv.width * 1.1) continue; // 元の絵で十分くっきり
+    var l = Math.max(cr.left, br.left), t = Math.max(cr.top, br.top), r = Math.min(cr.right, br.right), b = Math.min(cr.bottom, br.bottom);
+    if (r - l < 2 || b - t < 2) continue; // このページは見えていない
+    var bw = (cr.width - cv.clientWidth) / 2; // 枠線の太さ
+    var x0 = l - cr.left - bw, y0 = t - cr.top - bw, w = r - l, h = b - t;
+    var vp1 = pg.page.getViewport({ scale: 1 }), sc = cv.clientWidth / vp1.width * dpr;
+    var vp = pg.page.getViewport({ scale: sc, offsetX: -x0 * dpr, offsetY: -y0 * dpr });
+    var c = document.createElement('canvas'); c.className = 'sharp';
+    c.width = Math.ceil(w * dpr); c.height = Math.ceil(h * dpr);
+    c.style.cssText = 'position:absolute;margin:0;border:0;border-radius:0;pointer-events:none;width:' + w + 'px;height:' + h + 'px;left:' +
+      (cv.offsetLeft + bw + x0) + 'px;top:' + (cv.offsetTop + bw + y0) + 'px';
+    var ctx = c.getContext('2d'); ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, c.width, c.height);
+    var task = pg.page.render({ canvasContext: ctx, viewport: vp }); SHARP.tasks.push(task);
+    try { await task.promise; } catch (e) { return; }
+    if (gen !== SHARP.gen) return;
+    box.appendChild(c);
+  }
+}
+$('pdfbox').addEventListener('scroll', function () { if (ZM.z > 1.01 && ZM.pages.length) sharpLater(); }, { passive: true });
 $('zIn').onclick = function () { setZoom(ZM.z * 1.5); };
 $('zOut').onclick = function () { setZoom(ZM.z / 1.5); };
 $('zFit').onclick = function () { setZoom(1); $('pdfbox').scrollTop = 0; };
+function nextTapZoom() { return ZM.z < 1.2 ? 2.5 : (ZM.z < 4.5 ? 5 : 1); }
 (function zoomGestures() {
   var box = $('pdfbox'), pinch = null, lastTap = 0, lastXY = null;
   function rel(t) { var r = box.getBoundingClientRect(); return { x: t.clientX - r.left, y: t.clientY - r.top }; }
@@ -5295,10 +5335,10 @@ $('zFit').onclick = function () { setZoom(1); $('pdfbox').scrollTop = 0; };
     if (e.touches.length === 2) { // 2本指でピンチ
       var a = e.touches[0], b = e.touches[1];
       pinch = { d: Math.hypot(a.clientX - b.clientX, a.clientY - b.clientY), z: ZM.z };
-    } else if (e.touches.length === 1) { // ダブルタップ：100% ⇔ 250%
+    } else if (e.touches.length === 1) { // ダブルタップ：100% → 250% → 500% → 100%
       var now = Date.now(), p = rel(e.touches[0]);
       if (now - lastTap < 300 && lastXY && Math.hypot(p.x - lastXY.x, p.y - lastXY.y) < 40) {
-        e.preventDefault(); setZoom(ZM.z > 1.2 ? 1 : 2.5, p.x, p.y); lastTap = 0;
+        e.preventDefault(); setZoom(nextTapZoom(), p.x, p.y); lastTap = 0;
       } else { lastTap = now; lastXY = p; }
     }
   }, { passive: false });
@@ -5310,7 +5350,7 @@ $('zFit').onclick = function () { setZoom(1); $('pdfbox').scrollTop = 0; };
     setZoom(pinch.z * d / pinch.d, m.x, m.y);
   }, { passive: false });
   box.addEventListener('touchend', function (e) { if (e.touches.length < 2) pinch = null; });
-  box.addEventListener('dblclick', function (e) { var p = rel(e); setZoom(ZM.z > 1.2 ? 1 : 2.5, p.x, p.y); });
+  box.addEventListener('dblclick', function (e) { var p = rel(e); setZoom(nextTapZoom(), p.x, p.y); });
   box.addEventListener('wheel', function (e) { // PC：Ctrl＋ホイール
     if (!e.ctrlKey) return;
     e.preventDefault(); var p = rel(e); setZoom(ZM.z * (e.deltaY < 0 ? 1.15 : 1 / 1.15), p.x, p.y);
