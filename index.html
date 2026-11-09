@@ -391,11 +391,11 @@ html[lang=my],html[lang=ne],html[lang=bn],html[lang=si]{line-height:1.5} /* ミ�
     <button class="btn langBtn" data-lang="si"><span class="flag">🇱🇰</span>සිංහල</button>
   </div>
   <p id="startNote" style="font-size:13px">準備中…</p>
-  <p class="ver" style="font-size:12px;opacity:.85">ver.2026.11.09 16:43 (#100)</p>
+  <p class="ver" style="font-size:12px;opacity:.85">ver.2026.11.09 18:04 (#104)</p>
 </div>
 
 <header>
-  <h1><i class="logo" data-mascot="ok"></i><span>ポイント照合ツール</span><small class="ver" title="版（ビルドした日時）">ver.2026.11.09 16:43 (#100)</small></h1>
+  <h1><i class="logo" data-mascot="ok"></i><span>ポイント照合ツール</span><small class="ver" title="版（ビルドした日時）">ver.2026.11.09 18:04 (#104)</small></h1>
   <div class="tabs">
     <button class="tab on" data-v="check" data-i18n="tab_check">照合</button>
     <button class="tab" data-v="pdf" data-i18n="tab_pdf">ポイント表の登録</button>
@@ -512,7 +512,7 @@ html[lang=my],html[lang=ne],html[lang=bn],html[lang=si]{line-height:1.5} /* ミ�
     <h3 data-i18n="s_h">設定</h3>
     <div style="display:grid;gap:14px;max-width:560px">
       <label class="f"><span data-i18n="s_term">端末番号</span><input type="text" id="cfTerm" maxlength="4" autocomplete="off"></label>
-      <label class="f"><span data-i18n="s_manual">手入力ボタン</span><select id="cfManual"><option value="0" data-i18n="s_manual_off">出さない（スキャナー専用）</option><option value="1" data-i18n="s_manual_on">出す</option></select></label>
+      <label class="f"><span data-i18n="s_manual">手入力ボタン</span><select id="cfManual"><option value="1" data-i18n="s_manual_on">出す</option><option value="0" data-i18n="s_manual_off">出さない（スキャナー専用）</option></select></label>
       <label class="f"><span data-i18n="s_sound">音</span><select id="cfSound"><option value="1" data-i18n="s_on">鳴らす</option><option value="0" data-i18n="s_off">鳴らさない</option></select></label>
       <div class="btnrow"><button class="btn pri" id="saveCf" data-i18n="s_save">保存</button><button class="btn" id="chgCode" data-i18n="s_chg_code">NG解除番号を変更</button><button class="btn" id="chgSetPw" data-i18n="s_chg_pw">設定パスワードを変更</button></div>
       <p class="note" data-i18n-html="s_note"></p>
@@ -7429,11 +7429,11 @@ function scanHintUpdate() {
 scanInp.addEventListener('focus', scanHintUpdate); scanInp.addEventListener('blur', function () { setTimeout(scanHintUpdate, 0); });
 setInterval(function () { focusScan(); scanHintUpdate(); }, 700); // 外れていたら戻す（画面をさわったあとも、読取欄にカーソルを戻す）
 // 手入力ボタンは、設定で「出す」にした端末だけ出す（初期は出さない＝スキャナー専用。打ち間違いをなくす）
-function applyManual() { var on = CF.manual === '1'; $('manBtn').hidden = !on; if (!on && manualOn) manualClose(); }
+function applyManual() { var on = CF.manual !== '0'; $('manBtn').hidden = !on; if (!on && manualOn) manualClose(); }
 
 // ---- 手入力：同じ読取欄の中で入力（キーボードを出す） ----
 function manualOpen() {
-  if (S.state === 'ng' || CF.manual !== '1') return;
+  if (S.state === 'ng' || CF.manual === '0') return;
   manualOn = true; $('scanBox').classList.add('manual'); $('manIn').value = '';
   setTimeout(function () { $('manIn').focus(); }, 30);
 }
@@ -7610,7 +7610,7 @@ function gotoView(v) {
   if (v === 'check') setTimeout(focusScan, 50);
   if (v === 'pdf') showPdfList();
   if (v === 'log') showLogs();
-  if (v === 'set') { $('cfTerm').value = CF.term; $('cfSound').value = CF.sound; $('cfManual').value = CF.manual === '1' ? '1' : '0'; if (!$('clrDate').value) $('clrDate').value = today(); showClrCount(); }
+  if (v === 'set') { $('cfTerm').value = CF.term; $('cfSound').value = CF.sound; $('cfManual').value = CF.manual === '0' ? '0' : '1'; if (!$('clrDate').value) $('clrDate').value = today(); showClrCount(); }
 }
 document.querySelectorAll('.tab').forEach(function (b) {
   b.onclick = async function () {
