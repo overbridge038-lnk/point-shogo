@@ -72,6 +72,10 @@ header h1 .ver{font-size:11px;font-weight:700;color:var(--sub);margin-left:6px;l
 
 /* 読取欄：スキャナーや手入力の文字がここに並ぶ（gohinと同じ考え方） */
 .scanbox{position:relative;background:var(--card);border:var(--line);border-radius:18px;padding:8px 12px 10px;box-shadow:var(--pop-s);cursor:text}
+.scanbox.ready{border-color:var(--green,#1fa971);box-shadow:3px 3px 0 var(--green,#1fa971)}
+.scanbox.ready .scanHint{color:#0b7a4b;font-weight:900}
+.scanbox.ready .scanShow::after{content:"";display:inline-block;flex:none;width:4px;height:1.15em;background:var(--violet);margin-left:5px;vertical-align:-.2em;animation:caretBlink 1s steps(1) infinite}
+@keyframes caretBlink{50%{opacity:0}}
 .scanbox:focus-within{border-color:var(--violet);box-shadow:3px 3px 0 var(--violet)}
 .scanHead{display:flex;justify-content:space-between;gap:8px;font-size:13px;font-weight:800;color:var(--sub)}
 .scanHint{font-weight:700;font-size:12px}
@@ -387,11 +391,11 @@ html[lang=my],html[lang=ne],html[lang=bn],html[lang=si]{line-height:1.5} /* ミ�
     <button class="btn langBtn" data-lang="si"><span class="flag">🇱🇰</span>සිංහල</button>
   </div>
   <p id="startNote" style="font-size:13px">準備中…</p>
-  <p class="ver" style="font-size:12px;opacity:.85">ver.2026.11.09 07:41 (#92)</p>
+  <p class="ver" style="font-size:12px;opacity:.85">ver.2026.11.09 16:43 (#100)</p>
 </div>
 
 <header>
-  <h1><i class="logo" data-mascot="ok"></i><span>ポイント照合ツール</span><small class="ver" title="版（ビルドした日時）">ver.2026.11.09 07:41 (#92)</small></h1>
+  <h1><i class="logo" data-mascot="ok"></i><span>ポイント照合ツール</span><small class="ver" title="版（ビルドした日時）">ver.2026.11.09 16:43 (#100)</small></h1>
   <div class="tabs">
     <button class="tab on" data-v="check" data-i18n="tab_check">照合</button>
     <button class="tab" data-v="pdf" data-i18n="tab_pdf">ポイント表の登録</button>
@@ -412,7 +416,7 @@ html[lang=my],html[lang=ne],html[lang=bn],html[lang=si]{line-height:1.5} /* ミ�
       <div class="step" id="st3"><b>3</b><span data-i18n="st3">判定</span></div>
     </div>
     <div class="scanbox" id="scanBox">
-      <div class="scanHead"><span data-i18n="sc_lbl">かんばん読取欄</span><span class="scanHint" data-i18n="sc_hint">スキャナーで読む／手入力もここ</span></div>
+      <div class="scanHead"><span data-i18n="sc_lbl">かんばん読取欄</span><span class="scanHint" id="scanHint">スキャナーで読む</span></div>
       <div class="scanShow mono empty" id="scanShow"></div>
       <input id="scanInput" type="password" name="scan-field" autocomplete="off" autocapitalize="off" autocorrect="off" inputmode="none" spellcheck="false" data-lpignore="true" aria-label="scan">
       <div class="manRow">
@@ -508,6 +512,7 @@ html[lang=my],html[lang=ne],html[lang=bn],html[lang=si]{line-height:1.5} /* ミ�
     <h3 data-i18n="s_h">設定</h3>
     <div style="display:grid;gap:14px;max-width:560px">
       <label class="f"><span data-i18n="s_term">端末番号</span><input type="text" id="cfTerm" maxlength="4" autocomplete="off"></label>
+      <label class="f"><span data-i18n="s_manual">手入力ボタン</span><select id="cfManual"><option value="0" data-i18n="s_manual_off">出さない（スキャナー専用）</option><option value="1" data-i18n="s_manual_on">出す</option></select></label>
       <label class="f"><span data-i18n="s_sound">音</span><select id="cfSound"><option value="1" data-i18n="s_on">鳴らす</option><option value="0" data-i18n="s_off">鳴らさない</option></select></label>
       <div class="btnrow"><button class="btn pri" id="saveCf" data-i18n="s_save">保存</button><button class="btn" id="chgCode" data-i18n="s_chg_code">NG解除番号を変更</button><button class="btn" id="chgSetPw" data-i18n="s_chg_pw">設定パスワードを変更</button></div>
       <p class="note" data-i18n-html="s_note"></p>
@@ -597,7 +602,7 @@ html[lang=my],html[lang=ne],html[lang=bn],html[lang=si]{line-height:1.5} /* ミ�
       <p class="note" style="margin:0" data-i18n="app_note"></p>
       <div class="btnrow"><button class="btn pri" id="appSave" data-i18n="app_btn">💾 このツールをファイルとして保存</button></div>
       <p class="note" style="margin:0" data-i18n="man_note">使用要領書（手順書）はインターネットにつながる時に開けます。</p>
-      <div class="btnrow"><a class="btn" id="manBtn" data-i18n="man_btn" href="manual.pdf" target="_blank" rel="noopener" style="text-decoration:none;display:inline-flex;align-items:center">📖 手順書を開く</a></div>
+      <div class="btnrow"><a class="btn" id="manPdf" data-i18n="man_btn" href="manual.pdf" target="_blank" rel="noopener" style="text-decoration:none;display:inline-flex;align-items:center">📖 手順書を開く</a></div>
     </div>
   </div>
   <div class="card" id="pkCard">
@@ -2066,6 +2071,11 @@ var I18N = {
     s_h: "設定",
     s_term: "端末番号（CSVのファイル名に入ります。端末ごとに変えてください）",
     s_sound: "音",
+    s_manual: "手入力ボタン",
+    s_manual_off: "出さない（スキャナー専用）",
+    s_manual_on: "出す",
+    sc_hint2: "スキャナーで読む",
+    sc_ready: "● 読み取り待ち",
     s_on: "鳴らす",
     s_off: "鳴らさない",
     s_save: "保存",
@@ -2436,6 +2446,11 @@ var I18N = {
     s_h: "Pengaturan",
     s_term: "Nomor terminal (masuk ke nama file CSV; beda untuk tiap tablet)",
     s_sound: "Suara",
+    s_manual: "Tombol ketik manual",
+    s_manual_off: "Sembunyikan (hanya scanner)",
+    s_manual_on: "Tampilkan",
+    sc_hint2: "Baca dengan scanner",
+    sc_ready: "● Siap scan",
     s_on: "Nyala",
     s_off: "Mati",
     s_save: "Simpan",
@@ -2806,6 +2821,11 @@ var I18N = {
     s_h: "Settings",
     s_term: "Numero ng terminal (kasama sa pangalan ng CSV; iba-iba bawat tablet)",
     s_sound: "Tunog",
+    s_manual: "Button ng manual na pag-type",
+    s_manual_off: "Itago (scanner lang)",
+    s_manual_on: "Ipakita",
+    sc_hint2: "Basahin gamit ang scanner",
+    sc_ready: "● Handa mag-scan",
     s_on: "Bukas",
     s_off: "Sarado",
     s_save: "I-save",
@@ -3176,6 +3196,11 @@ var I18N = {
     s_h: "Settings",
     s_term: "Terminal number (used in the CSV file name; different for each tablet)",
     s_sound: "Sound",
+    s_manual: "Manual-entry button",
+    s_manual_off: "Hide (scanner only)",
+    s_manual_on: "Show",
+    sc_hint2: "Read with the scanner",
+    sc_ready: "● Ready to scan",
     s_on: "On",
     s_off: "Off",
     s_save: "Save",
@@ -3546,6 +3571,11 @@ var I18N = {
     s_h: "Cài đặt",
     s_term: "Số máy (dùng trong tên file CSV; mỗi máy tính bảng khác nhau)",
     s_sound: "Âm thanh",
+    s_manual: "Nút nhập tay",
+    s_manual_off: "Ẩn (chỉ dùng máy quét)",
+    s_manual_on: "Hiện",
+    sc_hint2: "Quét bằng máy quét",
+    sc_ready: "● Sẵn sàng quét",
     s_on: "Bật",
     s_off: "Tắt",
     s_save: "Lưu",
@@ -3916,6 +3946,11 @@ var I18N = {
     s_h: "ဆက်တင်",
     s_term: "စက်နံပါတ် (CSV ဖိုင်အမည်တွင် သုံးသည်၊ တက်ဘလက်တစ်လုံးချင်း မတူရ)",
     s_sound: "အသံ",
+    s_manual: "လက်ဖြင့်ရိုက်ထည့်ခလုတ်",
+    s_manual_off: "ဖျောက်ထားမည် (စကင်နာသာ)",
+    s_manual_on: "ပြမည်",
+    sc_hint2: "စကင်နာဖြင့် ဖတ်ပါ",
+    sc_ready: "● ဖတ်ရန်အဆင်သင့်",
     s_on: "ဖွင့်",
     s_off: "ပိတ်",
     s_save: "သိမ်းမည်",
@@ -4286,6 +4321,11 @@ var I18N = {
     s_h: "सेटिङ",
     s_term: "टर्मिनल नम्बर (CSV फाइलको नाममा प्रयोग हुन्छ; प्रत्येक ट्याब्लेटको फरक)",
     s_sound: "आवाज",
+    s_manual: "हातले टाइप गर्ने बटन",
+    s_manual_off: "लुकाउने (स्क्यानर मात्र)",
+    s_manual_on: "देखाउने",
+    sc_hint2: "स्क्यानरले पढ्नुहोस्",
+    sc_ready: "● स्क्यान गर्न तयार",
     s_on: "खुला",
     s_off: "बन्द",
     s_save: "सेभ",
@@ -4656,6 +4696,11 @@ var I18N = {
     s_h: "সেটিংস",
     s_term: "টার্মিনাল নম্বর (CSV ফাইলের নামে ব্যবহার হয়; প্রতিটি ট্যাবলেটের আলাদা)",
     s_sound: "শব্দ",
+    s_manual: "হাতে টাইপ করার বোতাম",
+    s_manual_off: "লুকানো (শুধু স্ক্যানার)",
+    s_manual_on: "দেখানো",
+    sc_hint2: "স্ক্যানার দিয়ে পড়ুন",
+    sc_ready: "● স্ক্যানের জন্য প্রস্তুত",
     s_on: "চালু",
     s_off: "বন্ধ",
     s_save: "সেভ",
@@ -5026,6 +5071,11 @@ var I18N = {
     s_h: "Тохиргоо",
     s_term: "Төхөөрөмжийн дугаар (CSV файлын нэрэнд ашиглана; таблет бүрт өөр)",
     s_sound: "Дуу",
+    s_manual: "Гараар оруулах товч",
+    s_manual_off: "Нуух (зөвхөн сканнер)",
+    s_manual_on: "Харуулах",
+    sc_hint2: "Сканнераар уншина",
+    sc_ready: "● Унших бэлэн",
     s_on: "Асаах",
     s_off: "Унтраах",
     s_save: "Хадгалах",
@@ -5396,6 +5446,11 @@ var I18N = {
     s_h: "Configurações",
     s_term: "Número do terminal (usado no nome do arquivo CSV; diferente em cada tablet)",
     s_sound: "Som",
+    s_manual: "Botão de digitação manual",
+    s_manual_off: "Ocultar (só leitor)",
+    s_manual_on: "Mostrar",
+    sc_hint2: "Leia com o leitor",
+    sc_ready: "● Pronto para ler",
     s_on: "Ligado",
     s_off: "Desligado",
     s_save: "Salvar",
@@ -5766,6 +5821,11 @@ var I18N = {
     s_h: "සැකසුම්",
     s_term: "ටර්මිනල් අංකය (CSV ගොනුවේ නමෙහි භාවිත වේ; එක් එක් ටැබ්ලටයට වෙනස්)",
     s_sound: "ශබ්දය",
+    s_manual: "අතින් ටයිප් බොත්තම",
+    s_manual_off: "සඟවන්න (ස්කෑනරය පමණි)",
+    s_manual_on: "පෙන්වන්න",
+    sc_hint2: "ස්කෑනරයෙන් කියවන්න",
+    sc_ready: "● කියවීමට සූදානම්",
     s_on: "සක්‍රීය",
     s_off: "අක්‍රීය",
     s_save: "සුරකින්න",
@@ -5993,6 +6053,7 @@ function applyLang() {
   if (typeof showLogs === 'function' && document.getElementById('v-log').classList.contains('on')) showLogs();
   if (typeof showClrCount === 'function' && document.getElementById('v-set').classList.contains('on')) showClrCount();
   var ms = document.getElementById('manIn'); if (ms) ms.placeholder = t('sc_man_ph');
+  if (typeof scanHintUpdate === 'function') scanHintUpdate();
   var pls = document.getElementById('plSearch'); if (pls) pls.placeholder = t('pl_search');
   var ss = document.getElementById('scanShow'); if (ss && ss.classList.contains('empty') && typeof showScan === 'function') showScan('');
   if (window.S) {
@@ -7359,10 +7420,20 @@ document.addEventListener('click', function (e) {
   if (!/INPUT|SELECT|BUTTON|LABEL|TEXTAREA/.test(e.target.tagName) && !e.target.closest('button,label,.manRow')) setTimeout(focusScan, 0);
 });
 $('scanBox').addEventListener('click', function () { if (!manualOn) focusScan(); });
+// 読取欄にカーソルがあるか（＝スキャナーで読めるか）を、緑の枠・点滅するカーソル・文言で見せる
+function scanHintUpdate() {
+  var on = document.activeElement === scanInp && scanReady();
+  $('scanBox').classList.toggle('ready', on);
+  $('scanHint').textContent = t(on ? 'sc_ready' : 'sc_hint2');
+}
+scanInp.addEventListener('focus', scanHintUpdate); scanInp.addEventListener('blur', function () { setTimeout(scanHintUpdate, 0); });
+setInterval(function () { focusScan(); scanHintUpdate(); }, 700); // 外れていたら戻す（画面をさわったあとも、読取欄にカーソルを戻す）
+// 手入力ボタンは、設定で「出す」にした端末だけ出す（初期は出さない＝スキャナー専用。打ち間違いをなくす）
+function applyManual() { var on = CF.manual === '1'; $('manBtn').hidden = !on; if (!on && manualOn) manualClose(); }
 
 // ---- 手入力：同じ読取欄の中で入力（キーボードを出す） ----
 function manualOpen() {
-  if (S.state === 'ng') return;
+  if (S.state === 'ng' || CF.manual !== '1') return;
   manualOn = true; $('scanBox').classList.add('manual'); $('manIn').value = '';
   setTimeout(function () { $('manIn').focus(); }, 30);
 }
@@ -7539,7 +7610,7 @@ function gotoView(v) {
   if (v === 'check') setTimeout(focusScan, 50);
   if (v === 'pdf') showPdfList();
   if (v === 'log') showLogs();
-  if (v === 'set') { $('cfTerm').value = CF.term; $('cfSound').value = CF.sound; if (!$('clrDate').value) $('clrDate').value = today(); showClrCount(); }
+  if (v === 'set') { $('cfTerm').value = CF.term; $('cfSound').value = CF.sound; $('cfManual').value = CF.manual === '1' ? '1' : '0'; if (!$('clrDate').value) $('clrDate').value = today(); showClrCount(); }
 }
 document.querySelectorAll('.tab').forEach(function (b) {
   b.onclick = async function () {
@@ -7551,9 +7622,9 @@ document.querySelectorAll('.tab').forEach(function (b) {
 $('logDate').onchange = showLogs;
 $('csvBtn').onclick = exportCsv;
 $('saveCf').onclick = function () {
-  var t = $('cfTerm').value.normalize('NFKC').trim();
-  if (!/^[0-9A-Za-z]{1,4}$/.test(t)) return toast(t('s_term_bad'));
-  CF.term = t; CF.sound = $('cfSound').value; saveCfStore(); updateHeader(); toast(t('s_saved'));
+  var tm = $('cfTerm').value.normalize('NFKC').trim();
+  if (!/^[0-9A-Za-z]{1,4}$/.test(tm)) return toast(t('s_term_bad'));
+  CF.term = tm; CF.sound = $('cfSound').value; CF.manual = $('cfManual').value; saveCfStore(); applyManual(); updateHeader(); toast(t('s_saved'));
 };
 $('chgCode').onclick = async function () {
   var cur = await askPin(t('pp_cur_code')); if (cur === null) return;
@@ -8189,7 +8260,7 @@ $('clrAll').onclick = async function () {
 // ---------- 起動 ----------
 (async function init() {
   try {
-    await openDb(); await loadCfDb(); await loadPdfIndex(); await loadPdfjs();
+    await openDb(); await loadCfDb(); applyManual(); await loadPdfIndex(); await loadPdfjs();
     $('logDate').value = today(); updateHeader(); resetView();
     LANG = I18N[CF.lang] ? CF.lang : 'ja'; applyLang(); showScan('');
     document.querySelectorAll('.langBtn').forEach(function (b) { b.classList.toggle('last', b.dataset.lang === LANG); });

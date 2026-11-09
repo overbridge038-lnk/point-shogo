@@ -17,7 +17,7 @@ console.log('ctrl mixed + Enter  :', await res());
 await typeWith(['@0>066V400270151^Control+Shift+Digit6', R.slice(15)], 'Control+KeyM');
 console.log('ctrl + CR(Ctrl+M)   :', await res());
 // 手入力欄が開いたままスキャンしても、Ctrlキーがブラウザに渡らないこと（動画で発生した状態）
-await p.click('#manBtn'); await p.waitForTimeout(100); console.log('manual input open   :', await p.evaluate(()=>manualOn && document.activeElement.id));
+await p.evaluate(()=>{CF.manual='1';applyManual()}); await p.click('#manBtn'); await p.waitForTimeout(100); console.log('manual input open   :', await p.evaluate(()=>manualOn && document.activeElement.id));
 await typeWith(['@0>066V400270151^Control+BracketRight','11V020L2L400039178 E 1LE27V400039178 E 9K20 116D202610199D410KF1615020PA0U0^Control+R','P74043-60020^Control+L','Q32P017K18Z0796020^Control+E','C00000E22A02-04-01 0110E'], 'Enter');
 console.log('manual open + ctrl  :', await res());
 await p.keyboard.press('Alt'); await p.keyboard.press('Alt+KeyD'); await p.keyboard.press('Alt+ArrowLeft');

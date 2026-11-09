@@ -14,7 +14,7 @@ const G=R.replace('V020','\x1dV020').replace('PA0U0','\x1dPA0U0').replace('P7404
 await p.evaluate(r=>onScan(r),G); console.log('onScan with GS     :', await res());
 await p.evaluate(r=>{ const inp=document.getElementById('scanInput'); inp.focus(); inp.value=r; inp.dispatchEvent(new Event('input')); }, G); console.log('field value w/ GS  :', await res());
 // manual entry
-await p.click('#manBtn'); await p.fill('#manIn', R); await p.press('#manIn','Enter'); console.log('manual             :', await res());
+await p.evaluate(()=>{CF.manual='1';applyManual()}); await p.click('#manBtn'); await p.fill('#manIn', R); await p.press('#manIn','Enter'); console.log('manual             :', await res());
 await p.click('.tab[data-v=pdf]'); for(const k of '0000') await p.click(`#pinPad button:text-is("${k}")`); await p.click('#pinOk');
 p.once('dialog',d=>d.accept()); await p.locator('#pdfList .pcard', {hasText:'74043'}).locator('[data-del]').click(); await p.waitForTimeout(400);
 await p.click('.tab[data-v=check]');
