@@ -391,11 +391,11 @@ html[lang=my],html[lang=ne],html[lang=bn],html[lang=si]{line-height:1.5} /* ミ�
     <button class="btn langBtn" data-lang="si"><span class="flag">🇱🇰</span>සිංහල</button>
   </div>
   <p id="startNote" style="font-size:13px">準備中…</p>
-  <p class="ver" style="font-size:12px;opacity:.85">ver.2026.11.09 18:04 (#104)</p>
+  <p class="ver" style="font-size:12px;opacity:.85">ver.2026.11.10 11:57 (#105)</p>
 </div>
 
 <header>
-  <h1><i class="logo" data-mascot="ok"></i><span>ポイント照合ツール</span><small class="ver" title="版（ビルドした日時）">ver.2026.11.09 18:04 (#104)</small></h1>
+  <h1><i class="logo" data-mascot="ok"></i><span>ポイント照合ツール</span><small class="ver" title="版（ビルドした日時）">ver.2026.11.10 11:57 (#105)</small></h1>
   <div class="tabs">
     <button class="tab on" data-v="check" data-i18n="tab_check">照合</button>
     <button class="tab" data-v="pdf" data-i18n="tab_pdf">ポイント表の登録</button>
@@ -614,6 +614,8 @@ html[lang=my],html[lang=ne],html[lang=bn],html[lang=si]{line-height:1.5} /* ミ�
         <button class="btn" id="pkPick" data-i18n="pk_in">📥 一式ファイルを取り込む</button>
         <input type="file" id="pkIn" hidden>
       </div>
+      <div class="btnrow"><button class="btn" id="pkXl" data-i18n="xo_btn">📊 登録済みの表をExcelに書き出す（PCで修正）</button></div>
+      <p class="note" style="margin:0" data-i18n="xo_note"></p>
       <label class="chk"><input type="checkbox" id="pkWithVid" checked> <span data-i18n="pk_with_vid">🎬 動画も入れる（ファイルが大きくなります）</span></label>
       <label class="chk"><input type="checkbox" id="pkWithCf" checked> <span data-i18n="pk_with_cf">⚙ 設定（音・解除番号・パスワード）も入れる ※ファイルを見た人に解除番号がわかります。保管に注意</span></label>
       <div id="pkBox" hidden style="display:none;gap:10px">
@@ -623,6 +625,7 @@ html[lang=my],html[lang=ne],html[lang=bn],html[lang=si]{line-height:1.5} /* ミ�
         <label class="chk" id="pkInVidL" hidden><input type="checkbox" id="pkInVid" checked> <span id="pkInVidT"></span></label>
         <label class="chk" id="pkInCfL" hidden><input type="checkbox" id="pkInCf" checked> <span data-i18n="pk_in_cf">⚙ 設定（音・解除番号・パスワード）も取り込む</span></label>
         <div class="card" id="pkPrev" style="margin:0;font-weight:800"></div>
+        <div class="btnrow"><button class="btn" id="pkXl2" data-i18n="xo_btn2">📊 このファイルをExcelに書き出す（取り込まずに修正）</button></div>
         <div class="btnrow"><button class="btn pri" id="pkApply" data-i18n="pk_apply">この内容で取り込む</button><button class="btn" id="pkCancel" data-i18n="pk_cancel">やめる</button></div>
       </div>
     </div>
@@ -2200,6 +2203,13 @@ var I18N = {
     pk_h: "ポイント表の受け渡し（2台そろえる）",
     pk_note: "親の端末でポイント表を直したら、<b>「書き出す」</b>で1つのファイルにして、USBや共有フォルダでもう1台へ渡し、<b>「取り込む」</b>でそろえます。<br>照合の記録は台ごとのままで、取り込んでも消えません。",
     pk_out: "📤 ポイント表一式を書き出す",
+    xo_btn: "📊 登録済みの表をExcelに書き出す（PCで修正）",
+    xo_btn2: "📊 このファイルをExcelに書き出す（取り込まずに修正）",
+    xo_note: "タブレットの表をPCのExcelで直すとき：①この「書き出す」でExcelを作る ②PCでExcelを直す（品番・収容数・ポイント・翻訳・写真） ③「Excelの一覧から、まとめてポイント表を作る」に入れる（同じ品番は上書き）。対象は「つくる」で作った表だけです。",
+    xo_done: "Excelに書き出しました：{n}件",
+    xo_skip: "（取り込んだPDF・Excel資料 {s}件は、中身が絵のため対象外）",
+    xo_fail: "Excelに書き出せませんでした",
+    xo_none: "Excelに書き出せる表（「つくる」で作った表）がありません",
     pk_in: "📥 一式ファイルを取り込む",
     pk_mode: "取り込み方",
     pk_m_merge: "追加・上書き（今あるものは残す）",
@@ -2575,6 +2585,13 @@ var I18N = {
     pk_h: "Serah terima tabel poin (samakan 2 tablet)",
     pk_note: "Setelah memperbaiki tabel poin di tablet utama, tekan <b>\"Ekspor\"</b> untuk membuat 1 file, kirim ke tablet lain lewat USB atau folder bersama, lalu tekan <b>\"Impor\"</b>.<br>Riwayat cek tetap per tablet dan tidak terhapus saat impor.",
     pk_out: "📤 Ekspor semua tabel poin",
+    xo_btn: "📊 Ekspor tabel terdaftar ke Excel (edit di PC)",
+    xo_btn2: "📊 Ekspor file ini ke Excel (edit tanpa impor)",
+    xo_note: "Untuk memperbaiki tabel tablet di Excel PC: ① ekspor ke Excel di sini ② perbaiki di PC (nomor part, jumlah, poin, terjemahan, foto) ③ masukkan ke \"Buat banyak tabel poin dari daftar Excel\" (nomor part yang sama ditimpa). Hanya tabel buatan \"Buat\".",
+    xo_done: "Diekspor ke Excel: {n} tabel",
+    xo_skip: "({s} PDF/dokumen Excel impor tidak termasuk karena berupa gambar)",
+    xo_fail: "Gagal mengekspor ke Excel",
+    xo_none: "Tidak ada tabel yang bisa diekspor ke Excel (tabel buatan \"Buat\")",
     pk_in: "📥 Impor file paket",
     pk_mode: "Cara impor",
     pk_m_merge: "Tambah/timpa (yang ada tetap disimpan)",
@@ -2950,6 +2967,13 @@ var I18N = {
     pk_h: "Paglilipat ng point table (pagpantayin ang 2 tablet)",
     pk_note: "Pagkatapos ayusin ang point table sa pangunahing tablet, pindutin ang <b>\"I-export\"</b> para gumawa ng 1 file, ipasa sa isa pang tablet gamit ang USB o shared folder, at pindutin ang <b>\"I-import\"</b>.<br>Nananatili sa bawat tablet ang mga talaan ng check at hindi nabubura sa import.",
     pk_out: "📤 I-export ang lahat ng point table",
+    xo_btn: "📊 I-export sa Excel ang mga nakarehistrong table (ayusin sa PC)",
+    xo_btn2: "📊 I-export sa Excel ang file na ito (ayusin nang hindi ini-import)",
+    xo_note: "Para ayusin sa Excel ng PC ang mga table ng tablet: ① mag-export dito ② ayusin sa PC (part number, dami, mga punto, salin, litrato) ③ ilagay sa \"Gumawa ng maraming point table mula sa Excel\" (papalitan ang parehong part number). Mga table lang na ginawa gamit ang \"Gumawa\".",
+    xo_done: "Na-export sa Excel: {n} table",
+    xo_skip: "({s} na na-import na PDF/dokumentong Excel ay hindi kasama dahil larawan ang laman)",
+    xo_fail: "Hindi na-export sa Excel",
+    xo_none: "Walang table na maaaring i-export sa Excel (mga ginawa gamit ang \"Gumawa\")",
     pk_in: "📥 I-import ang package file",
     pk_mode: "Paraan ng import",
     pk_m_merge: "Dagdag/palitan (mananatili ang kasalukuyan)",
@@ -3325,6 +3349,13 @@ var I18N = {
     pk_h: "Share point tables (keep 2 tablets in sync)",
     pk_note: "After fixing point tables on the main tablet, press <b>\"Export\"</b> to make one file, carry it to the other tablet by USB or a shared folder, and press <b>\"Import\"</b>.<br>Check records stay on each tablet and are not erased by importing.",
     pk_out: "📤 Export all point tables",
+    xo_btn: "📊 Export registered tables to Excel (fix on a PC)",
+    xo_btn2: "📊 Export this file to Excel (fix without importing)",
+    xo_note: "To fix the tablet's tables in Excel on a PC: ① export to Excel here ② fix it on the PC (part number, quantity, points, translations, photos) ③ load it in \"Make many point tables from an Excel list\" (the same part number is overwritten). Only tables made with \"Make\" are included.",
+    xo_done: "Exported to Excel: {n} tables",
+    xo_skip: "({s} imported PDF/Excel documents are left out because they are pictures)",
+    xo_fail: "Could not export to Excel",
+    xo_none: "No tables can be exported to Excel (tables made with \"Make\")",
     pk_in: "📥 Import a package file",
     pk_mode: "Import mode",
     pk_m_merge: "Add / overwrite (keep what is already here)",
@@ -3700,6 +3731,13 @@ var I18N = {
     pk_h: "Chia sẻ bảng điểm (giữ 2 máy tính bảng giống nhau)",
     pk_note: "Sau khi chỉnh bảng điểm trên máy chính, nhấn <b>\"Xuất\"</b> để tạo một file, mang sang máy kia bằng USB hoặc thư mục chia sẻ, rồi nhấn <b>\"Nhập\"</b>.<br>Lịch sử kiểm tra vẫn ở trên từng máy và không bị xóa khi nhập.",
     pk_out: "📤 Xuất tất cả bảng điểm",
+    xo_btn: "📊 Xuất bảng đã đăng ký ra Excel (sửa trên PC)",
+    xo_btn2: "📊 Xuất file này ra Excel (sửa mà không nhập vào)",
+    xo_note: "Để sửa bảng của máy tính bảng bằng Excel trên PC: ① xuất ra Excel ở đây ② sửa trên PC (mã hàng, số lượng, điểm, bản dịch, ảnh) ③ đưa vào \"Tạo nhiều bảng điểm từ danh sách Excel\" (mã hàng trùng sẽ bị ghi đè). Chỉ gồm bảng tạo bằng \"Tạo\".",
+    xo_done: "Đã xuất ra Excel: {n} bảng",
+    xo_skip: "({s} PDF/tài liệu Excel đã nhập bị loại vì nội dung là hình ảnh)",
+    xo_fail: "Không xuất được ra Excel",
+    xo_none: "Không có bảng nào xuất được ra Excel (bảng tạo bằng \"Tạo\")",
     pk_in: "📥 Nhập file gói",
     pk_mode: "Cách nhập",
     pk_m_merge: "Thêm / ghi đè (giữ lại những gì đang có)",
@@ -4075,6 +4113,13 @@ var I18N = {
     pk_h: "ပွိုင့်ဇယား မျှဝေခြင်း (တက်ဘလက် ၂ လုံး တူအောင်ထားရန်)",
     pk_note: "အဓိကတက်ဘလက်တွင် ပွိုင့်ဇယားများကို ပြင်ပြီးနောက် <b>\"ထုတ်ယူမည်\"</b> ကိုနှိပ်ကာ ဖိုင်တစ်ခုပြုလုပ်ပါ၊ USB သို့မဟုတ် မျှဝေဖိုလ်ဒါဖြင့် အခြားတက်ဘလက်သို့ယူသွားပြီး <b>\"ထည့်သွင်းမည်\"</b> ကိုနှိပ်ပါ။<br>စစ်ဆေးမှုမှတ်တမ်းများသည် တက်ဘလက်တစ်လုံးချင်းတွင်ပင် ရှိနေပြီး ထည့်သွင်းသောအခါ မပျက်ပါ။",
     pk_out: "📤 ပွိုင့်ဇယားအားလုံး ထုတ်ယူမည်",
+    xo_btn: "📊 မှတ်ပုံတင်ထားသောဇယားများကို Excel သို့ ထုတ်ရန် (PC တွင်ပြင်ရန်)",
+    xo_btn2: "📊 ဤဖိုင်ကို Excel သို့ ထုတ်ရန် (မသွင်းဘဲ ပြင်ရန်)",
+    xo_note: "တက်ဘလက်ရှိ ဇယားများကို PC ၏ Excel ဖြင့် ပြင်ရန်: ① ဤနေရာတွင် Excel သို့ ထုတ်ပါ ② PC တွင် ပြင်ပါ (ပစ္စည်းနံပါတ်၊ အရေအတွက်၊ ပွိုင့်၊ ဘာသာပြန်၊ ဓာတ်ပုံ) ③ \"Excel စာရင်းမှ ပွိုင့်ဇယားများ တစ်ပြိုင်နက်ပြုလုပ်ရန်\" သို့ ထည့်ပါ (နံပါတ်တူလျှင် ထပ်ရေးမည်)။ \"ပြုလုပ်ရန်\" ဖြင့်လုပ်ထားသော ဇယားများသာ ပါဝင်သည်။",
+    xo_done: "Excel သို့ ထုတ်ပြီးပါပြီ: ဇယား {n} ခု",
+    xo_skip: "(သွင်းထားသော PDF/Excel စာရွက်စာတမ်း {s} ခုသည် ပုံများဖြစ်၍ မပါဝင်ပါ)",
+    xo_fail: "Excel သို့ မထုတ်နိုင်ပါ",
+    xo_none: "Excel သို့ ထုတ်နိုင်သော ဇယား မရှိပါ",
     pk_in: "📥 ပက်ကေ့ချ်ဖိုင် ထည့်သွင်းမည်",
     pk_mode: "ထည့်သွင်းပုံ",
     pk_m_merge: "ထပ်ထည့် / ထပ်ရေး (ရှိပြီးသားကို ဆက်ထားမည်)",
@@ -4450,6 +4495,13 @@ var I18N = {
     pk_h: "पोइन्ट तालिका साझा गर्नुहोस् (२ ट्याब्लेट एकैजस्तो राख्न)",
     pk_note: "मुख्य ट्याब्लेटमा पोइन्ट तालिका मिलाएपछि <b>\"निर्यात\"</b> थिचेर एउटा फाइल बनाउनुहोस्, USB वा साझा फोल्डरबाट अर्को ट्याब्लेटमा लगेर <b>\"आयात\"</b> थिच्नुहोस्।<br>जाँच अभिलेख प्रत्येक ट्याब्लेटमै रहन्छ र आयात गर्दा मेटिँदैन।",
     pk_out: "📤 सबै पोइन्ट तालिका निर्यात",
+    xo_btn: "📊 दर्ता गरिएका तालिका Excel मा निकाल्ने (PC मा सच्याउन)",
+    xo_btn2: "📊 यो फाइल Excel मा निकाल्ने (नसमाई सच्याउन)",
+    xo_note: "ट्याब्लेटका तालिका PC को Excel मा सच्याउन: ① यहाँ Excel मा निकाल्नुहोस् ② PC मा सच्याउनुहोस् (पार्ट नम्बर, संख्या, पोइन्ट, अनुवाद, फोटो) ③ \"Excel सूचीबाट धेरै पोइन्ट तालिका बनाउने\" मा हाल्नुहोस् (उही पार्ट नम्बर बदलिन्छ)। \"बनाउने\" बाट बनाएका तालिका मात्र।",
+    xo_done: "Excel मा निकालियो: {n} तालिका",
+    xo_skip: "(आयात गरिएका {s} PDF/Excel कागजात तस्बिर भएकाले समावेश छैनन्)",
+    xo_fail: "Excel मा निकाल्न सकिएन",
+    xo_none: "Excel मा निकाल्न मिल्ने तालिका छैन",
     pk_in: "📥 प्याकेज फाइल आयात",
     pk_mode: "आयातको तरिका",
     pk_m_merge: "थप्ने / ओभरराइट (भएको जस्ताको तस्तै राख्ने)",
@@ -4825,6 +4877,13 @@ var I18N = {
     pk_h: "পয়েন্ট টেবিল শেয়ার করুন (২টি ট্যাবলেট এক রাখতে)",
     pk_note: "প্রধান ট্যাবলেটে পয়েন্ট টেবিল ঠিক করার পর <b>\"এক্সপোর্ট\"</b> চেপে একটি ফাইল বানান, USB বা শেয়ার করা ফোল্ডার দিয়ে অন্য ট্যাবলেটে নিয়ে গিয়ে <b>\"ইমপোর্ট\"</b> চাপুন।<br>যাচাইয়ের রেকর্ড প্রতিটি ট্যাবলেটেই থাকে, ইমপোর্টে মুছে যায় না।",
     pk_out: "📤 সব পয়েন্ট টেবিল এক্সপোর্ট",
+    xo_btn: "📊 নিবন্ধিত টেবিল Excel-এ বের করুন (PC-তে ঠিক করতে)",
+    xo_btn2: "📊 এই ফাইল Excel-এ বের করুন (ইমপোর্ট না করেই ঠিক করতে)",
+    xo_note: "ট্যাবলেটের টেবিল PC-র Excel-এ ঠিক করতে: ① এখানে Excel-এ বের করুন ② PC-তে ঠিক করুন (পার্ট নম্বর, সংখ্যা, পয়েন্ট, অনুবাদ, ছবি) ③ \"Excel তালিকা থেকে অনেক পয়েন্ট টেবিল বানানো\"-তে দিন (একই পার্ট নম্বর বদলে যাবে)। শুধু \"বানান\" দিয়ে তৈরি টেবিল।",
+    xo_done: "Excel-এ বের হয়েছে: {n}টি টেবিল",
+    xo_skip: "(ইমপোর্ট করা {s}টি PDF/Excel নথি ছবি হওয়ায় বাদ)",
+    xo_fail: "Excel-এ বের করা গেল না",
+    xo_none: "Excel-এ বের করার মতো টেবিল নেই",
     pk_in: "📥 প্যাকেজ ফাইল ইমপোর্ট",
     pk_mode: "ইমপোর্টের ধরন",
     pk_m_merge: "যোগ / ওভাররাইট (যা আছে তা রাখা)",
@@ -5200,6 +5259,13 @@ var I18N = {
     pk_h: "Цэгийн хүснэгт хуваалцах (2 таблетыг ижил байлгах)",
     pk_note: "Үндсэн таблет дээр цэгийн хүснэгтээ засаад <b>\"Гаргах\"</b> дарж нэг файл болго, USB эсвэл нийтийн хавтсаар нөгөө таблет руу зөөгөөд <b>\"Оруулах\"</b> дар.<br>Шалгалтын бүртгэл таблет бүр дээр үлдэх бөгөөд оруулахад устахгүй.",
     pk_out: "📤 Бүх цэгийн хүснэгтийг гаргах",
+    xo_btn: "📊 Бүртгэлтэй хүснэгтийг Excel рүү гаргах (PC дээр засах)",
+    xo_btn2: "📊 Энэ файлыг Excel рүү гаргах (оруулахгүйгээр засах)",
+    xo_note: "Таблетын хүснэгтийг PC-ийн Excel-ээр засахдаа: ① энд Excel рүү гаргана ② PC дээр засна (хэсгийн дугаар, тоо, цэг, орчуулга, зураг) ③ \"Excel жагсаалтаас олон цэгийн хүснэгт үүсгэх\" рүү оруулна (ижил дугаар дарагдана). Зөвхөн \"Үүсгэх\"-ээр хийсэн хүснэгт.",
+    xo_done: "Excel рүү гаргалаа: {n} хүснэгт",
+    xo_skip: "(Оруулсан {s} PDF/Excel баримт зураг тул хасагдсан)",
+    xo_fail: "Excel рүү гаргаж чадсангүй",
+    xo_none: "Excel рүү гаргах хүснэгт алга",
     pk_in: "📥 Багц файл оруулах",
     pk_mode: "Оруулах горим",
     pk_m_merge: "Нэмэх / дарж бичих (байгаа зүйлээ хадгална)",
@@ -5575,6 +5641,13 @@ var I18N = {
     pk_h: "Compartilhar tabelas de pontos (manter 2 tablets iguais)",
     pk_note: "Depois de corrigir as tabelas de pontos no tablet principal, toque em <b>\"Exportar\"</b> para gerar um arquivo, leve-o ao outro tablet por USB ou pasta compartilhada e toque em <b>\"Importar\"</b>.<br>Os registros de verificação ficam em cada tablet e não são apagados ao importar.",
     pk_out: "📤 Exportar todas as tabelas de pontos",
+    xo_btn: "📊 Exportar tabelas registradas para o Excel (corrigir no PC)",
+    xo_btn2: "📊 Exportar este arquivo para o Excel (corrigir sem importar)",
+    xo_note: "Para corrigir as tabelas do tablet no Excel do PC: ① exporte para o Excel aqui ② corrija no PC (número da peça, quantidade, pontos, traduções, fotos) ③ carregue em \"Criar várias tabelas de pontos a partir de uma lista do Excel\" (o mesmo número é substituído). Só tabelas feitas com \"Criar\".",
+    xo_done: "Exportado para o Excel: {n} tabelas",
+    xo_skip: "({s} PDF/documentos Excel importados ficam de fora por serem imagens)",
+    xo_fail: "Não foi possível exportar para o Excel",
+    xo_none: "Nenhuma tabela pode ser exportada para o Excel",
     pk_in: "📥 Importar um arquivo de pacote",
     pk_mode: "Modo de importação",
     pk_m_merge: "Adicionar / sobrescrever (manter o que já existe)",
@@ -5950,6 +6023,13 @@ var I18N = {
     pk_h: "ලකුණු වගු හුවමාරු කරන්න (ටැබ්ලට් 2ක් සමාන ලෙස තබා ගැනීමට)",
     pk_note: "ප්‍රධාන ටැබ්ලටයේ ලකුණු වගු සකසා පසු <b>\"අපනයනය\"</b> ඔබා ගොනුවක් සාදා, USB හෝ බෙදාගත් ෆෝල්ඩරයකින් අනෙක් ටැබ්ලටයට ගෙන ගොස් <b>\"ආනයනය\"</b> ඔබන්න.<br>පරීක්ෂා වාර්තා එක් එක් ටැබ්ලටයේම පවතින අතර ආනයනයෙන් මැකෙන්නේ නැත.",
     pk_out: "📤 සියලු ලකුණු වගු අපනයනය",
+    xo_btn: "📊 ලියාපදිංචි වගු Excel වෙත නිකුත් කරන්න (PC හි නිවැරදි කිරීමට)",
+    xo_btn2: "📊 මෙම ගොනුව Excel වෙත නිකුත් කරන්න (ආනයනය නොකර නිවැරදි කිරීමට)",
+    xo_note: "ටැබ්ලටයේ වගු PC හි Excel හි නිවැරදි කිරීමට: ① මෙහි Excel වෙත නිකුත් කරන්න ② PC හි නිවැරදි කරන්න (කොටස් අංකය, ප්‍රමාණය, ලකුණු, පරිවර්තන, ඡායාරූප) ③ \"Excel ලැයිස්තුවෙන් වගු රැසක් සෑදීම\" වෙත දමන්න (එකම අංකය ප්‍රතිස්ථාපනය වේ). \"සාදන්න\" මගින් සෑදූ වගු පමණි.",
+    xo_done: "Excel වෙත නිකුත් කළා: වගු {n}",
+    xo_skip: "(ආනයනය කළ PDF/Excel ලේඛන {s} පින්තූර නිසා ඇතුළත් නැත)",
+    xo_fail: "Excel වෙත නිකුත් කළ නොහැකි විය",
+    xo_none: "Excel වෙත නිකුත් කළ හැකි වගු නැත",
     pk_in: "📥 පැකේජ් ගොනුවක් ආනයනය",
     pk_mode: "ආනයන ක්‍රමය",
     pk_m_merge: "එකතු කරන්න / උඩින් ලියන්න (පවතින දේ තබා ගන්න)",
@@ -7061,6 +7141,105 @@ async function xlHandleFile(f) {
   if (!XL.rows.length) { XL = null; msg.innerHTML = '<span style="color:var(--ng);font-weight:800">⚠ ' + esc(t('xl_norows')) + '</span>'; return; }
   msg.textContent = ''; xlShow();
 }
+// ---------- 登録済みのポイント表を、修正用のExcel(.xlsx)に書き出す（PCで直して、「Excelの一覧から、まとめてポイント表を作る」で戻す） ----------
+// 「つくる」で作った表（品番・収容数・ポイント・翻訳・写真が残っているもの）だけが対象。取り込んだPDF・Excelの資料は、中身が絵なので対象外。
+// 列は、ひな形と同じ（品番・収容数・写真①〜④・ポイント1〜・10言語）。写真はその行のセルに貼る。ZIPは自前（圧縮なし）で作るので、通信も部品もいらない。
+var CRC_T = (function () { var t = [], c, n, k; for (n = 0; n < 256; n++) { c = n; for (k = 0; k < 8; k++) c = c & 1 ? 0xEDB88320 ^ (c >>> 1) : c >>> 1; t[n] = c >>> 0; } return t; })();
+function crc32(u) { var c = -1; for (var i = 0; i < u.length; i++) c = CRC_T[(c ^ u[i]) & 255] ^ (c >>> 8); return (c ^ -1) >>> 0; }
+function zipStore(files) {
+  var enc = new TextEncoder(), parts = [], cen = [], off = 0, cenLen = 0;
+  files.forEach(function (f) {
+    var nm = enc.encode(f.name), crc = crc32(f.data), len = f.data.length, h = new DataView(new ArrayBuffer(30)), c = new DataView(new ArrayBuffer(46));
+    h.setUint32(0, 0x04034b50, true); h.setUint16(4, 20, true); h.setUint16(6, 0x0800, true); h.setUint16(12, 0x21, true); h.setUint32(14, crc, true); h.setUint32(18, len, true); h.setUint32(22, len, true); h.setUint16(26, nm.length, true);
+    parts.push(new Uint8Array(h.buffer), nm, f.data);
+    c.setUint32(0, 0x02014b50, true); c.setUint16(4, 20, true); c.setUint16(6, 20, true); c.setUint16(8, 0x0800, true); c.setUint16(14, 0x21, true); c.setUint32(16, crc, true); c.setUint32(20, len, true); c.setUint32(24, len, true); c.setUint16(28, nm.length, true); c.setUint32(42, off, true);
+    cen.push(new Uint8Array(c.buffer), nm); cenLen += 46 + nm.length; off += 30 + nm.length + len;
+  });
+  var e = new DataView(new ArrayBuffer(22)); e.setUint32(0, 0x06054b50, true); e.setUint16(8, files.length, true); e.setUint16(10, files.length, true); e.setUint32(12, cenLen, true); e.setUint32(16, off, true);
+  return new Blob(parts.concat(cen, [new Uint8Array(e.buffer)]), { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+}
+function xmlEsc(v) { return String(v == null ? '' : v).replace(/[\x00-\x08\x0B\x0C\x0E-\x1F]/g, '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
+function colL(n) { var s = ''; for (n++; n > 0; n = Math.floor((n - 1) / 26)) s = String.fromCharCode(65 + (n - 1) % 26) + s; return s; }
+function imgSize(url) { return new Promise(function (res) { var im = new Image(); im.onload = function () { res({ w: im.naturalWidth || 4, h: im.naturalHeight || 3 }); }; im.onerror = function () { res({ w: 4, h: 3 }); }; im.src = url; }); }
+var XO_LANG = ['英語', 'ベトナム語', 'インドネシア語', 'ミャンマー語', 'ネパール語', 'タガログ語', 'ベンガル語', 'モンゴル語', 'ポルトガル語', 'シンハラ語']; // TRL と同じ順
+/** list: [{pn, qty, pts:[…], tr:{en:'…'}, photos:[dataURL…]}] → Blob(.xlsx) */
+async function xlExport(list) {
+  var NP = 8; list.forEach(function (r) { NP = Math.max(NP, r.pts.length); });
+  var PH0 = 2, P0 = 6, L0 = P0 + NP, NC = L0 + TRL.length, enc = new TextEncoder();
+  var heads = ['品番', '収容数'].concat(['①', '②', '③', '④'].map(function (x) { return '📷 写真' + x; }), Array.apply(null, Array(NP)).map(function (_, i) { return 'ポイント' + (i + 1); }), XO_LANG);
+  function cs(r, c, v, st) { return '<c r="' + colL(c) + r + '" s="' + st + '" t="inlineStr"><is><t xml:space="preserve">' + xmlEsc(v) + '</t></is></c>'; }
+  var rows = ['<row r="1" ht="26" customHeight="1">' + heads.map(function (h, c) { return cs(1, c, h, c >= PH0 && c < P0 ? 6 : 1); }).join('') + '</row>'];
+  var pics = [], media = [], dr = [];
+  for (var i = 0; i < list.length; i++) {
+    var r = list[i], R = i + 2, cells = [];
+    cells.push(cs(R, 0, r.pn, 2));
+    cells.push(/^\d+$/.test(r.qty) ? '<c r="B' + R + '" s="2"><v>' + r.qty + '</v></c>' : cs(R, 1, r.qty, 2));
+    for (var c = PH0; c < P0; c++) cells.push('<c r="' + colL(c) + R + '" s="5"/>');
+    for (var k = 0; k < NP; k++) cells.push(r.pts[k] ? cs(R, P0 + k, r.pts[k], 3) : '<c r="' + colL(P0 + k) + R + '" s="3"/>');
+    TRL.forEach(function (l, j) { cells.push(cs(R, L0 + j, r.tr && r.tr[l] || '', 4)); });
+    rows.push('<row r="' + R + '" ht="96" customHeight="1">' + cells.join('') + '</row>');
+    for (var q = 0; q < Math.min(4, (r.photos || []).length); q++) {
+      var url = r.photos[q], m = /^data:image\/(jpeg|png);base64,(.*)$/.exec(url || ''); if (!m) continue;
+      var bin = atob(m[2]), u8 = new Uint8Array(bin.length); for (var z = 0; z < bin.length; z++) u8[z] = bin.charCodeAt(z);
+      var sz = await imgSize(url), sc = Math.min(108 / sz.w, 120 / sz.h), w = Math.round(sz.w * sc), h = Math.round(sz.h * sc), n = media.length + 1, ext = m[1] === 'png' ? 'png' : 'jpeg';
+      media.push({ name: 'xl/media/image' + n + '.' + ext, data: u8 });
+      dr.push('<xdr:oneCellAnchor><xdr:from><xdr:col>' + (PH0 + q) + '</xdr:col><xdr:colOff>38100</xdr:colOff><xdr:row>' + (R - 1) + '</xdr:row><xdr:rowOff>38100</xdr:rowOff></xdr:from><xdr:ext cx="' + w * 9525 + '" cy="' + h * 9525 + '"/><xdr:pic><xdr:nvPicPr><xdr:cNvPr id="' + (n + 1) + '" name="Picture ' + n + '"/><xdr:cNvPicPr><a:picLocks noChangeAspect="1"/></xdr:cNvPicPr></xdr:nvPicPr><xdr:blipFill><a:blip r:embed="rId' + n + '"/><a:stretch><a:fillRect/></a:stretch></xdr:blipFill><xdr:spPr><a:xfrm><a:off x="0" y="0"/><a:ext cx="' + w * 9525 + '" cy="' + h * 9525 + '"/></a:xfrm><a:prstGeom prst="rect"><a:avLst/></a:prstGeom></xdr:spPr></xdr:pic><xdr:clientData/></xdr:oneCellAnchor>');
+    }
+  }
+  var cols = []; for (var cc = 0; cc < NC; cc++) cols.push('<col min="' + (cc + 1) + '" max="' + (cc + 1) + '" width="' + (cc === 0 ? 18 : cc === 1 ? 9 : cc < P0 ? 17 : cc < L0 ? 24 : 30) + '" customWidth="1"/>');
+  var NS = 'xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"', H = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n';
+  var sheet = H + '<worksheet ' + NS + '><sheetViews><sheetView workbookViewId="0"><pane xSplit="1" ySplit="1" topLeftCell="B2" activePane="bottomRight" state="frozen"/></sheetView></sheetViews><cols>' + cols.join('') + '</cols><sheetData>' + rows.join('') + '</sheetData>' + (dr.length ? '<drawing r:id="rId1"/>' : '') + '</worksheet>';
+  var styles = H + '<styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><fonts count="2"><font><sz val="11"/><name val="Meiryo"/></font><font><b/><sz val="11"/><color rgb="FFFFFFFF"/><name val="Meiryo"/></font></fonts>' +
+    '<fills count="6"><fill><patternFill patternType="none"/></fill><fill><patternFill patternType="gray125"/></fill><fill><patternFill patternType="solid"><fgColor rgb="FF4C2A9E"/></patternFill></fill><fill><patternFill patternType="solid"><fgColor rgb="FFFFF3C4"/></patternFill></fill><fill><patternFill patternType="solid"><fgColor rgb="FFEDE7FB"/></patternFill></fill><fill><patternFill patternType="solid"><fgColor rgb="FFFDE7EC"/></patternFill></fill></fills>' +
+    '<borders count="2"><border><left/><right/><top/><bottom/><diagonal/></border><border><left style="thin"><color rgb="FF999999"/></left><right style="thin"><color rgb="FF999999"/></right><top style="thin"><color rgb="FF999999"/></top><bottom style="thin"><color rgb="FF999999"/></bottom><diagonal/></border></borders>' +
+    '<cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs><cellXfs count="7"><xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/>' +
+    '<xf numFmtId="0" fontId="1" fillId="2" borderId="1" xfId="0" applyFont="1" applyFill="1" applyBorder="1" applyAlignment="1"><alignment horizontal="center" vertical="center" wrapText="1"/></xf>' +
+    '<xf numFmtId="0" fontId="0" fillId="0" borderId="1" xfId="0" applyBorder="1" applyAlignment="1"><alignment vertical="top" wrapText="1"/></xf>' +
+    '<xf numFmtId="0" fontId="0" fillId="3" borderId="1" xfId="0" applyFill="1" applyBorder="1" applyAlignment="1"><alignment vertical="top" wrapText="1"/></xf>' +
+    '<xf numFmtId="0" fontId="0" fillId="4" borderId="1" xfId="0" applyFill="1" applyBorder="1" applyAlignment="1"><alignment vertical="top" wrapText="1"/></xf>' +
+    '<xf numFmtId="0" fontId="0" fillId="5" borderId="1" xfId="0" applyFill="1" applyBorder="1"/>' +
+    '<xf numFmtId="0" fontId="1" fillId="2" borderId="1" xfId="0" applyFont="1" applyFill="1" applyBorder="1" applyAlignment="1"><alignment horizontal="center" vertical="center" wrapText="1"/></xf></cellXfs><cellStyles count="1"><cellStyle name="Normal" xfId="0" builtinId="0"/></cellStyles></styleSheet>';
+  var RT = 'http://schemas.openxmlformats.org/officeDocument/2006/relationships', PR = 'http://schemas.openxmlformats.org/package/2006/relationships';
+  var files = [
+    { name: '[Content_Types].xml', data: enc.encode(H + '<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Default Extension="jpeg" ContentType="image/jpeg"/><Default Extension="png" ContentType="image/png"/><Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/><Override PartName="/xl/worksheets/sheet1.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/><Override PartName="/xl/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml"/>' + (dr.length ? '<Override PartName="/xl/drawings/drawing1.xml" ContentType="application/vnd.openxmlformats-officedocument.drawing+xml"/>' : '') + '</Types>') },
+    { name: '_rels/.rels', data: enc.encode(H + '<Relationships xmlns="' + PR + '"><Relationship Id="rId1" Type="' + RT + '/officeDocument" Target="xl/workbook.xml"/></Relationships>') },
+    { name: 'xl/workbook.xml', data: enc.encode(H + '<workbook ' + NS + '><sheets><sheet name="ポイント表一覧" sheetId="1" r:id="rId1"/></sheets></workbook>') },
+    { name: 'xl/_rels/workbook.xml.rels', data: enc.encode(H + '<Relationships xmlns="' + PR + '"><Relationship Id="rId1" Type="' + RT + '/worksheet" Target="worksheets/sheet1.xml"/><Relationship Id="rId2" Type="' + RT + '/styles" Target="styles.xml"/></Relationships>') },
+    { name: 'xl/styles.xml', data: enc.encode(styles) },
+    { name: 'xl/worksheets/sheet1.xml', data: enc.encode(sheet) }
+  ];
+  if (dr.length) {
+    files.push({ name: 'xl/worksheets/_rels/sheet1.xml.rels', data: enc.encode(H + '<Relationships xmlns="' + PR + '"><Relationship Id="rId1" Type="' + RT + '/drawing" Target="../drawings/drawing1.xml"/></Relationships>') });
+    files.push({ name: 'xl/drawings/drawing1.xml', data: enc.encode(H + '<xdr:wsDr xmlns:xdr="http://schemas.openxmlformats.org/drawingml/2006/spreadsheetDrawing" xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" xmlns:r="' + RT + '">' + dr.join('') + '</xdr:wsDr>') });
+    files.push({ name: 'xl/drawings/_rels/drawing1.xml.rels', data: enc.encode(H + '<Relationships xmlns="' + PR + '">' + media.map(function (m, i) { return '<Relationship Id="rId' + (i + 1) + '" Type="' + RT + '/image" Target="../media/' + m.name.split('/').pop() + '"/>'; }).join('') + '</Relationships>') });
+    media.forEach(function (m) { files.push(m); });
+  }
+  return zipStore(files);
+}
+function xoRows(recs) { // src を持つものだけ（取り込んだPDF・Excel資料は対象外）。戻り値: {rows, skip}
+  var rows = [], skip = 0;
+  recs.forEach(function (rec) {
+    var s = rec && rec.src; if (!s || !s.pn) { skip++; return; }
+    rows.push({ pn: s.pn, qty: String(s.qty || ''), pts: String(s.pts || '').split(/\r?\n/).filter(Boolean), tr: s.tr || {}, photos: s.photos || [] });
+  });
+  rows.sort(function (a, b) { return a.pn < b.pn ? -1 : a.pn > b.pn ? 1 : 0; });
+  return { rows: rows, skip: skip };
+}
+async function xoSave(recs, btn) {
+  var o = xoRows(recs); if (!o.rows.length) return toast(t('xo_none'), 4000);
+  btn.disabled = true; toast(t('pk_busy'), 3000);
+  try {
+    var blob = await xlExport(o.rows), d = today().replace(/-/g, '');
+    var a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'ポイント表一覧_修正用_T' + CF.term + '_' + d + '.xlsx';
+    document.body.appendChild(a); a.click(); a.remove(); setTimeout(function () { URL.revokeObjectURL(a.href); }, 20000);
+    toast(t('xo_done', { n: o.rows.length }) + (o.skip ? ' ' + t('xo_skip', { s: o.skip }) : ''), 7000);
+  } catch (e) { toast(t('xo_fail') + ' [' + errTxt(e) + ']', 6000); } finally { btn.disabled = false; }
+}
+$('pkXl').onclick = async function () {
+  var recs = []; for (var k of Object.keys(PDF_INDEX)) recs.push(await getPdf(k));
+  xoSave(recs, this);
+};
+$('pkXl2').onclick = function () { if (PK) xoSave(PK.items, this); };
 /** PCで作る用のひな形（アプリの中に入っている）を、ダウンロードする */
 function dlTemplate(id, name) {
   var b = atob($(id).textContent.trim()), u = new Uint8Array(b.length); for (var i = 0; i < b.length; i++) u[i] = b.charCodeAt(i);
