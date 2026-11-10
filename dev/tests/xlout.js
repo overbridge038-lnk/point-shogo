@@ -23,6 +23,15 @@ const { chromium } = require('playwright'); const S = process.argv[2]; const fs 
   const rows = await p.evaluate(() => XL.rows.map(r => ({ pn: r.pn, qty: r.qty, pts: r.pts.length, p1: r.pts[0], photos: r.urls.length, en: r.tr.en, vi: r.tr.vi, my: r.tr.my, err: r.err })));
   rows.forEach(r => console.log(JSON.stringify(r)));
   console.log('summary:', await p.locator('#xlSum').innerText());
+  // 一覧で翻訳を入れた状態（自動翻訳の代わりに直接入れる）→「翻訳を入れたExcelとして保存」→ もう一度読み込んで同じか
+  await p.evaluate(() => { XL.rows.forEach(r => { r.tr.id = 'TR-' + r.pn; }); });
+  const [dl2] = await Promise.all([p.waitForEvent('download'), p.click('#xlSaveXl')]); const out2 = path.join(os.tmpdir(), 'xlout2.xlsx'); await dl2.saveAs(out2); console.log('file2:', dl2.suggestedFilename());
+  await p.evaluate(() => { document.getElementById('xlIn').value = ''; });
+  await p.setInputFiles('#xlIn', out2); await p.waitForTimeout(1500);
+  const r2 = await p.evaluate(() => XL.rows.map(r => ({ pn: r.pn, id: r.tr.id, en: r.tr.en, photos: r.urls.length, pts: r.pts.length })));
+  console.log(JSON.stringify(r2));
+  const ok2 = r2.length === 2 && r2.every(r => r.id === 'TR-' + r.pn) && r2.find(r => r.pn === 'AAA-11111').photos === 2 && r2.find(r => r.pn === 'AAA-11111').en === 'Check direction\nNo scratches';
+  console.log('save with translations', ok2 ? 'OK' : 'NG'); if (!ok2) process.exit(1);
   console.log('pageerrors:', errs.length ? errs : 'none'); await b.close();
   const A = rows.find(r => r.pn === 'AAA-11111'), B = rows.find(r => r.pn === '16611-10040,4078'); const ok = rows.length === 2 && A && B && A.pts === 3 && A.photos === 2 && A.en === 'Check direction\nNo scratches' && A.my.indexOf('ခြစ်ရာ') > 0 && B.pts === 10 && B.photos === 1 && !rows.some(r => r.err);
   console.log('roundtrip', ok ? 'OK' : 'NG'); if (!ok) process.exit(1);

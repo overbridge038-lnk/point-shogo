@@ -391,11 +391,11 @@ html[lang=my],html[lang=ne],html[lang=bn],html[lang=si]{line-height:1.5} /* ミ�
     <button class="btn langBtn" data-lang="si"><span class="flag">🇱🇰</span>සිංහල</button>
   </div>
   <p id="startNote" style="font-size:13px">準備中…</p>
-  <p class="ver" style="font-size:12px;opacity:.85">ver.2026.11.10 11:57 (#105)</p>
+  <p class="ver" style="font-size:12px;opacity:.85">ver.2026.11.10 12:06 (#107)</p>
 </div>
 
 <header>
-  <h1><i class="logo" data-mascot="ok"></i><span>ポイント照合ツール</span><small class="ver" title="版（ビルドした日時）">ver.2026.11.10 11:57 (#105)</small></h1>
+  <h1><i class="logo" data-mascot="ok"></i><span>ポイント照合ツール</span><small class="ver" title="版（ビルドした日時）">ver.2026.11.10 12:06 (#107)</small></h1>
   <div class="tabs">
     <button class="tab on" data-v="check" data-i18n="tab_check">照合</button>
     <button class="tab" data-v="pdf" data-i18n="tab_pdf">ポイント表の登録</button>
@@ -591,7 +591,7 @@ html[lang=my],html[lang=ne],html[lang=bn],html[lang=si]{line-height:1.5} /* ミ�
       <div id="xlBox" hidden style="display:none;gap:10px">
         <div class="card" id="xlSum" style="margin:0;font-weight:800"></div>
         <div style="max-height:340px;overflow:auto;border:var(--line);border-radius:12px"><table id="xlTbl"></table></div>
-        <div class="btnrow"><button class="btn" id="xlTrAuto" data-i18n="xl_tr_auto">🌐 空の翻訳を自動で入れる（オンライン）</button><button class="btn pri" id="xlGo" data-i18n="xl_go">この内容で登録する</button><button class="btn" id="xlCancel" data-i18n="xl_cancel">やめる</button></div>
+        <div class="btnrow"><button class="btn" id="xlTrAuto" data-i18n="xl_tr_auto">🌐 空の翻訳を自動で入れる（オンライン）</button><button class="btn" id="xlSaveXl" data-i18n="xl_savexl">💾 翻訳を入れたExcelとして保存</button><button class="btn pri" id="xlGo" data-i18n="xl_go">この内容で登録する</button><button class="btn" id="xlCancel" data-i18n="xl_cancel">やめる</button></div>
       </div>
       <p class="note" id="xlMsg" style="margin:0"></p>
     </div>
@@ -2210,6 +2210,8 @@ var I18N = {
     xo_skip: "（取り込んだPDF・Excel資料 {s}件は、中身が絵のため対象外）",
     xo_fail: "Excelに書き出せませんでした",
     xo_none: "Excelに書き出せる表（「つくる」で作った表）がありません",
+    xl_savexl: "💾 翻訳を入れたExcelとして保存",
+    xl_savexl_done: "Excelに保存しました：{n}件（このExcelを、もう一度ここに入れると登録できます）",
     pk_in: "📥 一式ファイルを取り込む",
     pk_mode: "取り込み方",
     pk_m_merge: "追加・上書き（今あるものは残す）",
@@ -2592,6 +2594,8 @@ var I18N = {
     xo_skip: "({s} PDF/dokumen Excel impor tidak termasuk karena berupa gambar)",
     xo_fail: "Gagal mengekspor ke Excel",
     xo_none: "Tidak ada tabel yang bisa diekspor ke Excel (tabel buatan \"Buat\")",
+    xl_savexl: "💾 Simpan sebagai Excel dengan terjemahan",
+    xl_savexl_done: "Disimpan ke Excel: {n} baris (masukkan Excel ini lagi ke sini untuk mendaftar)",
     pk_in: "📥 Impor file paket",
     pk_mode: "Cara impor",
     pk_m_merge: "Tambah/timpa (yang ada tetap disimpan)",
@@ -2974,6 +2978,8 @@ var I18N = {
     xo_skip: "({s} na na-import na PDF/dokumentong Excel ay hindi kasama dahil larawan ang laman)",
     xo_fail: "Hindi na-export sa Excel",
     xo_none: "Walang table na maaaring i-export sa Excel (mga ginawa gamit ang \"Gumawa\")",
+    xl_savexl: "💾 I-save bilang Excel na may salin",
+    xl_savexl_done: "Na-save sa Excel: {n} hilera (ilagay muli ang Excel na ito rito para magrehistro)",
     pk_in: "📥 I-import ang package file",
     pk_mode: "Paraan ng import",
     pk_m_merge: "Dagdag/palitan (mananatili ang kasalukuyan)",
@@ -3356,6 +3362,8 @@ var I18N = {
     xo_skip: "({s} imported PDF/Excel documents are left out because they are pictures)",
     xo_fail: "Could not export to Excel",
     xo_none: "No tables can be exported to Excel (tables made with \"Make\")",
+    xl_savexl: "💾 Save as Excel with translations",
+    xl_savexl_done: "Saved to Excel: {n} rows (put this Excel in here again to register)",
     pk_in: "📥 Import a package file",
     pk_mode: "Import mode",
     pk_m_merge: "Add / overwrite (keep what is already here)",
@@ -3738,6 +3746,8 @@ var I18N = {
     xo_skip: "({s} PDF/tài liệu Excel đã nhập bị loại vì nội dung là hình ảnh)",
     xo_fail: "Không xuất được ra Excel",
     xo_none: "Không có bảng nào xuất được ra Excel (bảng tạo bằng \"Tạo\")",
+    xl_savexl: "💾 Lưu thành Excel kèm bản dịch",
+    xl_savexl_done: "Đã lưu ra Excel: {n} dòng (đưa Excel này vào đây lần nữa để đăng ký)",
     pk_in: "📥 Nhập file gói",
     pk_mode: "Cách nhập",
     pk_m_merge: "Thêm / ghi đè (giữ lại những gì đang có)",
@@ -4120,6 +4130,8 @@ var I18N = {
     xo_skip: "(သွင်းထားသော PDF/Excel စာရွက်စာတမ်း {s} ခုသည် ပုံများဖြစ်၍ မပါဝင်ပါ)",
     xo_fail: "Excel သို့ မထုတ်နိုင်ပါ",
     xo_none: "Excel သို့ ထုတ်နိုင်သော ဇယား မရှိပါ",
+    xl_savexl: "💾 ဘာသာပြန်ပါသော Excel အဖြစ် သိမ်းရန်",
+    xl_savexl_done: "Excel သို့ သိမ်းပြီး: {n} တန်း (ဤ Excel ကို ဤနေရာသို့ ထပ်ထည့်၍ မှတ်ပုံတင်ပါ)",
     pk_in: "📥 ပက်ကေ့ချ်ဖိုင် ထည့်သွင်းမည်",
     pk_mode: "ထည့်သွင်းပုံ",
     pk_m_merge: "ထပ်ထည့် / ထပ်ရေး (ရှိပြီးသားကို ဆက်ထားမည်)",
@@ -4502,6 +4514,8 @@ var I18N = {
     xo_skip: "(आयात गरिएका {s} PDF/Excel कागजात तस्बिर भएकाले समावेश छैनन्)",
     xo_fail: "Excel मा निकाल्न सकिएन",
     xo_none: "Excel मा निकाल्न मिल्ने तालिका छैन",
+    xl_savexl: "💾 अनुवादसहितको Excel को रूपमा सेभ गर्ने",
+    xl_savexl_done: "Excel मा सेभ भयो: {n} पङ्क्ति (दर्ता गर्न यो Excel फेरि यहाँ हाल्नुहोस्)",
     pk_in: "📥 प्याकेज फाइल आयात",
     pk_mode: "आयातको तरिका",
     pk_m_merge: "थप्ने / ओभरराइट (भएको जस्ताको तस्तै राख्ने)",
@@ -4884,6 +4898,8 @@ var I18N = {
     xo_skip: "(ইমপোর্ট করা {s}টি PDF/Excel নথি ছবি হওয়ায় বাদ)",
     xo_fail: "Excel-এ বের করা গেল না",
     xo_none: "Excel-এ বের করার মতো টেবিল নেই",
+    xl_savexl: "💾 অনুবাদসহ Excel হিসেবে সেভ করুন",
+    xl_savexl_done: "Excel-এ সেভ হয়েছে: {n}টি সারি (নিবন্ধনের জন্য এই Excel আবার এখানে দিন)",
     pk_in: "📥 প্যাকেজ ফাইল ইমপোর্ট",
     pk_mode: "ইমপোর্টের ধরন",
     pk_m_merge: "যোগ / ওভাররাইট (যা আছে তা রাখা)",
@@ -5266,6 +5282,8 @@ var I18N = {
     xo_skip: "(Оруулсан {s} PDF/Excel баримт зураг тул хасагдсан)",
     xo_fail: "Excel рүү гаргаж чадсангүй",
     xo_none: "Excel рүү гаргах хүснэгт алга",
+    xl_savexl: "💾 Орчуулгатай Excel болгон хадгалах",
+    xl_savexl_done: "Excel-д хадгаллаа: {n} мөр (бүртгэхийн тулд энэ Excel-ийг дахин энд оруулна)",
     pk_in: "📥 Багц файл оруулах",
     pk_mode: "Оруулах горим",
     pk_m_merge: "Нэмэх / дарж бичих (байгаа зүйлээ хадгална)",
@@ -5648,6 +5666,8 @@ var I18N = {
     xo_skip: "({s} PDF/documentos Excel importados ficam de fora por serem imagens)",
     xo_fail: "Não foi possível exportar para o Excel",
     xo_none: "Nenhuma tabela pode ser exportada para o Excel",
+    xl_savexl: "💾 Salvar como Excel com traduções",
+    xl_savexl_done: "Salvo no Excel: {n} linhas (coloque este Excel aqui de novo para registrar)",
     pk_in: "📥 Importar um arquivo de pacote",
     pk_mode: "Modo de importação",
     pk_m_merge: "Adicionar / sobrescrever (manter o que já existe)",
@@ -6030,6 +6050,8 @@ var I18N = {
     xo_skip: "(ආනයනය කළ PDF/Excel ලේඛන {s} පින්තූර නිසා ඇතුළත් නැත)",
     xo_fail: "Excel වෙත නිකුත් කළ නොහැකි විය",
     xo_none: "Excel වෙත නිකුත් කළ හැකි වගු නැත",
+    xl_savexl: "💾 පරිවර්තන සහිත Excel ලෙස සුරකින්න",
+    xl_savexl_done: "Excel වෙත සුරැකුවා: පේළි {n} (ලියාපදිංචියට මෙම Excel නැවත මෙහි දමන්න)",
     pk_in: "📥 පැකේජ් ගොනුවක් ආනයනය",
     pk_mode: "ආනයන ක්‍රමය",
     pk_m_merge: "එකතු කරන්න / උඩින් ලියන්න (පවතින දේ තබා ගන්න)",
@@ -7238,6 +7260,23 @@ async function xoSave(recs, btn) {
 $('pkXl').onclick = async function () {
   var recs = []; for (var k of Object.keys(PDF_INDEX)) recs.push(await getPdf(k));
   xoSave(recs, this);
+};
+/** 一覧の確認画面の内容（直した文・自動で入れた翻訳・写真）を、そのままExcelに保存する。タブレットに入れる前に、PCのExcelで続きを直したいとき用 */
+$('xlSaveXl').onclick = async function () {
+  if (!XL) return; var btn = this, msg = $('xlMsg'), ok = XL.rows.filter(function (r) { return !r.err; });
+  if (!ok.length) return toast(t('xo_none'), 4000);
+  btn.disabled = true; msg.textContent = t('pk_busy');
+  try {
+    var rows = [];
+    for (var i = 0; i < ok.length; i++) {
+      var r = ok[i], ims = (await Promise.all(r.urls.map(xlLoadOriented))).filter(Boolean);
+      rows.push({ pn: r.pn, qty: r.qty, pts: r.pts, tr: r.tr, photos: ims.map(imgToDataUrl) });
+    }
+    var blob = await xlExport(rows), a = document.createElement('a');
+    a.href = URL.createObjectURL(blob); a.download = 'ポイント表一覧_翻訳つき_T' + CF.term + '_' + today().replace(/-/g, '') + '.xlsx';
+    document.body.appendChild(a); a.click(); a.remove(); setTimeout(function () { URL.revokeObjectURL(a.href); }, 20000);
+    msg.innerHTML = '<span style="color:var(--ok);font-weight:900">' + esc(t('xl_savexl_done', { n: rows.length })) + '</span>';
+  } catch (e) { msg.innerHTML = '<span style="color:var(--ng);font-weight:800">⚠ ' + esc(t('xo_fail')) + ' [' + esc(errTxt(e)) + ']</span>'; } finally { btn.disabled = false; }
 };
 $('pkXl2').onclick = function () { if (PK) xoSave(PK.items, this); };
 /** PCで作る用のひな形（アプリの中に入っている）を、ダウンロードする */
