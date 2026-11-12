@@ -251,7 +251,15 @@ label.f{display:flex;flex-direction:column;gap:6px;font-size:14px;font-weight:80
 #gdView .kb{background:#4c2a9e;color:#fff;border-radius:6px;padding:0 6px;font-weight:700}
 @media (max-width:900px){.gdSteps{grid-template-columns:1fr}}
 #vidEl{width:100%;max-height:70vh;background:#000;border-radius:10px}
-#vidBtn{min-height:34px;padding:2px 12px;font-size:14px}
+#vidBtn,#pbBtn{min-height:34px;padding:2px 12px;font-size:14px}
+#pbView,#pbSel{position:fixed;inset:0;z-index:68;display:none;flex-direction:column;background:#140e28}
+#pbView.on,#pbSel.on{display:flex}
+.pbBar{display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:8px 12px;background:var(--card);border-bottom:var(--line)}
+.pbBar b{font-size:16px;color:var(--ink)}
+.pbBody{flex:1;min-height:0;display:flex;align-items:center;justify-content:center;padding:10px;overflow:auto}
+#pbCv,#pbSelCv{display:block;background:#fff;border-radius:6px;max-width:none}
+#pbStage{position:relative;touch-action:none;user-select:none;cursor:crosshair}
+#pbRect{position:absolute;border:3px dashed #FFD23F;background:rgba(255,210,63,.2);display:none;pointer-events:none}
 .btn[hidden]{display:none!important} /* hidden を付けたボタンが、ボタンの表示指定に負けて見えてしまわないように */
 .chk{display:flex;align-items:flex-start;gap:8px;font-weight:700;font-size:14px;line-height:1.5}
 .chk[hidden]{display:none}
@@ -451,7 +459,7 @@ html[lang=my],html[lang=ne],html[lang=bn],html[lang=si]{line-height:1.5} /* ミ�
     </div>
   </div>
   <div class="right">
-    <div class="pdfhead"><span data-i18n="pdf_h">ポイント表：</span><b id="pdfName">―</b><span style="flex:1"></span><button class="btn pri" id="vidBtn" hidden data-i18n="vid_play">▶ 動画を見る</button><div class="zoomBar" id="zoomBar" hidden><button id="zOut" aria-label="縮小">－</button><span id="zLbl">100%</span><button id="zIn" aria-label="拡大">＋</button><button id="zFit" class="zfit" data-i18n="z_fit">全体</button></div><span id="pdfCount"></span></div>
+    <div class="pdfhead"><span data-i18n="pdf_h">ポイント表：</span><b id="pdfName">―</b><span style="flex:1"></span><button class="btn" id="pbBtn" hidden data-i18n="pb_btn">🔍 写真を拡大</button><button class="btn pri" id="vidBtn" hidden data-i18n="vid_play">▶ 動画を見る</button><div class="zoomBar" id="zoomBar" hidden><button id="zOut" aria-label="縮小">－</button><span id="zLbl">100%</span><button id="zIn" aria-label="拡大">＋</button><button id="zFit" class="zfit" data-i18n="z_fit">全体</button></div><span id="pdfCount"></span></div>
     <div id="ptTrans" hidden></div>
     <div id="pdfbox"><div class="empty"><span data-mascot="wait"></span>かんばんを読むと、ここにポイント表が開きます</div></div>
   </div>
@@ -710,6 +718,8 @@ html[lang=my],html[lang=ne],html[lang=bn],html[lang=si]{line-height:1.5} /* ミ�
   </div>
 </div>
 <input type="file" id="vidIn" accept="video/*,.mp4,.m4v,.webm,.mov" hidden>
+<div id="pbView" role="dialog" aria-modal="true"><div class="pbBar"><b data-i18n="pb_btn">🔍 写真を拡大</b><span style="flex:1"></span><button class="btn" id="pbFix" data-i18n="pb_fix">✎ 範囲を決め直す</button><button class="btn pri" id="pbClose" data-i18n="c_close">✕ 閉じる</button></div><div class="pbBody"><canvas id="pbCv"></canvas></div></div>
+<div id="pbSel" role="dialog" aria-modal="true"><div class="pbBar"><b data-i18n="pb_hint">写真の部分を、指でなぞって四角く囲んでください</b><span style="flex:1"></span><button class="btn" id="pbRedo" data-i18n="pb_redo">やり直し</button><button class="btn pri" id="pbOk" data-i18n="pb_ok">決定</button><button class="btn" id="pbCancel" data-i18n="pin_cancel">キャンセル</button></div><div class="pbBody"><div id="pbStage"><canvas id="pbSelCv"></canvas><div id="pbRect"></div></div></div></div>
 <div id="pview" role="dialog" aria-modal="true">
   <div class="pvbox">
     <div class="pvhead"><div><div class="note" style="margin:0" data-i18n="pv_title">ポイント表</div><b class="mono" id="pvName"></b></div><span style="flex:1"></span><button class="btn" id="pvClose" data-i18n="c_close">✕ 閉じる</button></div>
@@ -1079,6 +1089,13 @@ var I18N = {
     xo_skip: "（取り込んだPDF・Excel資料 {s}件は、中身が絵のため対象外）",
     xo_fail: "Excelに書き出せませんでした",
     xo_none: "Excelに書き出せる表（「つくる」で作った表）がありません",
+    pb_btn: "🔍 写真を拡大",
+    pb_hint: "写真の部分を、指でなぞって四角く囲んでください（最初の1回だけ）",
+    pb_ok: "決定",
+    pb_redo: "やり直し",
+    pb_fix: "✎ 範囲を決め直す",
+    pb_small: "囲みが小さすぎます。もう一度囲んでください",
+    pb_fail: "写真を表示できませんでした",
     xl_savexl: "💾 翻訳を入れたExcelとして保存",
     xl_savexl_done: "Excelに保存しました：{n}件（このExcelを、もう一度ここに入れると登録できます）",
     pk_in: "📥 一式ファイルを取り込む",
@@ -1468,6 +1485,13 @@ var I18N = {
     xo_skip: "({s} PDF/dokumen Excel impor tidak termasuk karena berupa gambar)",
     xo_fail: "Gagal mengekspor ke Excel",
     xo_none: "Tidak ada tabel yang bisa diekspor ke Excel (tabel buatan \"Buat\")",
+    pb_btn: "🔍 Perbesar foto",
+    pb_hint: "Lingkari bagian foto dengan jari hingga berbentuk kotak (cukup sekali)",
+    pb_ok: "Tetapkan",
+    pb_redo: "Ulangi",
+    pb_fix: "✎ Tentukan ulang area",
+    pb_small: "Area terlalu kecil. Lingkari lagi",
+    pb_fail: "Foto tidak dapat ditampilkan",
     xl_savexl: "💾 Simpan sebagai Excel dengan terjemahan",
     xl_savexl_done: "Disimpan ke Excel: {n} baris (masukkan Excel ini lagi ke sini untuk mendaftar)",
     pk_in: "📥 Impor file paket",
@@ -1857,6 +1881,13 @@ var I18N = {
     xo_skip: "({s} na na-import na PDF/dokumentong Excel ay hindi kasama dahil larawan ang laman)",
     xo_fail: "Hindi na-export sa Excel",
     xo_none: "Walang table na maaaring i-export sa Excel (mga ginawa gamit ang \"Gumawa\")",
+    pb_btn: "🔍 Palakihin ang litrato",
+    pb_hint: "Bilugan ng daliri ang bahagi ng litrato bilang kahon (isang beses lang)",
+    pb_ok: "Itakda",
+    pb_redo: "Ulitin",
+    pb_fix: "✎ Itakda muli ang bahagi",
+    pb_small: "Masyadong maliit. Bilugan muli",
+    pb_fail: "Hindi maipakita ang litrato",
     xl_savexl: "💾 I-save bilang Excel na may salin",
     xl_savexl_done: "Na-save sa Excel: {n} hilera (ilagay muli ang Excel na ito rito para magrehistro)",
     pk_in: "📥 I-import ang package file",
@@ -2246,6 +2277,13 @@ var I18N = {
     xo_skip: "({s} imported PDF/Excel documents are left out because they are pictures)",
     xo_fail: "Could not export to Excel",
     xo_none: "No tables can be exported to Excel (tables made with \"Make\")",
+    pb_btn: "🔍 Enlarge photo",
+    pb_hint: "Draw a box around the photo area with your finger (only the first time)",
+    pb_ok: "Set",
+    pb_redo: "Redo",
+    pb_fix: "✎ Set the area again",
+    pb_small: "The box is too small. Draw it again",
+    pb_fail: "Could not show the photo",
     xl_savexl: "💾 Save as Excel with translations",
     xl_savexl_done: "Saved to Excel: {n} rows (put this Excel in here again to register)",
     pk_in: "📥 Import a package file",
@@ -2635,6 +2673,13 @@ var I18N = {
     xo_skip: "({s} PDF/tài liệu Excel đã nhập bị loại vì nội dung là hình ảnh)",
     xo_fail: "Không xuất được ra Excel",
     xo_none: "Không có bảng nào xuất được ra Excel (bảng tạo bằng \"Tạo\")",
+    pb_btn: "🔍 Phóng to ảnh",
+    pb_hint: "Dùng ngón tay khoanh vùng ảnh thành hình chữ nhật (chỉ lần đầu)",
+    pb_ok: "Chọn",
+    pb_redo: "Làm lại",
+    pb_fix: "✎ Chọn lại vùng",
+    pb_small: "Vùng quá nhỏ. Hãy khoanh lại",
+    pb_fail: "Không hiển thị được ảnh",
     xl_savexl: "💾 Lưu thành Excel kèm bản dịch",
     xl_savexl_done: "Đã lưu ra Excel: {n} dòng (đưa Excel này vào đây lần nữa để đăng ký)",
     pk_in: "📥 Nhập file gói",
@@ -3024,6 +3069,13 @@ var I18N = {
     xo_skip: "(သွင်းထားသော PDF/Excel စာရွက်စာတမ်း {s} ခုသည် ပုံများဖြစ်၍ မပါဝင်ပါ)",
     xo_fail: "Excel သို့ မထုတ်နိုင်ပါ",
     xo_none: "Excel သို့ ထုတ်နိုင်သော ဇယား မရှိပါ",
+    pb_btn: "🔍 ဓာတ်ပုံ ချဲ့ကြည့်ရန်",
+    pb_hint: "ဓာတ်ပုံနေရာကို လက်ချောင်းဖြင့် လေးထောင့်ပုံ ဝိုင်းပါ (ပထမတစ်ကြိမ်သာ)",
+    pb_ok: "သတ်မှတ်",
+    pb_redo: "ပြန်လုပ်",
+    pb_fix: "✎ နေရာ ပြန်သတ်မှတ်ရန်",
+    pb_small: "ဝိုင်းထားသည်မှာ သေးလွန်းသည်။ ထပ်ဝိုင်းပါ",
+    pb_fail: "ဓာတ်ပုံ မပြနိုင်ပါ",
     xl_savexl: "💾 ဘာသာပြန်ပါသော Excel အဖြစ် သိမ်းရန်",
     xl_savexl_done: "Excel သို့ သိမ်းပြီး: {n} တန်း (ဤ Excel ကို ဤနေရာသို့ ထပ်ထည့်၍ မှတ်ပုံတင်ပါ)",
     pk_in: "📥 ပက်ကေ့ချ်ဖိုင် ထည့်သွင်းမည်",
@@ -3413,6 +3465,13 @@ var I18N = {
     xo_skip: "(आयात गरिएका {s} PDF/Excel कागजात तस्बिर भएकाले समावेश छैनन्)",
     xo_fail: "Excel मा निकाल्न सकिएन",
     xo_none: "Excel मा निकाल्न मिल्ने तालिका छैन",
+    pb_btn: "🔍 फोटो ठूलो पार्नुहोस्",
+    pb_hint: "फोटोको भागलाई औँलाले चतुर्भुज आकारमा घेर्नुहोस् (पहिलो पटक मात्र)",
+    pb_ok: "तोक्नुहोस्",
+    pb_redo: "फेरि",
+    pb_fix: "✎ क्षेत्र फेरि तोक्नुहोस्",
+    pb_small: "घेरा धेरै सानो छ। फेरि घेर्नुहोस्",
+    pb_fail: "फोटो देखाउन सकिएन",
     xl_savexl: "💾 अनुवादसहितको Excel को रूपमा सेभ गर्ने",
     xl_savexl_done: "Excel मा सेभ भयो: {n} पङ्क्ति (दर्ता गर्न यो Excel फेरि यहाँ हाल्नुहोस्)",
     pk_in: "📥 प्याकेज फाइल आयात",
@@ -3802,6 +3861,13 @@ var I18N = {
     xo_skip: "(ইমপোর্ট করা {s}টি PDF/Excel নথি ছবি হওয়ায় বাদ)",
     xo_fail: "Excel-এ বের করা গেল না",
     xo_none: "Excel-এ বের করার মতো টেবিল নেই",
+    pb_btn: "🔍 ছবি বড় করুন",
+    pb_hint: "আঙুল দিয়ে ছবির অংশটি চৌকো করে ঘিরুন (শুধু প্রথমবার)",
+    pb_ok: "ঠিক করুন",
+    pb_redo: "আবার",
+    pb_fix: "✎ এলাকা আবার ঠিক করুন",
+    pb_small: "ঘের খুব ছোট। আবার ঘিরুন",
+    pb_fail: "ছবি দেখানো গেল না",
     xl_savexl: "💾 অনুবাদসহ Excel হিসেবে সেভ করুন",
     xl_savexl_done: "Excel-এ সেভ হয়েছে: {n}টি সারি (নিবন্ধনের জন্য এই Excel আবার এখানে দিন)",
     pk_in: "📥 প্যাকেজ ফাইল ইমপোর্ট",
@@ -4191,6 +4257,13 @@ var I18N = {
     xo_skip: "(Оруулсан {s} PDF/Excel баримт зураг тул хасагдсан)",
     xo_fail: "Excel рүү гаргаж чадсангүй",
     xo_none: "Excel рүү гаргах хүснэгт алга",
+    pb_btn: "🔍 Зургийг томруулах",
+    pb_hint: "Зургийн хэсгийг хуруугаараа дөрвөлжин хэлбэрээр тойруул (зөвхөн эхний удаа)",
+    pb_ok: "Тогтоох",
+    pb_redo: "Дахин",
+    pb_fix: "✎ Хэсгийг дахин тогтоох",
+    pb_small: "Хэт жижиг байна. Дахин тойруул",
+    pb_fail: "Зургийг харуулж чадсангүй",
     xl_savexl: "💾 Орчуулгатай Excel болгон хадгалах",
     xl_savexl_done: "Excel-д хадгаллаа: {n} мөр (бүртгэхийн тулд энэ Excel-ийг дахин энд оруулна)",
     pk_in: "📥 Багц файл оруулах",
@@ -4580,6 +4653,13 @@ var I18N = {
     xo_skip: "({s} PDF/documentos Excel importados ficam de fora por serem imagens)",
     xo_fail: "Não foi possível exportar para o Excel",
     xo_none: "Nenhuma tabela pode ser exportada para o Excel",
+    pb_btn: "🔍 Ampliar foto",
+    pb_hint: "Contorne a área da foto com o dedo, formando um retângulo (só na primeira vez)",
+    pb_ok: "Definir",
+    pb_redo: "Refazer",
+    pb_fix: "✎ Definir a área de novo",
+    pb_small: "A área está pequena demais. Contorne de novo",
+    pb_fail: "Não foi possível mostrar a foto",
     xl_savexl: "💾 Salvar como Excel com traduções",
     xl_savexl_done: "Salvo no Excel: {n} linhas (coloque este Excel aqui de novo para registrar)",
     pk_in: "📥 Importar um arquivo de pacote",
@@ -4969,6 +5049,13 @@ var I18N = {
     xo_skip: "(ආනයනය කළ PDF/Excel ලේඛන {s} පින්තූර නිසා ඇතුළත් නැත)",
     xo_fail: "Excel වෙත නිකුත් කළ නොහැකි විය",
     xo_none: "Excel වෙත නිකුත් කළ හැකි වගු නැත",
+    pb_btn: "🔍 ඡායාරූපය විශාල කරන්න",
+    pb_hint: "ඡායාරූප කොටස ඇඟිල්ලෙන් සිව්කොන් ලෙස වටකරන්න (පළමු වතාවට පමණි)",
+    pb_ok: "නියම කරන්න",
+    pb_redo: "නැවත",
+    pb_fix: "✎ කොටස නැවත නියම කරන්න",
+    pb_small: "වටය ඉතා කුඩාය. නැවත වටකරන්න",
+    pb_fail: "ඡායාරූපය පෙන්විය නොහැකි විය",
     xl_savexl: "💾 පරිවර්තන සහිත Excel ලෙස සුරකින්න",
     xl_savexl_done: "Excel වෙත සුරැකුවා: පේළි {n} (ලියාපදිංචියට මෙම Excel නැවත මෙහි දමන්න)",
     pk_in: "📥 පැකේජ් ගොනුවක් ආනයනය",
@@ -5246,10 +5333,10 @@ async function openDoc(data) {
     getPage: async function (n) {
       var g = im[n - 1];
       return {
-        getViewport: function (o) { return { width: g.w * o.scale, height: g.h * o.scale, scale: o.scale }; },
+        getViewport: function (o) { return { width: g.w * o.scale, height: g.h * o.scale, scale: o.scale, offsetX: o.offsetX || 0, offsetY: o.offsetY || 0 }; },
         render: function (o) {
           return { promise: new Promise(function (res, rej) {
-            var x = new Image(); x.onload = function () { o.canvasContext.drawImage(x, 0, 0, o.viewport.width, o.viewport.height); res(); };
+            var x = new Image(); x.onload = function () { o.canvasContext.drawImage(x, o.viewport.offsetX || 0, o.viewport.offsetY || 0, o.viewport.width, o.viewport.height); res(); };
             x.onerror = function () { rej(new Error('jpeg')); }; x.src = g.url;
           }) };
         }
@@ -5304,7 +5391,7 @@ function resetView() {
   S = { state: 'k', kRaw: '', kKey: '', pdfName: '' };
   CARD = { kPn: '―', kRaw: '', pPn: '―', pRaw: '', pHow: '' };
   setSteps(1); setJudge('wait', 'wait_big', 'wait_msg');
-  $('pdfName').textContent = '―'; $('zoomBar').hidden = true; ZM.z = 1; ZM.pages = []; sharpClear(); TRREC = null; renderTrans(); VIDKEY = null; $('vidBtn').hidden = true; if (XLCUR) { XV.release(XLCUR); XLCUR = null; }
+  $('pdfName').textContent = '―'; $('zoomBar').hidden = true; ZM.z = 1; ZM.pages = []; sharpClear(); TRREC = null; renderTrans(); VIDKEY = null; $('vidBtn').hidden = true; $('pbBtn').hidden = true; if (XLCUR) { XV.release(XLCUR); XLCUR = null; }
   $('pdfbox').innerHTML = '<div class="empty">' + mascot('wait') + esc(t('empty')) + '</div>';
   renderCards();
 }
@@ -5407,7 +5494,7 @@ async function startKanban(raw) {
   $('pdfName').textContent = rec.name;
   CARD.pPn = rec.name; renderCards();
   setJudge('wait', 'chk_big', 'chk_msg');
-  try { await (rec.kind === 'xlsx' ? renderXlsx(rec.data) : renderPdf(rec.data)); TRREC = rec.src || null; renderTrans(); VIDKEY = key; $('vidBtn').hidden = !VID_INDEX[key]; }
+  try { await (rec.kind === 'xlsx' ? renderXlsx(rec.data) : renderPdf(rec.data)); TRREC = rec.src || null; renderTrans(); VIDKEY = key; $('vidBtn').hidden = !VID_INDEX[key]; $('pbBtn').hidden = rec.kind === 'xlsx'; }
   catch (e) { return ng('ng_open', { t: 'open', f: rec.name, e: (e && e.message || String(e)) }, { kRaw: raw, part: key, pdf: rec.name }); }
   S.state = 'done';
   setSteps(3, true);
@@ -5858,7 +5945,7 @@ $('pkOut').onclick = async function () {
     var items = [], parts = [];
     for (var i = 0; i < keys.length; i++) {
       var rec = await getPdf(keys[i]); if (!rec) continue;
-      items.push({ key: rec.key, name: rec.name, at: rec.at, size: rec.data.byteLength, src: rec.src || null, kind: rec.kind || null, xl: rec.xl || null }); parts.push(rec.data);
+      items.push({ key: rec.key, name: rec.name, at: rec.at, size: rec.data.byteLength, src: rec.src || null, kind: rec.kind || null, xl: rec.xl || null, pbox: rec.pbox || null }); parts.push(rec.data);
     }
     // 動画（任意）：PDFのあとに続けて入れる。設定（任意）：端末番号と言語は入れない（端末ごとにちがうため）
     var vids = [], withVid = $('pkWithVid').checked, withCf = $('pkWithCf').checked;
@@ -5886,7 +5973,7 @@ $('pkIn').onchange = async function () {
     var buf = await readBuf(f);
     if (buf.byteLength < 12 || new TextDecoder().decode(buf.slice(0, 8)) !== 'PTPACK1\n') throw 0;
     var hl = new DataView(buf).getUint32(8), meta = JSON.parse(new TextDecoder().decode(buf.slice(12, 12 + hl))), off = 12 + hl, items = [];
-    meta.items.forEach(function (m) { items.push({ key: m.key, name: m.name, at: m.at, src: m.src || null, kind: m.kind || null, xl: m.xl || null, data: buf.slice(off, off + m.size) }); off += m.size; });
+    meta.items.forEach(function (m) { items.push({ key: m.key, name: m.name, at: m.at, src: m.src || null, kind: m.kind || null, xl: m.xl || null, pbox: m.pbox || null, data: buf.slice(off, off + m.size) }); off += m.size; });
     var vids = (meta.videos || []).map(function (m) { var v = { key: m.key, name: m.name, at: m.at, blob: new Blob([buf.slice(off, off + m.size)], { type: m.type || 'video/mp4' }), size: m.size }; off += m.size; return v; });
     if (off > buf.byteLength) throw 0;
     PK = { meta: meta, items: items, vids: vids };
@@ -5904,7 +5991,7 @@ async function pkPreview() {
     var it = PK.items[i]; inPack[it.key] = 1;
     if (!PDF_INDEX[it.key]) { a++; it.st = 'a'; continue; }
     var cur = await getPdf(it.key);
-    if (cur && pkSame(cur.data, it.data) && pkTr(cur.src) === pkTr(it.src)) { same++; it.st = 's'; } else { u++; it.st = 'u'; }
+    if (cur && pkSame(cur.data, it.data) && pkTr(cur.src) === pkTr(it.src) && JSON.stringify(cur.pbox || null) === JSON.stringify(it.pbox || null)) { same++; it.st = 's'; } else { u++; it.st = 'u'; }
   }
   PK.del = $('pkMode').value === 'replace' ? Object.keys(PDF_INDEX).filter(function (k) { return !inPack[k]; }) : [];
   $('pkPrev').innerHTML = esc(t('pk_prev', { a: a, u: u, s: same })) + (PK.del.length ? t('pk_prev_del', { d: PK.del.length }) : '');
@@ -5917,7 +6004,7 @@ $('pkApply').onclick = async function () {
   await tx('pdfs', 'readwrite', function (st) {
     PK.items.forEach(function (it) {
       if (it.st === 's') return;
-      st.put({ key: it.key, name: it.name, size: it.data.byteLength, at: it.at, data: it.data, src: it.src || undefined, kind: it.kind || undefined, xl: it.xl || undefined });
+      st.put({ key: it.key, name: it.name, size: it.data.byteLength, at: it.at, data: it.data, src: it.src || undefined, kind: it.kind || undefined, xl: it.xl || undefined, pbox: it.pbox || undefined });
       if (it.st === 'a') a++; else u++;
     });
     PK.del.forEach(function (k) { st.delete(k); });
@@ -6343,6 +6430,60 @@ function closeVideo() {
 $('vidClose').onclick = closeVideo;
 $('vidView').addEventListener('click', function (e) { if (e.target === $('vidView')) closeVideo(); });
 $('vidBtn').onclick = function () { if (VIDKEY) playVideo(VIDKEY); };
+// ---------- 写真の部分だけを、画面いっぱいに拡大する ----------
+// 「つくる」で作った表は、写真の場所がきまっているので、そのまま拡大（PB_TPL）。取り込んだPDF・Excelは、管理者が1回だけ「写真の部分」を囲んで決める（rec.pbox。ページ全体に対する割合）。
+// 見るだけなら誰でもできる。範囲を決める・直すときだけ、設定パスワード（ポイント表の登録タブと同じ）が要る。
+var PB_TPL = { p: 1, x: 70 / 1684, y: 360 / 1191, w: 760 / 1684, h: 761 / 1191 };
+function pbBoxOf(rec) { return rec.pbox || (rec.src ? PB_TPL : null); }
+async function pbRender(data, box, cv, maxW, maxH) {
+  var doc = await openDoc(data);
+  try {
+    var page = await doc.getPage(box.p || 1), v0 = page.getViewport({ scale: 1 }), dpr = window.devicePixelRatio || 1;
+    var cw = v0.width * box.w, ch = v0.height * box.h, sc = Math.min(maxW * dpr / cw, maxH * dpr / ch, 4096 / cw, 4096 / ch);
+    var vp = page.getViewport({ scale: sc, offsetX: -v0.width * box.x * sc, offsetY: -v0.height * box.y * sc });
+    cv.width = Math.max(1, Math.round(cw * sc)); cv.height = Math.max(1, Math.round(ch * sc));
+    cv.style.width = Math.round(cv.width / dpr) + 'px'; cv.style.height = Math.round(cv.height / dpr) + 'px';
+    var cx = cv.getContext('2d'); cx.fillStyle = '#fff'; cx.fillRect(0, 0, cv.width, cv.height);
+    await page.render({ canvasContext: cx, viewport: vp }).promise;
+  } finally { try { doc.destroy(); } catch (e) {} }
+}
+var PBR = null; // いま拡大している（または範囲を決めている）ポイント表
+async function pbOpen(rec, box) {
+  PBR = rec; $('pbView').classList.add('on');
+  try { await pbRender(rec.data, box, $('pbCv'), window.innerWidth - 24, window.innerHeight - 90); }
+  catch (e) { $('pbView').classList.remove('on'); toast(t('pb_fail') + ' [' + errTxt(e) + ']', 5000); }
+}
+async function pbSelect(rec) {
+  PBR = rec; var st = $('pbStage'), r = $('pbRect'); r.style.display = 'none'; PB_SEL = null; $('pbSel').classList.add('on');
+  try { await pbRender(rec.data, { p: 1, x: 0, y: 0, w: 1, h: 1 }, $('pbSelCv'), window.innerWidth - 24, window.innerHeight - 90); }
+  catch (e) { $('pbSel').classList.remove('on'); toast(t('pb_fail') + ' [' + errTxt(e) + ']', 5000); }
+}
+var PB_SEL = null, PB_DRAG = null;
+(function () {
+  var st = $('pbStage'), r = $('pbRect');
+  function pt(e) { var b = st.getBoundingClientRect(); return { x: Math.max(0, Math.min(b.width, e.clientX - b.left)), y: Math.max(0, Math.min(b.height, e.clientY - b.top)), w: b.width, h: b.height }; }
+  function draw() { if (!PB_SEL) { r.style.display = 'none'; return; } r.style.cssText = 'display:block;left:' + PB_SEL.x + 'px;top:' + PB_SEL.y + 'px;width:' + PB_SEL.w + 'px;height:' + PB_SEL.h + 'px'; }
+  st.addEventListener('pointerdown', function (e) { e.preventDefault(); try { st.setPointerCapture(e.pointerId); } catch (x) {} var q = pt(e); PB_DRAG = q; PB_SEL = { x: q.x, y: q.y, w: 0, h: 0, W: q.w, H: q.h }; draw(); });
+  st.addEventListener('pointermove', function (e) { if (!PB_DRAG) return; var q = pt(e); PB_SEL = { x: Math.min(PB_DRAG.x, q.x), y: Math.min(PB_DRAG.y, q.y), w: Math.abs(q.x - PB_DRAG.x), h: Math.abs(q.y - PB_DRAG.y), W: q.w, H: q.h }; draw(); });
+  ['pointerup', 'pointercancel'].forEach(function (n) { st.addEventListener(n, function () { PB_DRAG = null; }); });
+  $('pbRedo').onclick = function () { PB_SEL = null; draw(); };
+})();
+$('pbOk').onclick = async function () {
+  if (!PB_SEL || PB_SEL.w < 20 || PB_SEL.h < 20) return toast(t('pb_small'), 3500);
+  var box = { p: 1, x: PB_SEL.x / PB_SEL.W, y: PB_SEL.y / PB_SEL.H, w: PB_SEL.w / PB_SEL.W, h: PB_SEL.h / PB_SEL.H };
+  var rec = await getPdf(PBR.key); if (!rec) return; rec.pbox = box; await tx('pdfs', 'readwrite', function (st) { st.put(rec); });
+  $('pbSel').classList.remove('on'); pbOpen(rec, box);
+};
+$('pbCancel').onclick = function () { $('pbSel').classList.remove('on'); };
+$('pbClose').onclick = function () { $('pbView').classList.remove('on'); };
+$('pbView').addEventListener('click', function (e) { if (e.target === $('pbView') || e.target.classList.contains('pbBody')) $('pbView').classList.remove('on'); });
+$('pbFix').onclick = async function () { if (!(await unlockFor('pdf'))) return; $('pbView').classList.remove('on'); pbSelect(PBR); };
+$('pbBtn').onclick = async function () {
+  if (!S.kKey) return; var rec = await getPdf(S.kKey); if (!rec) return; var box = pbBoxOf(rec);
+  if (box) return pbOpen(rec, box);
+  if (!(await unlockFor('pdf'))) return; pbSelect(rec);
+};
+
 var PV_KEY = null;
 function closePreview() { $('pview').classList.remove('on'); $('pvBody').innerHTML = ''; }
 $('pvClose').onclick = closePreview;
