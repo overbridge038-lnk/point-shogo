@@ -193,11 +193,13 @@ th{background:var(--violet-soft);position:sticky;top:0;font-weight:900;border-bo
 td.r{text-align:right}
 .tag{display:inline-block;border:2px solid var(--ink);border-radius:999px;padding:1px 10px;font-weight:900;font-size:13px}
 .tag.ok{background:var(--mint)} .tag.ng{background:var(--red);color:#fff}
+.tag.mst{background:#1d4ed8;color:#fff;border-color:#1d4ed8} .tag.loc{background:#eef0f4;color:#444;border-color:#9aa0aa}
+.pinfo .tag{width:fit-content;font-size:12px;margin:2px 0}
 .sum{display:flex;gap:12px;flex-wrap:wrap}
 .sum div{flex:1;min-width:120px;border:var(--line);border-radius:20px;padding:10px 16px;background:var(--card);box-shadow:var(--pop-s);font-weight:800}
 .sum div:nth-child(2){background:var(--mint-soft)} .sum div:nth-child(3){background:var(--red-soft)}
 .sum b{display:block;font-size:34px;font-weight:900}
-input[type=text],input[type=date],input[type=url],input[type=number],select{font:inherit;font-size:16px;font-weight:700;padding:10px 14px;border:var(--line);border-radius:14px;min-height:48px;background:#fff;color:var(--ink)}
+input[type=text],input[type=date],input[type=url],.f input[type=password],input[type=number],select{font:inherit;font-size:16px;font-weight:700;padding:10px 14px;border:var(--line);border-radius:14px;min-height:48px;background:#fff;color:var(--ink)}
 label.f{display:flex;flex-direction:column;gap:6px;font-size:14px;font-weight:800}
 /* ---- 登録済み一覧（中身が見えるカード） ---- */
 .pgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px}
@@ -612,6 +614,26 @@ html[lang=my],html[lang=ne],html[lang=bn],html[lang=si]{line-height:1.5} /* ミ�
       <div class="btnrow"><button class="btn pri" id="appSave" data-i18n="app_btn">💾 このツールをファイルとして保存</button></div>
       <p class="note" style="margin:0" data-i18n="man_note">使用要領書（手順書）はインターネットにつながる時に開けます。</p>
       <div class="btnrow"><a class="btn" id="manPdf" data-i18n="man_btn" href="manual.pdf" target="_blank" rel="noopener" style="text-decoration:none;display:inline-flex;align-items:center">📖 手順書を開く</a></div>
+    </div>
+  </div>
+  <div class="card" id="msCard">
+    <h3 data-i18n="ms_h">親機の表の共有（Googleドライブ）</h3>
+    <div style="display:grid;gap:12px;max-width:560px">
+      <p class="note" style="margin:0" data-i18n-html="ms_note"></p>
+      <label class="f"><span data-i18n="ms_url">GASのURL</span><input type="url" id="msUrl" placeholder="https://script.google.com/macros/s/…/exec" autocomplete="off"></label>
+      <label class="f"><span data-i18n="ms_key">閲覧の合言葉</span><input type="password" id="msKey" autocomplete="off"></label>
+      <label class="chk"><input type="checkbox" id="msAuto" checked> <span data-i18n="ms_auto">ネットにつながったら自動で受け取る</span></label>
+      <div class="card" id="msStat" style="margin:0;font-weight:800"></div>
+      <div class="btnrow"><button class="btn pri" id="msGet" data-i18n="ms_get">🔄 今すぐ確認して受け取る</button></div>
+      <details id="msAdm"><summary style="cursor:pointer;font-weight:800" data-i18n="ms_adm">管理者用：親機の表として送る</summary>
+        <div style="display:grid;gap:10px;margin-top:10px">
+          <p class="note" style="margin:0" data-i18n-html="ms_adm_note"></p>
+          <label class="f"><span data-i18n="ms_skey">送信の合言葉</span><input type="password" id="msSendKey" autocomplete="off"></label>
+          <label class="chk"><input type="checkbox" id="msVid"> <span data-i18n="ms_vid">🎬 動画も送る（時間がかかります）</span></label>
+          <div class="btnrow"><button class="btn pri" id="msSend" data-i18n="ms_send">📤 この端末の表を親機の表として送る</button></div>
+        </div>
+      </details>
+      <p class="note" id="msMsg" style="margin:0"></p>
     </div>
   </div>
   <div class="card" id="pkCard">
@@ -1113,6 +1135,42 @@ var I18N = {
     pk_prev_del: "／<span style=\"color:var(--red)\">削除 {d} 件</span>",
     pk_confirm_replace: "一式にない {d} 件のポイント表を削除して、入れ替えます。よろしいですか？",
     pk_done: "取り込み完了：新規 {a} 件、上書き {u} 件、削除 {d} 件",
+    ms_h: "親機の表の共有（Googleドライブ）",
+    ms_note: "管理者が送った<b>親機の表</b>だけが、この端末に入ります。この端末で入れた表（<b>端末だけの表</b>）は消えません。<br>同じ品番が両方にあるときは、親機の表を使います。ネットが切れていても、最後に受け取った表で照合できます。",
+    ms_url: "GASのURL",
+    ms_key: "閲覧の合言葉",
+    ms_auto: "ネットにつながったら自動で受け取る（起動時・10分ごと）",
+    ms_get: "🔄 今すぐ確認して受け取る",
+    ms_adm: "管理者用：親機の表として送る",
+    ms_adm_note: "この端末に登録してある表<b>すべて</b>を、親機の表として送ります（版が1つ上がり、子機が受け取ります）。親機の表から外したい表は、先にこの端末から消してください。",
+    ms_skey: "送信の合言葉（保存しません）",
+    ms_vid: "🎬 動画も送る（時間がかかります）",
+    ms_send: "📤 この端末の表を親機の表として送る",
+    ms_stat: "親機の表：第{v}版（{at}）・{n} 件",
+    ms_stat_none: "親機の表：まだ受け取っていません",
+    ms_stat_local: "端末だけの表：{n} 件",
+    ms_chk: "最後に確認：{at}",
+    ms_e_key: "合言葉がちがいます",
+    ms_e_setup: "GASの合言葉がまだ設定されていません（Code.gs の READ_KEY・SEND_KEY を書き換えてください）",
+    ms_e_net: "つながりませんでした。URLとネットを確かめてください",
+    ms_e_nourl: "GASのURLを入れてください",
+    ms_e_nokey: "閲覧の合言葉を入れてください",
+    ms_e_nosend: "送信の合言葉を入れてください",
+    ms_e_offline: "ネットにつながっていません。つながってからもう一度押してください",
+    ms_none_yet: "親機の表は、まだ送られていません",
+    ms_latest: "最新です（第{v}版）",
+    ms_recv: "受け取り中… {i} / {n}",
+    ms_got: "親機の表を第{v}版にしました：新規 {a} 件、更新 {u} 件、削除 {d} 件",
+    ms_got_local: "（そのうち {l} 件は、端末だけの表を親機の表に置き換えました）",
+    ms_packing: "まとめています…",
+    ms_sending: "送信中… {i} / {n}",
+    ms_send_conf: "この端末の表 {n} 件を、親機の表として送ります。子機の親機の表は、この内容に入れ替わります。よろしいですか？",
+    ms_sent: "送りました：親機の表 第{v}版（{n} 件）",
+    ms_badge: "親機 第{v}版",
+    ms_tag: "親機",
+    ms_tag_local: "端末だけ",
+    ms_del_warn: "これは親機の表です。この端末から消しても、親機の表が新しくなったときに、また入ります。",
+    ms_saved: "保存しました",
     cl_none_day: "{d} の記録はありません",
     cl_conf_day: "{d} の照合記録 {n}件を削除します。元に戻せません。よろしいですか？",
     cl_done_day: "{d} の記録を削除しました（{n}件）",
@@ -1509,6 +1567,42 @@ var I18N = {
     pk_prev_del: " / <span style=\"color:var(--red)\">dihapus {d}</span>",
     pk_confirm_replace: "{d} tabel poin yang tidak ada di paket akan dihapus dan diganti. Lanjutkan?",
     pk_done: "Impor selesai: baru {a}, ditimpa {u}, dihapus {d}",
+    ms_h: "Berbagi tabel induk (Google Drive)",
+    ms_note: "Hanya <b>tabel induk</b> yang dikirim admin yang masuk ke tablet ini. Tabel yang dimasukkan di tablet ini (<b>tabel lokal</b>) tetap ada.<br>Jika nomor part yang sama ada di keduanya, tabel induk dipakai. Saat offline, dipakai tabel terakhir yang diterima.",
+    ms_url: "URL GAS",
+    ms_key: "Kata sandi baca",
+    ms_auto: "Terima otomatis saat online (saat mulai dan tiap 10 menit)",
+    ms_get: "🔄 Cek dan terima sekarang",
+    ms_adm: "Admin: kirim sebagai tabel induk",
+    ms_adm_note: "Mengirim <b>semua</b> tabel di tablet ini sebagai tabel induk (versi naik 1, tablet lain akan menerima). Hapus dulu tabel yang tidak ingin dimasukkan.",
+    ms_skey: "Kata sandi kirim (tidak disimpan)",
+    ms_vid: "🎬 Kirim video juga (butuh waktu)",
+    ms_send: "📤 Kirim tabel tablet ini sebagai induk",
+    ms_stat: "Tabel induk: versi {v} ({at}) · {n}",
+    ms_stat_none: "Tabel induk: belum diterima",
+    ms_stat_local: "Tabel lokal: {n}",
+    ms_chk: "Cek terakhir: {at}",
+    ms_e_key: "Kata sandi salah",
+    ms_e_setup: "Kata sandi GAS belum diatur (ubah READ_KEY dan SEND_KEY di Code.gs)",
+    ms_e_net: "Tidak bisa terhubung. Periksa URL dan jaringan",
+    ms_e_nourl: "Masukkan URL GAS",
+    ms_e_nokey: "Masukkan kata sandi baca",
+    ms_e_nosend: "Masukkan kata sandi kirim",
+    ms_e_offline: "Tidak online. Tekan lagi setelah terhubung",
+    ms_none_yet: "Belum ada tabel induk yang dikirim",
+    ms_latest: "Sudah terbaru (versi {v})",
+    ms_recv: "Menerima… {i} / {n}",
+    ms_got: "Tabel induk diperbarui ke versi {v}: baru {a}, diperbarui {u}, dihapus {d}",
+    ms_got_local: "({l} tabel lokal diganti dengan tabel induk)",
+    ms_packing: "Mengemas…",
+    ms_sending: "Mengirim… {i} / {n}",
+    ms_send_conf: "Kirim {n} tabel di tablet ini sebagai tabel induk? Tabel induk di tablet lain akan diganti.",
+    ms_sent: "Terkirim: tabel induk versi {v} ({n})",
+    ms_badge: "Induk v{v}",
+    ms_tag: "Induk",
+    ms_tag_local: "Lokal",
+    ms_del_warn: "Ini tabel induk. Meski dihapus di sini, akan kembali saat tabel induk diperbarui.",
+    ms_saved: "Tersimpan",
     cl_none_day: "Tidak ada catatan pada {d}",
     cl_conf_day: "Hapus {n} catatan tanggal {d}? Tidak bisa dikembalikan.",
     cl_done_day: "Catatan {d} dihapus ({n})",
@@ -1905,6 +1999,42 @@ var I18N = {
     pk_prev_del: " / <span style=\"color:var(--red)\">buburahin {d}</span>",
     pk_confirm_replace: "Buburahin at papalitan ang {d} point table na wala sa package. Ituloy?",
     pk_done: "Tapos ang import: bago {a}, pinalitan {u}, binura {d}",
+    ms_h: "Pagbabahagi ng master na talaan (Google Drive)",
+    ms_note: "Ang <b>master na talaan</b> lang na ipinadala ng admin ang papasok sa tablet na ito. Ang mga talaang inilagay dito (<b>lokal na talaan</b>) ay mananatili.<br>Kung pareho ang part number sa dalawa, master na talaan ang gagamitin. Kapag offline, ang huling natanggap ang gagamitin.",
+    ms_url: "GAS URL",
+    ms_key: "Password sa pagtingin",
+    ms_auto: "Awtomatikong tanggapin kapag online (sa simula at bawat 10 minuto)",
+    ms_get: "🔄 Suriin at tanggapin ngayon",
+    ms_adm: "Admin: ipadala bilang master na talaan",
+    ms_adm_note: "Ipapadala ang <b>lahat</b> ng talaan sa tablet na ito bilang master (tataas ng 1 ang bersyon, tatanggapin ng ibang tablet). Burahin muna ang ayaw isama.",
+    ms_skey: "Password sa pagpapadala (hindi sine-save)",
+    ms_vid: "🎬 Ipadala rin ang video (matagal)",
+    ms_send: "📤 Ipadala ang talaan ng tablet na ito bilang master",
+    ms_stat: "Master na talaan: bersyon {v} ({at}) · {n}",
+    ms_stat_none: "Master na talaan: hindi pa natatanggap",
+    ms_stat_local: "Lokal na talaan: {n}",
+    ms_chk: "Huling suri: {at}",
+    ms_e_key: "Mali ang password",
+    ms_e_setup: "Hindi pa nakatakda ang password ng GAS (palitan ang READ_KEY at SEND_KEY sa Code.gs)",
+    ms_e_net: "Hindi makakonekta. Suriin ang URL at network",
+    ms_e_nourl: "Ilagay ang GAS URL",
+    ms_e_nokey: "Ilagay ang password sa pagtingin",
+    ms_e_nosend: "Ilagay ang password sa pagpapadala",
+    ms_e_offline: "Hindi online. Pindutin ulit kapag konektado",
+    ms_none_yet: "Wala pang naipadalang master na talaan",
+    ms_latest: "Pinakabago na (bersyon {v})",
+    ms_recv: "Tumatanggap… {i} / {n}",
+    ms_got: "Na-update ang master sa bersyon {v}: bago {a}, na-update {u}, binura {d}",
+    ms_got_local: "({l} lokal na talaan ang pinalitan ng master)",
+    ms_packing: "Inihahanda…",
+    ms_sending: "Ipinapadala… {i} / {n}",
+    ms_send_conf: "Ipadala ang {n} talaan ng tablet na ito bilang master? Papalitan ang master na talaan sa ibang tablet.",
+    ms_sent: "Naipadala: master na talaan bersyon {v} ({n})",
+    ms_badge: "Master v{v}",
+    ms_tag: "Master",
+    ms_tag_local: "Lokal",
+    ms_del_warn: "Ito ay master na talaan. Kahit burahin dito, babalik ito kapag na-update ang master.",
+    ms_saved: "Na-save",
     cl_none_day: "Walang talaan sa {d}",
     cl_conf_day: "Burahin ang {n} talaan ng {d}? Hindi na maibabalik.",
     cl_done_day: "Nabura ang talaan ng {d} ({n})",
@@ -2301,6 +2431,42 @@ var I18N = {
     pk_prev_del: " / <span style=\"color:var(--red)\">delete {d}</span>",
     pk_confirm_replace: "{d} point tables not in the package will be deleted and replaced. Continue?",
     pk_done: "Import done: new {a}, overwritten {u}, deleted {d}",
+    ms_h: "Shared master tables (Google Drive)",
+    ms_note: "Only the <b>master tables</b> sent by the admin come into this tablet. Tables added on this tablet (<b>local tables</b>) stay.<br>If the same part number is in both, the master table is used. Offline, the last received tables are used.",
+    ms_url: "GAS URL",
+    ms_key: "Read password",
+    ms_auto: "Receive automatically when online (at start and every 10 min)",
+    ms_get: "🔄 Check and receive now",
+    ms_adm: "Admin: send as master tables",
+    ms_adm_note: "Sends <b>all</b> tables on this tablet as master tables (version goes up by 1; other tablets receive them). Delete tables you don't want in the master first.",
+    ms_skey: "Send password (not saved)",
+    ms_vid: "🎬 Send videos too (takes time)",
+    ms_send: "📤 Send this tablet's tables as master",
+    ms_stat: "Master tables: version {v} ({at}) · {n}",
+    ms_stat_none: "Master tables: not received yet",
+    ms_stat_local: "Local tables: {n}",
+    ms_chk: "Last check: {at}",
+    ms_e_key: "Wrong password",
+    ms_e_setup: "GAS passwords are not set yet (change READ_KEY and SEND_KEY in Code.gs)",
+    ms_e_net: "Could not connect. Check the URL and network",
+    ms_e_nourl: "Enter the GAS URL",
+    ms_e_nokey: "Enter the read password",
+    ms_e_nosend: "Enter the send password",
+    ms_e_offline: "Not online. Press again when connected",
+    ms_none_yet: "No master tables have been sent yet",
+    ms_latest: "Up to date (version {v})",
+    ms_recv: "Receiving… {i} / {n}",
+    ms_got: "Master tables updated to version {v}: new {a}, updated {u}, deleted {d}",
+    ms_got_local: "({l} local tables were replaced by master tables)",
+    ms_packing: "Packing…",
+    ms_sending: "Sending… {i} / {n}",
+    ms_send_conf: "Send {n} tables on this tablet as master tables? Master tables on other tablets will be replaced with these.",
+    ms_sent: "Sent: master tables version {v} ({n})",
+    ms_badge: "Master v{v}",
+    ms_tag: "Master",
+    ms_tag_local: "Local",
+    ms_del_warn: "This is a master table. Even if you delete it here, it comes back when the master tables are updated.",
+    ms_saved: "Saved",
     cl_none_day: "No records on {d}",
     cl_conf_day: "Delete {n} records from {d}? This cannot be undone.",
     cl_done_day: "Deleted records from {d} ({n})",
@@ -2697,6 +2863,42 @@ var I18N = {
     pk_prev_del: " / <span style=\"color:var(--red)\">xóa {d}</span>",
     pk_confirm_replace: "{d} bảng điểm không có trong gói sẽ bị xóa và thay thế. Tiếp tục?",
     pk_done: "Nhập xong: mới {a}, ghi đè {u}, xóa {d}",
+    ms_h: "Chia sẻ bảng chính (Google Drive)",
+    ms_note: "Chỉ <b>bảng chính</b> do quản lý gửi mới vào máy này. Bảng nhập trên máy này (<b>bảng riêng</b>) vẫn giữ nguyên.<br>Nếu cùng mã hàng có ở cả hai, dùng bảng chính. Khi mất mạng, dùng bảng nhận lần cuối.",
+    ms_url: "URL của GAS",
+    ms_key: "Mật khẩu xem",
+    ms_auto: "Tự động nhận khi có mạng (khi mở và mỗi 10 phút)",
+    ms_get: "🔄 Kiểm tra và nhận ngay",
+    ms_adm: "Quản lý: gửi làm bảng chính",
+    ms_adm_note: "Gửi <b>tất cả</b> bảng trên máy này làm bảng chính (phiên bản tăng 1, các máy khác sẽ nhận). Hãy xóa trước những bảng không muốn đưa vào.",
+    ms_skey: "Mật khẩu gửi (không lưu)",
+    ms_vid: "🎬 Gửi cả video (mất thời gian)",
+    ms_send: "📤 Gửi bảng của máy này làm bảng chính",
+    ms_stat: "Bảng chính: phiên bản {v} ({at}) · {n}",
+    ms_stat_none: "Bảng chính: chưa nhận",
+    ms_stat_local: "Bảng riêng: {n}",
+    ms_chk: "Kiểm tra lần cuối: {at}",
+    ms_e_key: "Sai mật khẩu",
+    ms_e_setup: "Chưa đặt mật khẩu GAS (sửa READ_KEY và SEND_KEY trong Code.gs)",
+    ms_e_net: "Không kết nối được. Hãy kiểm tra URL và mạng",
+    ms_e_nourl: "Hãy nhập URL của GAS",
+    ms_e_nokey: "Hãy nhập mật khẩu xem",
+    ms_e_nosend: "Hãy nhập mật khẩu gửi",
+    ms_e_offline: "Không có mạng. Hãy bấm lại khi có mạng",
+    ms_none_yet: "Chưa có bảng chính nào được gửi",
+    ms_latest: "Đã mới nhất (phiên bản {v})",
+    ms_recv: "Đang nhận… {i} / {n}",
+    ms_got: "Đã cập nhật bảng chính lên phiên bản {v}: mới {a}, cập nhật {u}, xóa {d}",
+    ms_got_local: "({l} bảng riêng đã được thay bằng bảng chính)",
+    ms_packing: "Đang đóng gói…",
+    ms_sending: "Đang gửi… {i} / {n}",
+    ms_send_conf: "Gửi {n} bảng của máy này làm bảng chính? Bảng chính trên các máy khác sẽ được thay thế.",
+    ms_sent: "Đã gửi: bảng chính phiên bản {v} ({n})",
+    ms_badge: "Bảng chính v{v}",
+    ms_tag: "Chính",
+    ms_tag_local: "Riêng",
+    ms_del_warn: "Đây là bảng chính. Dù xóa ở đây, nó sẽ quay lại khi bảng chính được cập nhật.",
+    ms_saved: "Đã lưu",
     cl_none_day: "Không có lịch sử ngày {d}",
     cl_conf_day: "Xóa {n} bản ghi của ngày {d}? Không thể hoàn tác.",
     cl_done_day: "Đã xóa lịch sử ngày {d} ({n})",
@@ -3093,6 +3295,42 @@ var I18N = {
     pk_prev_del: " / <span style=\"color:var(--red)\">ဖျက်မည် {d}</span>",
     pk_confirm_replace: "ပက်ကေ့ချ်တွင်မပါသော ပွိုင့်ဇယား {d} ခုကို ဖျက်ပြီး အစားထိုးမည်။ ဆက်လုပ်မလား?",
     pk_done: "ထည့်သွင်းပြီးပါပြီ: အသစ် {a}၊ ထပ်ရေး {u}၊ ဖျက်သည် {d}",
+    ms_h: "မာစတာဇယား မျှဝေခြင်း (Google Drive)",
+    ms_note: "စီမံသူ ပို့သော <b>မာစတာဇယား</b> သာ ဤတက်ဘလက်သို့ ဝင်မည်။ ဤတက်ဘလက်တွင် ထည့်ထားသော ဇယား (<b>ဒေသတွင်းဇယား</b>) မပျက်ပါ။<br>ပါ့နံပါတ်တူ နှစ်ခုလုံးတွင်ရှိလျှင် မာစတာဇယားကို သုံးမည်။ အင်တာနက်မရှိလျှင် နောက်ဆုံးလက်ခံထားသော ဇယားကို သုံးမည်။",
+    ms_url: "GAS URL",
+    ms_key: "ကြည့်ရန် စကားဝှက်",
+    ms_auto: "အွန်လိုင်းဖြစ်လျှင် အလိုအလျောက် လက်ခံမည် (စဖွင့်ချိန်နှင့် ၁၀ မိနစ်တိုင်း)",
+    ms_get: "🔄 ယခု စစ်ပြီး လက်ခံမည်",
+    ms_adm: "စီမံသူ: မာစတာဇယားအဖြစ် ပို့မည်",
+    ms_adm_note: "ဤတက်ဘလက်ရှိ ဇယား <b>အားလုံး</b> ကို မာစတာဇယားအဖြစ် ပို့မည် (ဗားရှင်း ၁ တိုးမည်၊ အခြားတက်ဘလက်များ လက်ခံမည်)။ မထည့်လိုသော ဇယားကို အရင်ဖျက်ပါ။",
+    ms_skey: "ပို့ရန် စကားဝှက် (မသိမ်းပါ)",
+    ms_vid: "🎬 ဗီဒီယိုပါ ပို့မည် (အချိန်ကြာသည်)",
+    ms_send: "📤 ဤတက်ဘလက်၏ ဇယားကို မာစတာအဖြစ် ပို့မည်",
+    ms_stat: "မာစတာဇယား: ဗားရှင်း {v} ({at}) · {n}",
+    ms_stat_none: "မာစတာဇယား: မလက်ခံရသေးပါ",
+    ms_stat_local: "ဒေသတွင်းဇယား: {n}",
+    ms_chk: "နောက်ဆုံးစစ်ချိန်: {at}",
+    ms_e_key: "စကားဝှက် မှားနေသည်",
+    ms_e_setup: "GAS စကားဝှက် မသတ်မှတ်ရသေးပါ (Code.gs ရှိ READ_KEY နှင့် SEND_KEY ကို ပြင်ပါ)",
+    ms_e_net: "ချိတ်ဆက်၍ မရပါ။ URL နှင့် ကွန်ရက်ကို စစ်ပါ",
+    ms_e_nourl: "GAS URL ထည့်ပါ",
+    ms_e_nokey: "ကြည့်ရန် စကားဝှက် ထည့်ပါ",
+    ms_e_nosend: "ပို့ရန် စကားဝှက် ထည့်ပါ",
+    ms_e_offline: "အွန်လိုင်း မဟုတ်ပါ။ ချိတ်ဆက်ပြီးမှ ထပ်နှိပ်ပါ",
+    ms_none_yet: "မာစတာဇယား မပို့ရသေးပါ",
+    ms_latest: "နောက်ဆုံးဗားရှင်း ဖြစ်သည် (ဗားရှင်း {v})",
+    ms_recv: "လက်ခံနေသည်… {i} / {n}",
+    ms_got: "မာစတာဇယားကို ဗားရှင်း {v} သို့ ပြောင်းပြီး: အသစ် {a}၊ အပ်ဒိတ် {u}၊ ဖျက် {d}",
+    ms_got_local: "(ဒေသတွင်းဇယား {l} ခုကို မာစတာဇယားဖြင့် အစားထိုးခဲ့သည်)",
+    ms_packing: "စုစည်းနေသည်…",
+    ms_sending: "ပို့နေသည်… {i} / {n}",
+    ms_send_conf: "ဤတက်ဘလက်ရှိ ဇယား {n} ခုကို မာစတာဇယားအဖြစ် ပို့မလား? အခြားတက်ဘလက်ရှိ မာစတာဇယားများ အစားထိုးခံရမည်။",
+    ms_sent: "ပို့ပြီး: မာစတာဇယား ဗားရှင်း {v} ({n})",
+    ms_badge: "မာစတာ v{v}",
+    ms_tag: "မာစတာ",
+    ms_tag_local: "ဒေသတွင်း",
+    ms_del_warn: "ဤသည် မာစတာဇယား ဖြစ်သည်။ ဤနေရာတွင် ဖျက်လည်း မာစတာဇယား အပ်ဒိတ်ဖြစ်သောအခါ ပြန်ဝင်လာမည်။",
+    ms_saved: "သိမ်းပြီး",
     cl_none_day: "{d} တွင် မှတ်တမ်းမရှိပါ",
     cl_conf_day: "{d} ၏ မှတ်တမ်း {n} ခုကို ဖျက်မလား? ပြန်မရနိုင်ပါ။",
     cl_done_day: "{d} ၏ မှတ်တမ်းများကို ဖျက်ပြီးပါပြီ ({n})",
@@ -3489,6 +3727,42 @@ var I18N = {
     pk_prev_del: " / <span style=\"color:var(--red)\">हटाउने {d}</span>",
     pk_confirm_replace: "प्याकेजमा नभएका {d} वटा पोइन्ट तालिका हटाएर बदलिन्छन्। जारी राख्ने?",
     pk_done: "आयात सकियो: नयाँ {a}, ओभरराइट {u}, हटाइएका {d}",
+    ms_h: "मास्टर तालिका साझा (Google Drive)",
+    ms_note: "प्रशासकले पठाएको <b>मास्टर तालिका</b> मात्र यो ट्याब्लेटमा आउँछ। यो ट्याब्लेटमा राखेका तालिका (<b>स्थानीय तालिका</b>) हट्दैनन्।<br>एउटै पार्ट नम्बर दुवैमा भए मास्टर तालिका प्रयोग हुन्छ। अफलाइनमा अन्तिम पटक पाएको तालिका प्रयोग हुन्छ।",
+    ms_url: "GAS URL",
+    ms_key: "हेर्ने पासवर्ड",
+    ms_auto: "अनलाइन हुँदा आफैं लिने (सुरुमा र हरेक १० मिनेटमा)",
+    ms_get: "🔄 अहिले जाँचेर लिने",
+    ms_adm: "प्रशासक: मास्टर तालिकाको रूपमा पठाउने",
+    ms_adm_note: "यो ट्याब्लेटका <b>सबै</b> तालिका मास्टर तालिकाको रूपमा पठाइन्छ (संस्करण १ ले बढ्छ, अरू ट्याब्लेटले लिन्छन्)। नचाहिने तालिका पहिले हटाउनुहोस्।",
+    ms_skey: "पठाउने पासवर्ड (सुरक्षित गरिँदैन)",
+    ms_vid: "🎬 भिडियो पनि पठाउने (समय लाग्छ)",
+    ms_send: "📤 यो ट्याब्लेटको तालिका मास्टरको रूपमा पठाउने",
+    ms_stat: "मास्टर तालिका: संस्करण {v} ({at}) · {n}",
+    ms_stat_none: "मास्टर तालिका: अझै पाइएको छैन",
+    ms_stat_local: "स्थानीय तालिका: {n}",
+    ms_chk: "अन्तिम जाँच: {at}",
+    ms_e_key: "पासवर्ड गलत छ",
+    ms_e_setup: "GAS पासवर्ड अझै राखिएको छैन (Code.gs मा READ_KEY र SEND_KEY बदल्नुहोस्)",
+    ms_e_net: "जडान भएन। URL र नेटवर्क जाँच्नुहोस्",
+    ms_e_nourl: "GAS URL हाल्नुहोस्",
+    ms_e_nokey: "हेर्ने पासवर्ड हाल्नुहोस्",
+    ms_e_nosend: "पठाउने पासवर्ड हाल्नुहोस्",
+    ms_e_offline: "अनलाइन छैन। जडान भएपछि फेरि थिच्नुहोस्",
+    ms_none_yet: "मास्टर तालिका अझै पठाइएको छैन",
+    ms_latest: "नयाँ नै छ (संस्करण {v})",
+    ms_recv: "लिँदै… {i} / {n}",
+    ms_got: "मास्टर तालिका संस्करण {v} मा अद्यावधिक: नयाँ {a}, अद्यावधिक {u}, हटाइएका {d}",
+    ms_got_local: "({l} स्थानीय तालिका मास्टर तालिकाले बदलियो)",
+    ms_packing: "तयार गर्दै…",
+    ms_sending: "पठाउँदै… {i} / {n}",
+    ms_send_conf: "यो ट्याब्लेटका {n} तालिका मास्टर तालिकाको रूपमा पठाउने? अरू ट्याब्लेटका मास्टर तालिका बदलिनेछन्।",
+    ms_sent: "पठाइयो: मास्टर तालिका संस्करण {v} ({n})",
+    ms_badge: "मास्टर v{v}",
+    ms_tag: "मास्टर",
+    ms_tag_local: "स्थानीय",
+    ms_del_warn: "यो मास्टर तालिका हो। यहाँ हटाए पनि मास्टर तालिका अद्यावधिक हुँदा फेरि आउँछ।",
+    ms_saved: "सुरक्षित भयो",
     cl_none_day: "{d} को अभिलेख छैन",
     cl_conf_day: "{d} का {n} अभिलेख मेट्ने? यो फिर्ता गर्न सकिँदैन।",
     cl_done_day: "{d} का अभिलेख मेटिए ({n})",
@@ -3885,6 +4159,42 @@ var I18N = {
     pk_prev_del: " / <span style=\"color:var(--red)\">মুছবে {d}</span>",
     pk_confirm_replace: "প্যাকেজে নেই এমন {d}টি পয়েন্ট টেবিল মুছে বদলে দেওয়া হবে। চালিয়ে যাবেন?",
     pk_done: "ইমপোর্ট শেষ: নতুন {a}, ওভাররাইট {u}, মোছা {d}",
+    ms_h: "মাস্টার টেবিল শেয়ার (Google Drive)",
+    ms_note: "শুধু অ্যাডমিনের পাঠানো <b>মাস্টার টেবিল</b> এই ট্যাবলেটে আসবে। এই ট্যাবলেটে রাখা টেবিল (<b>লোকাল টেবিল</b>) মুছবে না।<br>একই পার্ট নম্বর দুটোতেই থাকলে মাস্টার টেবিল ব্যবহার হবে। অফলাইনে শেষবার পাওয়া টেবিল ব্যবহার হবে।",
+    ms_url: "GAS URL",
+    ms_key: "দেখার পাসওয়ার্ড",
+    ms_auto: "অনলাইন হলে নিজে থেকে নেবে (শুরুতে ও প্রতি ১০ মিনিটে)",
+    ms_get: "🔄 এখনই দেখে নিন",
+    ms_adm: "অ্যাডমিন: মাস্টার টেবিল হিসেবে পাঠান",
+    ms_adm_note: "এই ট্যাবলেটের <b>সব</b> টেবিল মাস্টার হিসেবে পাঠানো হবে (সংস্করণ ১ বাড়বে, অন্য ট্যাবলেট নেবে)। যেগুলো রাখতে চান না, আগে মুছুন।",
+    ms_skey: "পাঠানোর পাসওয়ার্ড (সংরক্ষণ হয় না)",
+    ms_vid: "🎬 ভিডিওও পাঠান (সময় লাগে)",
+    ms_send: "📤 এই ট্যাবলেটের টেবিল মাস্টার হিসেবে পাঠান",
+    ms_stat: "মাস্টার টেবিল: সংস্করণ {v} ({at}) · {n}",
+    ms_stat_none: "মাস্টার টেবিল: এখনো পাওয়া যায়নি",
+    ms_stat_local: "লোকাল টেবিল: {n}",
+    ms_chk: "শেষ যাচাই: {at}",
+    ms_e_key: "পাসওয়ার্ড ভুল",
+    ms_e_setup: "GAS পাসওয়ার্ড এখনো দেওয়া হয়নি (Code.gs-এ READ_KEY ও SEND_KEY বদলান)",
+    ms_e_net: "সংযোগ হয়নি। URL ও নেটওয়ার্ক দেখুন",
+    ms_e_nourl: "GAS URL দিন",
+    ms_e_nokey: "দেখার পাসওয়ার্ড দিন",
+    ms_e_nosend: "পাঠানোর পাসওয়ার্ড দিন",
+    ms_e_offline: "অনলাইন নেই। সংযোগ হলে আবার চাপুন",
+    ms_none_yet: "এখনো কোনো মাস্টার টেবিল পাঠানো হয়নি",
+    ms_latest: "সর্বশেষ আছে (সংস্করণ {v})",
+    ms_recv: "নেওয়া হচ্ছে… {i} / {n}",
+    ms_got: "মাস্টার টেবিল সংস্করণ {v}-এ আপডেট: নতুন {a}, আপডেট {u}, মোছা {d}",
+    ms_got_local: "({l}টি লোকাল টেবিল মাস্টার দিয়ে বদলানো হয়েছে)",
+    ms_packing: "গোছানো হচ্ছে…",
+    ms_sending: "পাঠানো হচ্ছে… {i} / {n}",
+    ms_send_conf: "এই ট্যাবলেটের {n}টি টেবিল মাস্টার হিসেবে পাঠাবেন? অন্য ট্যাবলেটের মাস্টার টেবিল বদলে যাবে।",
+    ms_sent: "পাঠানো হয়েছে: মাস্টার টেবিল সংস্করণ {v} ({n})",
+    ms_badge: "মাস্টার v{v}",
+    ms_tag: "মাস্টার",
+    ms_tag_local: "লোকাল",
+    ms_del_warn: "এটি মাস্টার টেবিল। এখানে মুছলেও মাস্টার আপডেট হলে আবার আসবে।",
+    ms_saved: "সংরক্ষিত",
     cl_none_day: "{d}-এর কোনো রেকর্ড নেই",
     cl_conf_day: "{d}-এর {n}টি রেকর্ড মুছবেন? এটি ফেরানো যায় না।",
     cl_done_day: "{d}-এর রেকর্ড মোছা হয়েছে ({n})",
@@ -4281,6 +4591,42 @@ var I18N = {
     pk_prev_del: " / <span style=\"color:var(--red)\">устгах {d}</span>",
     pk_confirm_replace: "Багцад байхгүй {d} цэгийн хүснэгт устаж солигдоно. Үргэлжлүүлэх үү?",
     pk_done: "Оруулж дууслаа: шинэ {a}, дарж бичсэн {u}, устгасан {d}",
+    ms_h: "Үндсэн хүснэгт хуваалцах (Google Drive)",
+    ms_note: "Админы илгээсэн <b>үндсэн хүснэгт</b> л энэ таблетад орно. Энэ таблетад оруулсан хүснэгт (<b>дотоод хүснэгт</b>) устахгүй.<br>Ижил дугаар хоёуланд нь байвал үндсэн хүснэгтийг ашиглана. Офлайн үед хамгийн сүүлд авсныг ашиглана.",
+    ms_url: "GAS URL",
+    ms_key: "Харах нууц үг",
+    ms_auto: "Онлайн болоход автоматаар авах (эхлэхэд ба 10 минут тутам)",
+    ms_get: "🔄 Одоо шалгаж авах",
+    ms_adm: "Админ: үндсэн хүснэгтээр илгээх",
+    ms_adm_note: "Энэ таблетын <b>бүх</b> хүснэгтийг үндсэн хүснэгтээр илгээнэ (хувилбар 1-ээр нэмэгдэж, бусад таблет авна). Оруулахгүй хүснэгтээ эхлээд устгана уу.",
+    ms_skey: "Илгээх нууц үг (хадгалахгүй)",
+    ms_vid: "🎬 Видеог мөн илгээх (удна)",
+    ms_send: "📤 Энэ таблетын хүснэгтийг үндсэн болгож илгээх",
+    ms_stat: "Үндсэн хүснэгт: хувилбар {v} ({at}) · {n}",
+    ms_stat_none: "Үндсэн хүснэгт: хараахан аваагүй",
+    ms_stat_local: "Дотоод хүснэгт: {n}",
+    ms_chk: "Сүүлд шалгасан: {at}",
+    ms_e_key: "Нууц үг буруу",
+    ms_e_setup: "GAS нууц үг тохируулаагүй байна (Code.gs-ийн READ_KEY, SEND_KEY-г солино уу)",
+    ms_e_net: "Холбогдсонгүй. URL болон сүлжээгээ шалгана уу",
+    ms_e_nourl: "GAS URL оруулна уу",
+    ms_e_nokey: "Харах нууц үг оруулна уу",
+    ms_e_nosend: "Илгээх нууц үг оруулна уу",
+    ms_e_offline: "Онлайн биш байна. Холбогдсоны дараа дахин дарна уу",
+    ms_none_yet: "Үндсэн хүснэгт хараахан илгээгээгүй",
+    ms_latest: "Хамгийн сүүлийнх (хувилбар {v})",
+    ms_recv: "Авч байна… {i} / {n}",
+    ms_got: "Үндсэн хүснэгтийг хувилбар {v} болгосон: шинэ {a}, шинэчилсэн {u}, устгасан {d}",
+    ms_got_local: "({l} дотоод хүснэгтийг үндсэнээр сольсон)",
+    ms_packing: "Бэлдэж байна…",
+    ms_sending: "Илгээж байна… {i} / {n}",
+    ms_send_conf: "Энэ таблетын {n} хүснэгтийг үндсэн болгож илгээх үү? Бусад таблетын үндсэн хүснэгт солигдоно.",
+    ms_sent: "Илгээсэн: үндсэн хүснэгт хувилбар {v} ({n})",
+    ms_badge: "Үндсэн v{v}",
+    ms_tag: "Үндсэн",
+    ms_tag_local: "Дотоод",
+    ms_del_warn: "Энэ бол үндсэн хүснэгт. Энд устгасан ч үндсэн хүснэгт шинэчлэгдэхэд буцаж орно.",
+    ms_saved: "Хадгалсан",
     cl_none_day: "{d}-нд бүртгэл алга",
     cl_conf_day: "{d}-ний {n} бүртгэлийг устгах уу? Буцаах боломжгүй.",
     cl_done_day: "{d}-ний бүртгэлийг устгалаа ({n})",
@@ -4677,6 +5023,42 @@ var I18N = {
     pk_prev_del: " / <span style=\"color:var(--red)\">excluir {d}</span>",
     pk_confirm_replace: "{d} tabelas de pontos que não estão no pacote serão excluídas e substituídas. Continuar?",
     pk_done: "Importação concluída: novos {a}, sobrescritos {u}, excluídos {d}",
+    ms_h: "Compartilhar tabelas mestre (Google Drive)",
+    ms_note: "Só as <b>tabelas mestre</b> enviadas pelo administrador entram neste tablet. As tabelas colocadas neste tablet (<b>tabelas locais</b>) continuam.<br>Se o mesmo código estiver nos dois, usa-se a tabela mestre. Sem internet, usa-se a última recebida.",
+    ms_url: "URL do GAS",
+    ms_key: "Senha de leitura",
+    ms_auto: "Receber automaticamente quando online (ao iniciar e a cada 10 min)",
+    ms_get: "🔄 Verificar e receber agora",
+    ms_adm: "Administrador: enviar como tabelas mestre",
+    ms_adm_note: "Envia <b>todas</b> as tabelas deste tablet como mestre (a versão sobe 1 e os outros tablets recebem). Exclua antes as que não quer incluir.",
+    ms_skey: "Senha de envio (não é salva)",
+    ms_vid: "🎬 Enviar vídeos também (demora)",
+    ms_send: "📤 Enviar as tabelas deste tablet como mestre",
+    ms_stat: "Tabelas mestre: versão {v} ({at}) · {n}",
+    ms_stat_none: "Tabelas mestre: ainda não recebidas",
+    ms_stat_local: "Tabelas locais: {n}",
+    ms_chk: "Última verificação: {at}",
+    ms_e_key: "Senha errada",
+    ms_e_setup: "As senhas do GAS ainda não foram definidas (altere READ_KEY e SEND_KEY no Code.gs)",
+    ms_e_net: "Não foi possível conectar. Verifique a URL e a rede",
+    ms_e_nourl: "Digite a URL do GAS",
+    ms_e_nokey: "Digite a senha de leitura",
+    ms_e_nosend: "Digite a senha de envio",
+    ms_e_offline: "Sem internet. Pressione de novo quando conectar",
+    ms_none_yet: "Nenhuma tabela mestre foi enviada ainda",
+    ms_latest: "Atualizado (versão {v})",
+    ms_recv: "Recebendo… {i} / {n}",
+    ms_got: "Tabelas mestre atualizadas para a versão {v}: novas {a}, atualizadas {u}, excluídas {d}",
+    ms_got_local: "({l} tabelas locais foram substituídas pelas mestre)",
+    ms_packing: "Preparando…",
+    ms_sending: "Enviando… {i} / {n}",
+    ms_send_conf: "Enviar {n} tabelas deste tablet como mestre? As tabelas mestre dos outros tablets serão substituídas.",
+    ms_sent: "Enviado: tabelas mestre versão {v} ({n})",
+    ms_badge: "Mestre v{v}",
+    ms_tag: "Mestre",
+    ms_tag_local: "Local",
+    ms_del_warn: "Esta é uma tabela mestre. Mesmo excluindo aqui, ela volta quando as tabelas mestre forem atualizadas.",
+    ms_saved: "Salvo",
     cl_none_day: "Não há registros em {d}",
     cl_conf_day: "Apagar {n} registros de {d}? Não é possível desfazer.",
     cl_done_day: "Registros de {d} apagados ({n})",
@@ -5073,6 +5455,42 @@ var I18N = {
     pk_prev_del: " / <span style=\"color:var(--red)\">මකන්නේ {d}</span>",
     pk_confirm_replace: "පැකේජයේ නැති ලකුණු වගු {d}ක් මකා ප්‍රතිස්ථාපනය කෙරේ. ඉදිරියට යන්නද?",
     pk_done: "ආනයනය අවසන්: අලුත් {a}, උඩින් ලිව්ව {u}, මැකූ {d}",
+    ms_h: "ප්‍රධාන වගු බෙදාගැනීම (Google Drive)",
+    ms_note: "පරිපාලක එවූ <b>ප්‍රධාන වගු</b> පමණක් මෙම ටැබ්ලටයට එයි. මෙම ටැබ්ලටයේ දැමූ වගු (<b>දේශීය වගු</b>) මැකෙන්නේ නැත.<br>එකම කොටස් අංකය දෙකෙහිම ඇත්නම් ප්‍රධාන වගුව භාවිතා වේ. අන්තර්ජාලය නැති විට අවසන් වරට ලැබූ වගු භාවිතා වේ.",
+    ms_url: "GAS URL",
+    ms_key: "බැලීමේ මුරපදය",
+    ms_auto: "අන්තර්ජාලය ඇති විට ස්වයංක්‍රීයව ලබාගන්න (ආරම්භයේ සහ විනාඩි 10කට වරක්)",
+    ms_get: "🔄 දැන් පරීක්ෂා කර ලබාගන්න",
+    ms_adm: "පරිපාලක: ප්‍රධාන වගු ලෙස යවන්න",
+    ms_adm_note: "මෙම ටැබ්ලටයේ <b>සියලු</b> වගු ප්‍රධාන වගු ලෙස යවයි (අනුවාදය 1කින් වැඩි වේ, අනෙක් ටැබ්ලට ලබාගනී). ඇතුළත් නොකළ යුතු වගු පළමුව මකන්න.",
+    ms_skey: "යැවීමේ මුරපදය (සුරකින්නේ නැත)",
+    ms_vid: "🎬 වීඩියෝද යවන්න (කාලය ගතවේ)",
+    ms_send: "📤 මෙම ටැබ්ලටයේ වගු ප්‍රධාන ලෙස යවන්න",
+    ms_stat: "ප්‍රධාන වගු: අනුවාදය {v} ({at}) · {n}",
+    ms_stat_none: "ප්‍රධාන වගු: තවම ලැබී නැත",
+    ms_stat_local: "දේශීය වගු: {n}",
+    ms_chk: "අවසන් පරීක්ෂාව: {at}",
+    ms_e_key: "මුරපදය වැරදියි",
+    ms_e_setup: "GAS මුරපද තවම සකසා නැත (Code.gs හි READ_KEY සහ SEND_KEY වෙනස් කරන්න)",
+    ms_e_net: "සම්බන්ධ විය නොහැක. URL සහ ජාලය පරීක්ෂා කරන්න",
+    ms_e_nourl: "GAS URL ඇතුළත් කරන්න",
+    ms_e_nokey: "බැලීමේ මුරපදය ඇතුළත් කරන්න",
+    ms_e_nosend: "යැවීමේ මුරපදය ඇතුළත් කරන්න",
+    ms_e_offline: "අන්තර්ජාලය නැත. සම්බන්ධ වූ පසු නැවත ඔබන්න",
+    ms_none_yet: "තවම ප්‍රධාන වගු යවා නැත",
+    ms_latest: "නවතම අනුවාදයයි (අනුවාදය {v})",
+    ms_recv: "ලබාගනිමින්… {i} / {n}",
+    ms_got: "ප්‍රධාන වගු අනුවාදය {v} දක්වා යාවත්කාලීනයි: අලුත් {a}, යාවත්කාලීන {u}, මැකූ {d}",
+    ms_got_local: "(දේශීය වගු {l}ක් ප්‍රධාන වගුවලින් ප්‍රතිස්ථාපනය විය)",
+    ms_packing: "සූදානම් කරමින්…",
+    ms_sending: "යවමින්… {i} / {n}",
+    ms_send_conf: "මෙම ටැබ්ලටයේ වගු {n}ක් ප්‍රධාන ලෙස යවන්නද? අනෙක් ටැබ්ලටවල ප්‍රධාන වගු ප්‍රතිස්ථාපනය වේ.",
+    ms_sent: "යැව්වා: ප්‍රධාන වගු අනුවාදය {v} ({n})",
+    ms_badge: "ප්‍රධාන v{v}",
+    ms_tag: "ප්‍රධාන",
+    ms_tag_local: "දේශීය",
+    ms_del_warn: "මෙය ප්‍රධාන වගුවකි. මෙහි මැකුවද ප්‍රධාන වගු යාවත්කාලීන වූ විට නැවත එයි.",
+    ms_saved: "සුරැකිණි",
     cl_none_day: "{d} දිනයට වාර්තා නැත",
     cl_conf_day: "{d} දිනයේ වාර්තා {n}ක් මකන්නද? මෙය ආපසු හැරවිය නොහැක.",
     cl_done_day: "{d} දිනයේ වාර්තා මැකුවා ({n})",
@@ -5278,7 +5696,7 @@ function loadPdfIndex() {
     var c = DB.transaction('pdfs').objectStore('pdfs').openCursor();
     c.onsuccess = function () {
       var cur = c.result;
-      if (cur) { var v = cur.value; PDF_INDEX[v.key] = { key: v.key, name: v.name, size: v.size, at: v.at, kind: v.kind, xl: v.xl }; cur.continue(); }
+      if (cur) { var v = cur.value; PDF_INDEX[v.key] = { key: v.key, name: v.name, size: v.size, at: v.at, kind: v.kind, xl: v.xl, m: v.m || 0 }; cur.continue(); }
       else loadVidIndex().then(res);
     };
   });
@@ -5500,7 +5918,7 @@ async function startKanban(raw) {
   setSteps(3, true);
   setJudge('ok', 'OK', 'ok_msg', { pn: S.kShown });
   soundOk();
-  addLog({ result: 'OK', reason: PICKED ? '複数候補から選択' : '', kRaw: S.kRaw, part: S.kKey, pdf: S.pdfName });
+  addLog({ result: 'OK', reason: PICKED ? '複数候補から選択' : '', kRaw: S.kRaw, part: S.kKey, pdf: S.pdfName, mv: rec.m ? String(CF.mver || '') : '' });
 }
 
 // ---------- NG：止める（アンドン） ----------
@@ -5722,10 +6140,10 @@ async function showLogs() {
 async function exportCsv() {
   var d = $('logDate').value || today(), rows = await getLogs(d);
   if (!rows.length) return toast(t('l_none'));
-  var head = ['日付', '時刻', '端末', '判定', 'かんばんQR', '品番キー', 'ポイント表PDF', 'NG理由', 'NG解除時刻'];
+  var head = ['日付', '時刻', '端末', '判定', 'かんばんQR', '品番キー', 'ポイント表PDF', 'NG理由', 'NG解除時刻', '親機の表の版'];
   var q = function (v) { v = String(v == null ? '' : v); return /[",\n]/.test(v) ? '"' + v.replace(/"/g, '""') + '"' : v; };
   var lines = [head.join(',')].concat(rows.map(function (r) {
-    return [r.date, r.time, r.term, r.result, r.kRaw, r.part, r.pdf, r.reason, r.unlocked].map(q).join(',');
+    return [r.date, r.time, r.term, r.result, r.kRaw, r.part, r.pdf, r.reason, r.unlocked, r.mv ? '第' + r.mv + '版' : (r.result === 'OK' ? '端末だけ' : '')].map(q).join(',');
   }));
   var blob = new Blob(['﻿' + lines.join('\r\n')], { type: 'text/csv' });
   // file:// で開いた時もファイル名が付くよう data URL で保存
@@ -5804,7 +6222,7 @@ function showPdfList() {
   $('pdfList').innerHTML = list.map(function (k) {
     var v = PDF_INDEX[k];
     return '<div class="pcard"><button class="pthumb" data-view="' + esc(k) + '" data-thumb="' + esc(k) + '" aria-label="' + esc(v.name) + '"><span>' + esc(t('r_making')) + '</span></button>' +
-      '<div class="pinfo"><b class="mono">' + esc(v.name.replace(/\.(pdf|xlsx|xlsm)$/i, '')) + '</b><div class="note">' + esc(t('r_key')) + ' ' + esc(k) + '</div><div class="note">' + Math.round(v.size / 1024) + ' KB・' + esc(v.at) + '</div></div>' +
+      '<div class="pinfo"><b class="mono">' + esc(v.name.replace(/\.(pdf|xlsx|xlsm)$/i, '')) + '</b>' + (v.m ? ' <span class="tag mst">' + esc(t('ms_tag')) + '</span>' : (CF.mver ? ' <span class="tag loc">' + esc(t('ms_tag_local')) + '</span>' : '')) + '<div class="note">' + esc(t('r_key')) + ' ' + esc(k) + '</div><div class="note">' + Math.round(v.size / 1024) + ' KB・' + esc(v.at) + '</div></div>' +
       '<div class="pacts"><button class="btn" data-view="' + esc(k) + '">' + esc(t('r_view')) + '</button><button class="btn" data-dl="' + esc(k) + '">' + esc(t('r_save')) + '</button>' + ((v.kind === 'xlsx' || v.xl) ? '' : '<button class="btn" data-edit="' + esc(k) + '">' + esc(t('r_edit')) + '</button>') + (VID_INDEX[k] ? '<button class="btn" data-vidplay="' + esc(k) + '">' + esc(t('vid_play')) + '</button><button class="btn" data-vid="' + esc(k) + '">' + esc(t('vid_replace')) + '</button><button class="btn dng" data-viddel="' + esc(k) + '">' + esc(t('vid_del')) + '</button>' : '<button class="btn" data-vid="' + esc(k) + '">' + esc(t('vid_add')) + '</button>') + '<button class="btn dng" data-del="' + esc(k) + '">' + esc(t('r_del')) + '</button></div></div>';
   }).join('') || '<div class="pempty">' + (keys.length ? esc(t('r_nomatch', { q: $('pdfSearch').value })) : esc(t('r_none'))) + '</div>';
   // 画面に見えた分だけ見本を作る（件数が多くても重くならない）
@@ -5937,30 +6355,43 @@ function pkSame(a, b) {
   for (var i = 0; i < x.length; i++) if (x[i] !== y[i]) return false;
   return true;
 }
+/** 一式ファイル（.ptpack）の中身を作る。keys＝入れるポイント表、withVid＝動画も、withCf＝設定も */
+async function pkBuild(keys, withVid, withCf) {
+  var items = [], parts = [], vids = [];
+  for (var i = 0; i < keys.length; i++) {
+    var rec = await getPdf(keys[i]); if (!rec) continue;
+    items.push({ key: rec.key, name: rec.name, at: rec.at, size: rec.data.byteLength, src: rec.src || null, kind: rec.kind || null, xl: rec.xl || null, pbox: rec.pbox || null }); parts.push(rec.data);
+  }
+  // 動画（任意）：PDFのあとに続けて入れる。設定（任意）：端末番号と言語は入れない（端末ごとにちがうため）
+  if (withVid) for (var j = 0; j < keys.length; j++) {
+    var vk = keys[j]; if (!VID_INDEX[vk]) continue;
+    var vr = await tx('kv', 'readonly', function (st) { return st.get('vid:' + vk); }); if (!vr) continue;
+    var vb = await vr.blob.arrayBuffer(); vids.push({ key: vk, name: vr.name, at: vr.at, type: vr.blob.type, size: vb.byteLength }); parts.push(vb);
+  }
+  var hdr = new TextEncoder().encode(JSON.stringify({ v: 1, term: CF.term, at: today() + ' ' + nowTime(), items: items, videos: vids, vid: !!withVid, cf: withCf ? { sound: CF.sound, code: CF.code, setpw: CF.setpw, msUrl: CF.msUrl || '', msKey: CF.msKey || '' } : null }));
+  var top = new Uint8Array(12); top.set(new TextEncoder().encode('PTPACK1\n'), 0);
+  new DataView(top.buffer).setUint32(8, hdr.length);
+  return { blob: new Blob([top, hdr].concat(parts), { type: 'application/octet-stream' }), items: items, vids: vids };
+}
+/** 一式ファイルの中身を読む。形がちがえば例外 */
+function pkParse(buf) {
+  if (buf.byteLength < 12 || new TextDecoder().decode(buf.slice(0, 8)) !== 'PTPACK1\n') throw new Error('not ptpack');
+  var hl = new DataView(buf).getUint32(8), meta = JSON.parse(new TextDecoder().decode(buf.slice(12, 12 + hl))), off = 12 + hl, items = [];
+  meta.items.forEach(function (m) { items.push({ key: m.key, name: m.name, at: m.at, src: m.src || null, kind: m.kind || null, xl: m.xl || null, pbox: m.pbox || null, data: buf.slice(off, off + m.size) }); off += m.size; });
+  var vids = (meta.videos || []).map(function (m) { var v = { key: m.key, name: m.name, at: m.at, blob: new Blob([buf.slice(off, off + m.size)], { type: m.type || 'video/mp4' }), size: m.size }; off += m.size; return v; });
+  if (off > buf.byteLength) throw new Error('short');
+  return { meta: meta, items: items, vids: vids };
+}
 $('pkOut').onclick = async function () {
   var keys = Object.keys(PDF_INDEX).sort();
   if (!keys.length) return toast(t('pk_none'));
   var btn = this; btn.disabled = true;
   try {
-    var items = [], parts = [];
-    for (var i = 0; i < keys.length; i++) {
-      var rec = await getPdf(keys[i]); if (!rec) continue;
-      items.push({ key: rec.key, name: rec.name, at: rec.at, size: rec.data.byteLength, src: rec.src || null, kind: rec.kind || null, xl: rec.xl || null, pbox: rec.pbox || null }); parts.push(rec.data);
-    }
-    // 動画（任意）：PDFのあとに続けて入れる。設定（任意）：端末番号と言語は入れない（端末ごとにちがうため）
-    var vids = [], withVid = $('pkWithVid').checked, withCf = $('pkWithCf').checked;
-    if (withVid) for (var vk in VID_INDEX) {
-      if (!PDF_INDEX[vk]) continue;
-      var vr = await tx('kv', 'readonly', function (st) { return st.get('vid:' + vk); }); if (!vr) continue;
-      var vb = await vr.blob.arrayBuffer(); vids.push({ key: vk, name: vr.name, at: vr.at, type: vr.blob.type, size: vb.byteLength }); parts.push(vb);
-    }
-    var hdr = new TextEncoder().encode(JSON.stringify({ v: 1, term: CF.term, at: today() + ' ' + nowTime(), items: items, videos: vids, cf: withCf ? { sound: CF.sound, code: CF.code, setpw: CF.setpw } : null }));
-    var top = new Uint8Array(12); top.set(new TextEncoder().encode('PTPACK1\n'), 0);
-    new DataView(top.buffer).setUint32(8, hdr.length);
+    var withCf = $('pkWithCf').checked, pk = await pkBuild(keys, $('pkWithVid').checked, withCf);
     var fname = 'ポイント表一式_' + today() + '_' + CF.term + '.ptpack';
-    var a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([top, hdr].concat(parts), { type: 'application/octet-stream' })); a.download = fname;
+    var a = document.createElement('a'); a.href = URL.createObjectURL(pk.blob); a.download = fname;
     document.body.appendChild(a); a.click(); a.remove();
-    toast(t('pk_out_done', { n: items.length, f: fname }) + (vids.length ? ' ／ 🎬 ' + vids.length : '') + (withCf ? ' ／ ⚙' : ''), 5000);
+    toast(t('pk_out_done', { n: pk.items.length, f: fname }) + (pk.vids.length ? ' ／ 🎬 ' + pk.vids.length : '') + (withCf ? ' ／ ⚙' : ''), 5000);
   } finally { btn.disabled = false; }
 };
 $('pkPick').onclick = function () { $('pkIn').value = ''; $('pkIn').click(); };
@@ -5970,13 +6401,7 @@ $('pkIn').onchange = async function () {
   var f = this.files && this.files[0]; if (!f) return;
   toast(t('pk_busy'), 1500);
   try {
-    var buf = await readBuf(f);
-    if (buf.byteLength < 12 || new TextDecoder().decode(buf.slice(0, 8)) !== 'PTPACK1\n') throw 0;
-    var hl = new DataView(buf).getUint32(8), meta = JSON.parse(new TextDecoder().decode(buf.slice(12, 12 + hl))), off = 12 + hl, items = [];
-    meta.items.forEach(function (m) { items.push({ key: m.key, name: m.name, at: m.at, src: m.src || null, kind: m.kind || null, xl: m.xl || null, pbox: m.pbox || null, data: buf.slice(off, off + m.size) }); off += m.size; });
-    var vids = (meta.videos || []).map(function (m) { var v = { key: m.key, name: m.name, at: m.at, blob: new Blob([buf.slice(off, off + m.size)], { type: m.type || 'video/mp4' }), size: m.size }; off += m.size; return v; });
-    if (off > buf.byteLength) throw 0;
-    PK = { meta: meta, items: items, vids: vids };
+    PK = pkParse(await readBuf(f));
   } catch (e) { PK = null; return toast(t('pk_bad'), 4000); }
   $('pkBox').style.display = 'grid';
   $('pkFrom').textContent = t('pk_from', { term: PK.meta.term, at: PK.meta.at, n: PK.items.length });
@@ -6015,11 +6440,130 @@ $('pkApply').onclick = async function () {
     vids.forEach(function (v) { st.put({ k: 'vid:' + v.key, blob: v.blob, name: v.name, size: v.size, at: v.at }); vn++; });
     PK.del.forEach(function (k) { st.delete('vid:' + k); });
   });
-  if (cfOn) { CF.sound = PK.meta.cf.sound; CF.code = PK.meta.cf.code; CF.setpw = PK.meta.cf.setpw; await saveCfStore(); }
+  if (cfOn) { CF.sound = PK.meta.cf.sound; CF.code = PK.meta.cf.code; CF.setpw = PK.meta.cf.setpw; if (PK.meta.cf.msUrl) { CF.msUrl = PK.meta.cf.msUrl; CF.msKey = PK.meta.cf.msKey || ''; } await saveCfStore(); msFill(); }
   pkHide();
   await loadPdfIndex(); showPdfList(); updateHeader();
   toast(t('pk_done', { a: a, u: u, d: d }) + (vn ? ' ／ 🎬 ' + vn : '') + (cfOn ? ' ／ ⚙' : ''), 5000);
 };
+// ---------- 親機の表の共有（Googleドライブ＋GAS。gas/Code.gs） ----------
+// ・表は「親機の表」（rec.m=1。親機から届いたもの）と「端末だけの表」（その端末で入れたもの）に分かれる
+// ・受け取るときは、親機の表だけを入れ替える（届いた版にない親機の表は消す）。端末だけの表はさわらない
+//   （同じ品番が両方にあるときは親機の表を使う＝古い表で照合し続けないためのポカヨケ）
+// ・ネットが切れていても、最後に受け取った版で照合を続けられる（照合では通信しない）
+// ・GASとのやりとりは、合言葉を本文に入れて POST（文字のまま送るので、ブラウザの事前確認なしで届く）
+var MS_CHUNK = 3 * 1024 * 1024, MS_BUSY = false, MS_TIMER = null; // 3MBずつ（文字にすると4MB）に分けて送る・受け取る
+function msUrl() { return String(CF.msUrl || '').trim(); }
+function msMsg(txt, bad) { $('msMsg').innerHTML = bad ? '<span style="color:var(--ng);font-weight:800">⚠ ' + esc(txt) + '</span>' : esc(txt); }
+async function msCall(body) {
+  var r = await fetch(msUrl(), { method: 'POST', body: JSON.stringify(body), redirect: 'follow', cache: 'no-store' });
+  if (!r.ok) throw new Error('http ' + r.status);
+  var j = await r.json();
+  if (!j || !j.ok) { var e = new Error((j && j.err) || 'ng'); e.code = j && j.err; throw e; }
+  return j;
+}
+async function msRetry(fn) { // 通信が一瞬切れたときのため、3回まで試す（合言葉ちがいなどは試さない）
+  for (var i = 0; ; i++) { try { return await fn(); } catch (e) { if (i >= 2 || e.code) throw e; await new Promise(function (r) { setTimeout(r, 1500 * (i + 1)); }); } }
+}
+function msErr(e) { var c = e && e.code; return c === 'key' ? t('ms_e_key') : c === 'setup' ? t('ms_e_setup') : t('ms_e_net') + ' [' + errTxt(e) + ']'; }
+function msB64(blob) { return new Promise(function (res, rej) { var fr = new FileReader(); fr.onload = function () { res(String(fr.result).split(',')[1] || ''); }; fr.onerror = function () { rej(fr.error || new Error('read')); }; fr.readAsDataURL(blob); }); }
+function msU8(b64) { var bin = atob(b64), u = new Uint8Array(bin.length); for (var i = 0; i < bin.length; i++) u[i] = bin.charCodeAt(i); return u; }
+function msFill() { $('msUrl').value = CF.msUrl || ''; $('msKey').value = CF.msKey || ''; $('msAuto').checked = CF.msAuto !== '0'; msStatus(); }
+function msStatus() {
+  var nm = Object.keys(PDF_INDEX).filter(function (k) { return PDF_INDEX[k].m; }).length, nl = Object.keys(PDF_INDEX).length - nm;
+  $('msStat').innerHTML = esc(CF.mver ? t('ms_stat', { v: CF.mver, at: CF.mat || '', n: nm }) : t('ms_stat_none')) + '<br><span style="font-weight:600">' + esc(t('ms_stat_local', { n: nl })) + '</span>' +
+    (CF.mchk ? '<br><span class="note">' + esc(t('ms_chk', { at: CF.mchk })) + (CF.merr ? ' <span style="color:var(--ng)">⚠ ' + esc(CF.merr) + '</span>' : '') + '</span>' : '');
+}
+$('msUrl').onchange = function () { CF.msUrl = this.value.trim(); CF.merr = ''; saveCfStore(); msStatus(); toast(t('ms_saved')); };
+$('msKey').onchange = function () { CF.msKey = this.value.trim(); CF.merr = ''; saveCfStore(); toast(t('ms_saved')); };
+$('msAuto').onchange = function () { CF.msAuto = this.checked ? '1' : '0'; saveCfStore(); };
+/** 受け取った親機の表を入れる：親機の表だけ入れ替え、端末だけの表は残す */
+async function msApply(pk, info) {
+  var inPack = {}, a = 0, u = 0, l = 0, puts = [];
+  for (var i = 0; i < pk.items.length; i++) {
+    var it = pk.items[i]; inPack[it.key] = 1;
+    var cur = PDF_INDEX[it.key] ? await getPdf(it.key) : null;
+    if (cur && cur.m && pkSame(cur.data, it.data) && pkTr(cur.src) === pkTr(it.src) && JSON.stringify(cur.pbox || null) === JSON.stringify(it.pbox || null)) continue; // 変わっていない
+    if (!cur) a++; else { u++; if (!cur.m) l++; }
+    puts.push(it);
+  }
+  var del = Object.keys(PDF_INDEX).filter(function (k) { return PDF_INDEX[k].m && !inPack[k]; });
+  await tx('pdfs', 'readwrite', function (st) {
+    puts.forEach(function (it) { st.put({ key: it.key, name: it.name, size: it.data.byteLength, at: it.at, data: it.data, src: it.src || undefined, kind: it.kind || undefined, xl: it.xl || undefined, pbox: it.pbox || undefined, m: 1 }); });
+    del.forEach(function (k) { st.delete(k); });
+  });
+  // 動画：親機が動画も送ったときだけ、親機の表の動画をそろえる（送っていないときは今の動画を残す）
+  var vk = {}; pk.vids.forEach(function (v) { vk[v.key] = v; });
+  await tx('kv', 'readwrite', function (st) {
+    if (pk.meta.vid) pk.items.forEach(function (it) { var v = vk[it.key]; if (v) st.put({ k: 'vid:' + v.key, blob: v.blob, name: v.name, size: v.size, at: v.at }); else if (VID_INDEX[it.key]) st.delete('vid:' + it.key); });
+    del.forEach(function (k) { st.delete('vid:' + k); });
+  });
+  CF.mver = info.ver; CF.mat = info.at || ''; await saveCfStore();
+  await loadPdfIndex(); showPdfList(); updateHeader();
+  return { a: a, u: u, d: del.length, l: l };
+}
+/** 親機の表を確かめて、新しい版があれば受け取る。auto＝自動（失敗しても画面を止めない） */
+async function msReceive(auto) {
+  if (MS_BUSY) return;
+  if (!msUrl() || !CF.msKey) { if (!auto) msMsg(t(msUrl() ? 'ms_e_nokey' : 'ms_e_nourl'), true); return; }
+  if (!navigator.onLine) { if (!auto) msMsg(t('ms_e_offline'), true); return; }
+  if (auto && S.state !== 'k' && S.state !== 'done') return; // 照合の途中・NGの間は受け取らない（次の機会に）
+  MS_BUSY = true; var btn = $('msGet'); btn.disabled = true;
+  try {
+    var info = (await msRetry(function () { return msCall({ action: 'info', key: CF.msKey }); })).m || { ver: 0 };
+    CF.mchk = today() + ' ' + nowTime(); CF.merr = '';
+    if (!info.ver) { if (!auto) msMsg(t('ms_none_yet')); return; }
+    if (info.ver === CF.mver) { if (!auto) msMsg(t('ms_latest', { v: info.ver })); return; }
+    var buf = new Uint8Array(info.size), off = 0;
+    for (var i = 0; i < info.parts; i++) {
+      if (!auto) msMsg(t('ms_recv', { i: i + 1, n: info.parts }));
+      var j = await msRetry(function () { return msCall({ action: 'part', key: CF.msKey, ver: info.ver, n: i }); }), d = msU8(j.data);
+      if (off + d.length > buf.length) throw new Error('size');
+      buf.set(d, off); off += d.length;
+    }
+    if (off !== info.size) throw new Error('size');
+    var r = await msApply(pkParse(buf.buffer), info);
+    var txt = t('ms_got', { v: info.ver, a: r.a, u: r.u, d: r.d }) + (r.l ? ' ' + t('ms_got_local', { l: r.l }) : '');
+    msMsg(txt); toast(txt, 6000);
+  } catch (e) { CF.merr = msErr(e); if (!auto) msMsg(CF.merr, true); }
+  finally { MS_BUSY = false; btn.disabled = false; saveCfStore(); msStatus(); }
+}
+$('msGet').onclick = function () { msReceive(false); };
+/** 管理者：この端末の表すべてを、親機の表として送る（版が1つ上がり、子機が受け取る） */
+$('msSend').onclick = async function () {
+  if (MS_BUSY) return;
+  if (!msUrl()) return msMsg(t('ms_e_nourl'), true);
+  var key = $('msSendKey').value.trim(); if (!key) return msMsg(t('ms_e_nosend'), true);
+  var keys = Object.keys(PDF_INDEX).sort(); if (!keys.length) return msMsg(t('pk_none'), true);
+  if (!navigator.onLine) return msMsg(t('ms_e_offline'), true);
+  if (!confirm(t('ms_send_conf', { n: keys.length }))) return;
+  MS_BUSY = true; var btn = this; btn.disabled = true;
+  try {
+    var info = await msCall({ action: 'info', key: key });
+    if (!info.send) { var e0 = new Error('key'); e0.code = 'key'; throw e0; }
+    msMsg(t('ms_packing'));
+    var pk = await pkBuild(keys, $('msVid').checked, false), size = pk.blob.size, n = Math.max(1, Math.ceil(size / MS_CHUNK));
+    var id = Date.now().toString(36) + Math.random().toString(36).slice(2, 10);
+    await msRetry(function () { return msCall({ action: 'begin', key: key, id: id }); });
+    for (var i = 0; i < n; i++) {
+      msMsg(t('ms_sending', { i: i + 1, n: n }));
+      var d = await msB64(pk.blob.slice(i * MS_CHUNK, (i + 1) * MS_CHUNK));
+      await msRetry(function () { return msCall({ action: 'up', key: key, id: id, n: i, data: d }); });
+    }
+    var j = await msRetry(function () { return msCall({ action: 'commit', key: key, id: id, parts: n, size: size, count: pk.items.length, at: today() + ' ' + nowTime(), term: CF.term }); });
+    // 送った表は、この端末でも「親機の表」になる
+    await tx('pdfs', 'readwrite', function (st) { keys.forEach(function (k) { var g = st.get(k); g.onsuccess = function () { var v = g.result; if (v && !v.m) { v.m = 1; st.put(v); } }; }); });
+    CF.mver = j.m.ver; CF.mat = j.m.at; CF.mchk = today() + ' ' + nowTime(); CF.merr = ''; await saveCfStore();
+    await loadPdfIndex(); showPdfList(); updateHeader();
+    var txt = t('ms_sent', { v: j.m.ver, n: pk.items.length }); msMsg(txt); toast(txt, 5000);
+  } catch (e) { msMsg(msErr(e), true); }
+  finally { MS_BUSY = false; btn.disabled = false; msStatus(); }
+};
+/** 起動したとき・ネットにつながったとき・10分ごとに、自動で確かめる */
+function msStart() {
+  var go = function () { if (CF.msAuto !== '0') msReceive(true); };
+  setTimeout(go, 2500); window.addEventListener('online', function () { setTimeout(go, 1500); });
+  if (!MS_TIMER) MS_TIMER = setInterval(go, 10 * 60 * 1000);
+}
 /** このツール本体（HTML）を、きれいな状態のまま、ファイルとして保存する。公開URL（https）で開いている時は、サーバーの元のHTMLを取って保存する。
  *  ファイルから直接開いている時は、ブラウザの決まりで自分自身を読めないので、できない理由を知らせる（画面をそのまま保存すると、操作中の状態も入ってしまうため） */
 $('appSave').onclick = async function () {
@@ -6368,7 +6912,7 @@ async function pickDoc(keys) {
 /** ポイント表を1件削除（確認つき） */
 async function deletePdf(k) {
   var v = PDF_INDEX[k]; if (!v) return false;
-  if (!confirm(t('r_del_confirm', { name: v.name }))) return false;
+  if (!confirm(t('r_del_confirm', { name: v.name }) + (v.m && msUrl() ? '\n\n' + t('ms_del_warn') : ''))) return false;
   await tx('pdfs', 'readwrite', function (s) { s.delete(k); });
   if (VID_INDEX[k]) await tx('kv', 'readwrite', function (s) { s.delete('vid:' + k); });
   await loadPdfIndex(); updateHeader();
@@ -6605,7 +7149,7 @@ async function updateHeader() {
   $('pCountNum').textContent = n;
   $('pCountBadge').classList.toggle('zero', n === 0);
   var rows = DB ? await getLogs(today()) : [], ng = rows.filter(function (r) { return r.result === 'NG'; }).length;
-  $('hinfo').textContent = t('h_info', { t: CF.term, n: rows.length, g: ng });
+  $('hinfo').textContent = t('h_info', { t: CF.term, n: rows.length, g: ng }) + (CF.mver ? ' ・ ' + t('ms_badge', { v: CF.mver }) : '');
 }
 
 // ---------- 読取欄（スキャナー・手入力） ----------
@@ -6892,7 +7436,7 @@ function gotoView(v) {
   if (v === 'check') setTimeout(focusScan, 50);
   if (v === 'pdf') showPdfList();
   if (v === 'log') showLogs();
-  if (v === 'set') { $('cfTerm').value = CF.term; $('cfSound').value = CF.sound; $('cfManual').value = CF.manual === '0' ? '0' : '1'; if (!$('clrDate').value) $('clrDate').value = today(); showClrCount(); }
+  if (v === 'set') { msFill(); $('cfTerm').value = CF.term; $('cfSound').value = CF.sound; $('cfManual').value = CF.manual === '0' ? '0' : '1'; if (!$('clrDate').value) $('clrDate').value = today(); showClrCount(); }
 }
 document.querySelectorAll('.tab').forEach(function (b) {
   b.onclick = async function () {
@@ -7549,7 +8093,8 @@ $('clrAll').onclick = async function () {
     $('logDate').value = today(); updateHeader(); resetView();
     LANG = I18N[CF.lang] ? CF.lang : 'ja'; applyLang(); showScan('');
     document.querySelectorAll('.langBtn').forEach(function (b) { b.classList.toggle('last', b.dataset.lang === LANG); });
-    $('startNote').textContent = t('start_note', { n: Object.keys(PDF_INDEX).length });
+    $('startNote').textContent = t('start_note', { n: Object.keys(PDF_INDEX).length }) + (CF.mver ? ' ・ ' + t('ms_badge', { v: CF.mver }) : '');
+    msFill(); msStart();
   } catch (e) {
     $('startNote').textContent = t('start_err', { e: (e && e.message || e) });
   }
