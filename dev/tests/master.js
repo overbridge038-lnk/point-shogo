@@ -93,6 +93,13 @@ let calls = 0;
   await B.click('.tab[data-v=pdf]'); if (await B.locator('#pinPad').isVisible()) await pin(B, '0000'); await B.waitForTimeout(800); await B.screenshot({ path: S + '/master_list.png' });
   console.log('一覧の印:', await B.evaluate(() => [...document.querySelectorAll('#pdfList .tag')].map(x => x.textContent).join(',')));
   console.log('古い版の掃除（残る版のフォルダ）:', G.root.folders[0].folders.filter(f => !f.trashed).map(f => f.name).join(','));
+  // ---- 親機：子機の親機の表をすべて消す（第3版＝中身なし）→ 子機は親機の表だけ消え、端末だけの表は残る ----
+  let cmsg = []; const h = async d => { cmsg.push(d.message().slice(0, 20)); }; A.on('dialog', h);
+  await A.click('#msClear'); await A.waitForFunction(() => /第3版/.test(document.getElementById('msMsg').textContent), null, { timeout: 30000 }); A.off('dialog', h);
+  console.log('確認の回数', cmsg.length, '|', await A.locator('#msMsg').innerText());
+  console.log('親機の表は消えず、端末だけに戻る:', await state(A));
+  await B.evaluate(() => msReceive(true)); await B.waitForFunction(() => CF.mver === 3 && !MS_BUSY, null, { timeout: 30000 });
+  console.log('子機 第3版:', await state(B));
   console.log('pageerrors:', errs.length ? errs : 'none');
   await b.close();
 })();
