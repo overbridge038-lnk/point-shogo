@@ -23,7 +23,7 @@ const { chromium } = require('playwright'); const S = process.argv[2];
   console.log('en:', JSON.stringify(await v('#tplTr_en')), '| id:', JSON.stringify(await v('#tplTr_id')), '| tl:', JSON.stringify(await v('#tplTr_tl')), '| calls', calls);
   // 失敗：何も変えない（上書き確認はOK）
   mode = 'fail'; p.once('dialog', d => d.accept()); await p.fill('#tplPts', '向きを確認\n刻印を確認');
-  await p.click('#tplTrAuto'); await p.waitForFunction(() => /翻訳できませんでした/.test(document.getElementById('tplTrMsg').textContent));
+  await p.click('#tplTrAuto'); await p.waitForFunction(() => /翻訳できませんでした|上限/.test(document.getElementById('tplTrMsg').textContent)); console.log('fail msg:', (await p.locator('#tplTrMsg').innerText()).slice(0, 40));
   console.log('fail keeps en:', JSON.stringify(await v('#tplTr_en')));
   // オフライン：通信しない
   await ctx.setOffline(true); const before = calls; await p.evaluate(() => { document.getElementById('tplTrMsg').textContent = ''; });

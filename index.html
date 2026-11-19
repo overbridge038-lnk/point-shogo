@@ -402,11 +402,11 @@ html[lang=my],html[lang=ne],html[lang=bn],html[lang=si]{line-height:1.5} /* ミ�
     <button class="btn langBtn" data-lang="si"><span class="flag">🇱🇰</span>සිංහල</button>
   </div>
   <p id="startNote" style="font-size:13px">準備中…</p>
-  <p class="ver" style="font-size:12px;opacity:.85">ver.2026.11.18 08:23 (#115)</p>
+  <p class="ver" style="font-size:12px;opacity:.85">ver.2026.11.19 10:09 (#117)</p>
 </div>
 
 <header>
-  <h1><i class="logo" data-mascot="ok"></i><span>ポイント照合ツール</span><small class="ver" title="版（ビルドした日時）">ver.2026.11.18 08:23 (#115)</small></h1>
+  <h1><i class="logo" data-mascot="ok"></i><span>ポイント照合ツール</span><small class="ver" title="版（ビルドした日時）">ver.2026.11.19 10:09 (#117)</small></h1>
   <div class="tabs">
     <button class="tab on" data-v="check" data-i18n="tab_check">照合</button>
     <button class="tab" data-v="pdf" data-i18n="tab_pdf">ポイント表の登録</button>
@@ -2202,6 +2202,7 @@ var I18N = {
     tp_tr_busy: "翻訳中… {i} / {n}",
     tp_tr_ok: "自動翻訳を入れました。内容を確認してから登録してください",
     tp_tr_fail: "翻訳できませんでした（通信エラーまたは回数制限）。何も変えていません。あとでやり直すか、手入力してください",
+    tr_quota: "翻訳サービスの、今日の無料で使える量の上限に達しました。入った分はそのまま残しています。明日もう一度押すと、空の所だけ続きから入ります（同じ文は1回だけ翻訳します）",
     tp_tr_note: "日本語のポイントと同じ順番・同じ行数で書きます。入れておくと、その言語を選んだ端末で照合画面のPDFの上に大きく出ます（PDFの文字は日本語のまま）。",
     tp_tr_warn: "{l} は {n} 行（日本語は {m} 行）。行数をそろえてください",
     tp_save: "登録する",
@@ -2634,6 +2635,7 @@ var I18N = {
     tp_tr_busy: "Menerjemahkan… {i} / {n}",
     tp_tr_ok: "Terjemahan otomatis terisi. Periksa isinya sebelum mendaftar",
     tp_tr_fail: "Gagal menerjemahkan (kesalahan jaringan atau batas pemakaian). Tidak ada yang diubah. Coba lagi nanti atau ketik manual",
+    tr_quota: "Batas gratis hari ini dari layanan terjemahan sudah tercapai. Yang sudah terisi tetap ada. Tekan lagi besok untuk mengisi bagian yang kosong saja (kalimat yang sama hanya diterjemahkan sekali)",
     tp_tr_note: "Tulis dengan urutan dan jumlah baris yang sama dengan poin bahasa Jepang. Akan tampil besar di atas PDF pada layar cek di tablet yang memakai bahasa itu (teks PDF tetap bahasa Jepang).",
     tp_tr_warn: "{l}: {n} baris (bahasa Jepang {m} baris). Samakan jumlah baris",
     tp_save: "Daftarkan",
@@ -3066,6 +3068,7 @@ var I18N = {
     tp_tr_busy: "Isinasalin… {i} / {n}",
     tp_tr_ok: "Napunan ang awtomatikong salin. Suriin bago irehistro",
     tp_tr_fail: "Hindi naisalin (error sa network o limitasyon). Walang binago. Subukan ulit mamaya o mag-type",
+    tr_quota: "Naabot na ang libreng limitasyon ngayong araw ng serbisyo ng pagsasalin. Mananatili ang mga napunan na. Pindutin ulit bukas para punan lang ang mga bakante (isang beses lang isinasalin ang parehong pangungusap)",
     tp_tr_note: "Isulat sa parehong ayos at bilang ng linya ng mga punto sa Japanese. Lalabas ito nang malaki sa ibabaw ng PDF sa check screen ng tablet na gumagamit ng wikang iyon (Japanese pa rin ang teksto ng PDF).",
     tp_tr_warn: "{l}: {n} linya (Japanese: {m} linya). Pantayin ang bilang ng linya",
     tp_save: "Irehistro",
@@ -3498,6 +3501,7 @@ var I18N = {
     tp_tr_busy: "Translating… {i} / {n}",
     tp_tr_ok: "Auto-translation filled in. Please check it before registering",
     tp_tr_fail: "Could not translate (network error or usage limit). Nothing was changed. Try again later or type it in",
+    tr_quota: "Reached today's free limit of the translation service. What was filled stays. Press again tomorrow to fill only the empty parts (the same sentence is translated only once)",
     tp_tr_note: "Write in the same order and with the same number of lines as the Japanese points. It is shown large above the PDF on the check screen of tablets set to that language (the PDF text stays Japanese).",
     tp_tr_warn: "{l}: {n} lines (Japanese: {m} lines). Match the number of lines",
     tp_save: "Register",
@@ -3930,6 +3934,7 @@ var I18N = {
     tp_tr_busy: "Đang dịch… {i} / {n}",
     tp_tr_ok: "Đã điền bản dịch tự động. Hãy kiểm tra trước khi đăng ký",
     tp_tr_fail: "Không dịch được (lỗi mạng hoặc quá giới hạn sử dụng). Chưa thay đổi gì. Hãy thử lại sau hoặc gõ tay",
+    tr_quota: "Đã đạt giới hạn miễn phí hôm nay của dịch vụ dịch. Phần đã điền vẫn giữ nguyên. Ngày mai bấm lại để điền tiếp phần còn trống (câu giống nhau chỉ dịch 1 lần)",
     tp_tr_note: "Viết theo cùng thứ tự và cùng số dòng với các điểm tiếng Nhật. Bản dịch sẽ hiện lớn phía trên PDF ở màn hình kiểm tra của máy tính bảng đặt ngôn ngữ đó (chữ trong PDF vẫn là tiếng Nhật).",
     tp_tr_warn: "{l}: {n} dòng (tiếng Nhật: {m} dòng). Hãy cho khớp số dòng",
     tp_save: "Đăng ký",
@@ -4362,6 +4367,7 @@ var I18N = {
     tp_tr_busy: "ဘာသာပြန်နေသည်… {i} / {n}",
     tp_tr_ok: "အလိုအလျောက်ဘာသာပြန် ဖြည့်ပြီးပါပြီ။ မှတ်ပုံမတင်မီ စစ်ကြည့်ပါ",
     tp_tr_fail: "ဘာသာပြန်၍မရပါ (ကွန်ရက်အမှား သို့မဟုတ် အသုံးပြုမှုကန့်သတ်ချက်)။ မည်သည့်အရာမျှ မပြောင်းပါ။ နောက်မှ ထပ်ကြိုးစားပါ သို့မဟုတ် လက်ဖြင့်ရိုက်ပါ",
+    tr_quota: "ဘာသာပြန်ဝန်ဆောင်မှု၏ ယနေ့ အခမဲ့ကန့်သတ်ချက် ပြည့်သွားပါပြီ။ ဖြည့်ပြီးသားများ ကျန်ရှိနေပါမည်။ မနက်ဖြန် ထပ်နှိပ်လျှင် ကွက်လပ်များကိုသာ ဆက်ဖြည့်မည် (စာကြောင်းတူကို တစ်ကြိမ်သာ ဘာသာပြန်သည်)",
     tp_tr_note: "ဂျပန်ပွိုင့်များနှင့် အစဉ်တူ၊ စာကြောင်းရေတူ ရေးပါ။ ထိုဘာသာစကားကို ရွေးထားသော တက်ဘလက်၏ စစ်ဆေးမျက်နှာပြင်တွင် PDF အပေါ်၌ ကြီးကြီးပြမည် (PDF ထဲရှိစာသားမှာ ဂျပန်လိုပင်ဖြစ်သည်)။",
     tp_tr_warn: "{l}: {n} ကြောင်း (ဂျပန်: {m} ကြောင်း)။ စာကြောင်းရေကို ညှိပါ",
     tp_save: "မှတ်ပုံတင်မည်",
@@ -4794,6 +4800,7 @@ var I18N = {
     tp_tr_busy: "अनुवाद गर्दै… {i} / {n}",
     tp_tr_ok: "स्वचालित अनुवाद भरियो। दर्ता गर्नुअघि जाँच्नुहोस्",
     tp_tr_fail: "अनुवाद गर्न सकिएन (नेटवर्क त्रुटि वा प्रयोग सीमा)। केही बदलिएन। पछि फेरि प्रयास गर्नुहोस् वा हातले टाइप गर्नुहोस्",
+    tr_quota: "अनुवाद सेवाको आजको निःशुल्क सीमा पुग्यो। भरिएको भाग जस्ताको तस्तै रहन्छ। भोलि फेरि थिच्दा खाली भाग मात्र भरिन्छ (एउटै वाक्य एक पटक मात्र अनुवाद हुन्छ)",
     tp_tr_note: "जापानी पोइन्टकै क्रम र लाइन संख्यामा लेख्नुहोस्। त्यो भाषा छानिएको ट्याब्लेटको जाँच स्क्रिनमा PDF माथि ठूलो गरी देखिन्छ (PDF भित्रको अक्षर जापानी नै रहन्छ)।",
     tp_tr_warn: "{l}: {n} लाइन (जापानी: {m} लाइन)। लाइन संख्या मिलाउनुहोस्",
     tp_save: "दर्ता",
@@ -5226,6 +5233,7 @@ var I18N = {
     tp_tr_busy: "অনুবাদ হচ্ছে… {i} / {n}",
     tp_tr_ok: "স্বয়ংক্রিয় অনুবাদ ভরা হয়েছে। নিবন্ধনের আগে দেখে নিন",
     tp_tr_fail: "অনুবাদ করা গেল না (নেটওয়ার্ক ত্রুটি বা ব্যবহারের সীমা)। কিছু বদলায়নি। পরে আবার চেষ্টা করুন বা হাতে টাইপ করুন",
+    tr_quota: "অনুবাদ সেবার আজকের বিনামূল্যের সীমা শেষ। যা ভরা হয়েছে তা থাকবে। আগামীকাল আবার চাপলে শুধু খালি জায়গাগুলো ভরবে (একই বাক্য একবারই অনুবাদ হয়)",
     tp_tr_note: "জাপানি পয়েন্টের একই ক্রমে ও একই লাইন সংখ্যায় লিখুন। ওই ভাষা বাছা ট্যাবলেটের যাচাই স্ক্রিনে PDF-এর উপরে বড় করে দেখাবে (PDF-এর লেখা জাপানিই থাকে)।",
     tp_tr_warn: "{l}: {n} লাইন (জাপানি: {m} লাইন)। লাইন সংখ্যা মেলান",
     tp_save: "নিবন্ধন",
@@ -5658,6 +5666,7 @@ var I18N = {
     tp_tr_busy: "Орчуулж байна… {i} / {n}",
     tp_tr_ok: "Автомат орчуулга бөглөгдлөө. Бүртгэхээсээ өмнө шалгаарай",
     tp_tr_fail: "Орчуулж чадсангүй (сүлжээний алдаа эсвэл ашиглалтын хязгаар). Юу ч өөрчлөгдөөгүй. Дараа дахин оролд эсвэл гараар бич",
+    tr_quota: "Орчуулгын үйлчилгээний өнөөдрийн үнэгүй хязгаарт хүрлээ. Орсон хэсэг хэвээр үлдэнэ. Маргааш дахин дарвал хоосон хэсгийг л үргэлжлүүлэн оруулна (ижил өгүүлбэрийг нэг л удаа орчуулна)",
     tp_tr_note: "Япон цэгүүдтэй ижил дараалал, ижил мөрийн тоотой бич. Тэр хэлийг сонгосон таблетын шалгах дэлгэцэнд PDF-ийн дээр том харагдана (PDF доторх үсэг япон хэвээр).",
     tp_tr_warn: "{l}: {n} мөр (япон: {m} мөр). Мөрийн тоог тааруул",
     tp_save: "Бүртгэх",
@@ -6090,6 +6099,7 @@ var I18N = {
     tp_tr_busy: "Traduzindo… {i} / {n}",
     tp_tr_ok: "Tradução automática preenchida. Confira antes de cadastrar",
     tp_tr_fail: "Não foi possível traduzir (erro de rede ou limite de uso). Nada foi alterado. Tente mais tarde ou digite à mão",
+    tr_quota: "Atingido o limite gratuito de hoje do serviço de tradução. O que foi preenchido continua. Pressione de novo amanhã para preencher só as partes vazias (a mesma frase é traduzida só uma vez)",
     tp_tr_note: "Escreva na mesma ordem e com o mesmo número de linhas dos pontos em japonês. Aparece grande acima do PDF na tela de verificação dos tablets configurados nesse idioma (o texto do PDF continua em japonês).",
     tp_tr_warn: "{l}: {n} linhas (japonês: {m} linhas). Iguale o número de linhas",
     tp_save: "Cadastrar",
@@ -6522,6 +6532,7 @@ var I18N = {
     tp_tr_busy: "පරිවර්තනය කරමින්… {i} / {n}",
     tp_tr_ok: "ස්වයංක්‍රීය පරිවර්තනය පුරවා ඇත. ලියාපදිංචි කිරීමට පෙර පරීක්ෂා කරන්න",
     tp_tr_fail: "පරිවර්තනය කළ නොහැකි විය (ජාල දෝෂයක් හෝ භාවිත සීමාව). කිසිවක් වෙනස් නොවීය. පසුව නැවත උත්සාහ කරන්න හෝ අතින් ටයිප් කරන්න",
+    tr_quota: "පරිවර්තන සේවයේ අද නොමිලේ සීමාවට ළඟා විය. පිරවූ කොටස් එලෙසම පවතී. හෙට නැවත එබූ විට හිස් කොටස් පමණක් පුරවයි (එකම වාක්‍යය එක් වරක් පමණක් පරිවර්තනය වේ)",
     tp_tr_note: "ජපන් ලකුණු වලට සමාන අනුපිළිවෙලින් සහ පේළි ගණනින් ලියන්න. එම භාෂාව තෝරා ඇති ටැබ්ලටයේ පරීක්ෂා තිරයේ PDF එකට ඉහළින් විශාලව පෙන්වයි (PDF එකේ අකුරු ජපන් භාෂාවෙන්ම පවතී).",
     tp_tr_warn: "{l}: පේළි {n} (ජපන්: පේළි {m}). පේළි ගණන ගළපන්න",
     tp_save: "ලියාපදිංචි කරන්න",
@@ -7808,26 +7819,25 @@ function xlShow() {
   $('xlBox').style.display = 'grid';
 }
 /** 一覧で、翻訳が空の所だけ、日本語のポイントから自動で入れる（オンラインのとき・押したときだけ通信）。同じ行のポイントは1回でまとめて翻訳し、行数がずれたら1行ずつにやり直す */
+/** 一覧で、翻訳が空の所だけ、日本語のポイントから自動で入れる（オンラインのとき・押したときだけ通信）。
+ *  翻訳サービスは無料で使える量に1日の上限があるので、同じ文は1回だけ翻訳して使い回す（trCache）。
+ *  Excelにすでに入っている翻訳も覚えて使う。上限に達したら、入った分は残して知らせる（次の日に押すと続きだけ入る） */
 $('xlTrAuto').onclick = async function () {
   if (!XL) return; var msg = $('xlMsg'), btn = this;
   if (!navigator.onLine) { msg.innerHTML = '<span style="color:var(--ng);font-weight:800">⚠ ' + esc(t('tp_tr_offline')) + '</span>'; return; }
-  var jobs = [];
-  XL.rows.forEach(function (r) { if (!r.err) TRL.forEach(function (l) { if (!String(r.tr[l] || '').trim()) jobs.push([r, l]); }); });
-  if (!jobs.length) { msg.textContent = t('xl_tr_none'); return; }
-  var n = jobs.length, i = 0, ok = 0, fail = 0; btn.disabled = true;
-  var worker = async function () {
-    while (jobs.length) {
-      var jb = jobs.shift(), r = jb[0], l = jb[1]; msg.textContent = t('tp_tr_busy', { i: Math.min(++i, n), n: n });
-      try {
-        var all = r.pts.join('\n'), out = null;
-        if (all.length <= 400) { var one = (await trOne(all, l)).split(/\r?\n/).map(function (x) { return x.trim(); }).filter(Boolean); if (one.length === r.pts.length) out = one; }
-        if (!out) { out = []; for (var k = 0; k < r.pts.length; k++) out.push(await trOne(r.pts[k], l)); }
-        r.tr[l] = out.join('\n'); ok++;
-      } catch (e) { fail++; }
-    }
-  };
-  try { await Promise.all([1, 2, 3, 4, 5, 6].map(worker)); } finally { btn.disabled = false; }
-  xlShow(); msg.innerHTML = '<span style="color:' + (fail ? 'var(--ng)' : 'var(--ok)') + ';font-weight:900">' + esc(t('xl_tr_done', { n: ok, f: fail })) + '</span>';
+  await trLoad(); var cells = [];
+  XL.rows.forEach(function (r) { if (!r.err) TRL.forEach(function (l) { if (!String(r.tr[l] || '').trim()) cells.push([r, l]); else trLearn(r.pts, r.tr[l], l); }); });
+  if (!cells.length) { msg.textContent = t('xl_tr_none'); return; }
+  btn.disabled = true; var ok = 0, fail = 0, quota = false;
+  try {
+    // まだ覚えていない文だけを、言語ごとに集めて翻訳する
+    var need = {}; cells.forEach(function (c) { c[0].pts.forEach(function (x) { if (trGet(x, c[1]) == null) (need[c[1]] = need[c[1]] || {})[x] = 1; }); });
+    var r0 = await trMany(need, function (i, n) { msg.textContent = t('tp_tr_busy', { i: i, n: n }); });
+    quota = r0.quota;
+  } finally { btn.disabled = false; await trSave(); }
+  cells.forEach(function (c) { var out = c[0].pts.map(function (x) { return trGet(x, c[1]); }); if (out.every(function (x) { return x != null; })) { c[0].tr[c[1]] = out.join('\n'); ok++; } else fail++; });
+  xlShow();
+  msg.innerHTML = '<span style="color:' + (fail ? 'var(--ng)' : 'var(--ok)') + ';font-weight:900">' + esc(t('xl_tr_done', { n: ok, f: fail })) + '</span>' + (quota ? '<br><span style="color:var(--ng);font-weight:800">⚠ ' + esc(t('tr_quota')) + '</span>' : '');
 };
 function xlHide() { XL = null; $('xlBox').style.display = 'none'; $('xlSum').textContent = ''; }
 $('xlPick').onclick = function () { $('xlIn').value = ''; $('xlIn').click(); };
@@ -9161,12 +9171,51 @@ function tplTrCheck() {
 ['tplPts'].concat(TRL.map(function (l) { return 'tplTr_' + l; })).forEach(function (id) { $(id).addEventListener('input', tplTrCheck); });
 /** オンラインのときだけ、日本語のポイントを3言語に自動翻訳する（登録する人が押したときだけ通信する。照合中は通信しない） */
 function decodeEnt(x) { var e = document.createElement('textarea'); e.innerHTML = x; return e.value; }
+// ---------- 翻訳の覚え（同じ文は1回だけ翻訳する。端末の kv 'trcache' に保存） ----------
+var TR_CACHE = null, QUOTA_HIT = false;
+function trKey(x, l) { return l + '\u0001' + String(x).trim(); }
+function trGet(x, l) { return TR_CACHE && Object.prototype.hasOwnProperty.call(TR_CACHE, trKey(x, l)) ? TR_CACHE[trKey(x, l)] : null; }
+function trPut(x, l, v) { if (TR_CACHE && String(x).trim() && String(v || '').trim()) TR_CACHE[trKey(x, l)] = String(v).trim(); }
+/** 入っている翻訳を覚える（ポイントと翻訳の行数がそろっている時だけ。まだ覚えていない文だけ） */
+function trLearn(pts, tr, l) {
+  var ls = String(tr || '').split(/\r?\n/).map(function (x) { return x.trim(); }).filter(Boolean);
+  if (ls.length === pts.length) pts.forEach(function (x, k) { if (trGet(x, l) == null) trPut(x, l, ls[k]); });
+}
+async function trLoad() { if (TR_CACHE) return; TR_CACHE = {}; try { var r = await tx('kv', 'readonly', function (s) { return s.get('trcache'); }); if (r && r.v) TR_CACHE = r.v; } catch (e) {} }
+async function trSave() { if (!TR_CACHE) return; var ks = Object.keys(TR_CACHE); if (ks.length > 20000) ks.slice(0, ks.length - 20000).forEach(function (k) { delete TR_CACHE[k]; }); try { await tx('kv', 'readwrite', function (s) { s.put({ k: 'trcache', v: TR_CACHE }); }); } catch (e) {} }
+/** need＝{言語: {日本語の文: 1}} をまとめて翻訳して覚える。同じ言語の文は400文字までまとめて1回で送り、行数がずれたら1文ずつ。
+ *  6本同時。1日の上限に達したら、そこでやめる（覚えた分は残る）。戻り値 {quota} */
+async function trMany(need, prog) {
+  await trLoad();
+  var jobs = [];
+  Object.keys(need).forEach(function (l) {
+    var xs = Object.keys(need[l]).filter(function (x) { return trGet(x, l) == null; }), g = [];
+    xs.forEach(function (x) { if (g.length && (g.join('\n') + '\n' + x).length > 400) { jobs.push([l, g]); g = []; } g.push(x); });
+    if (g.length) jobs.push([l, g]);
+  });
+  var n = jobs.reduce(function (a, j) { return a + j[1].length; }, 0), i = 0, quota = false;
+  var worker = async function () {
+    while (jobs.length && !quota) {
+      var jb = jobs.shift(), l = jb[0], g = jb[1];
+      try {
+        var out = null;
+        if (g.length > 1) { var one = (await trOne(g.join('\n'), l)).split(/\r?\n/).map(function (x) { return x.trim(); }).filter(Boolean); if (one.length === g.length) out = one; }
+        if (!out) { out = []; for (var k = 0; k < g.length; k++) out.push(await trOne(g[k], l)); }
+        g.forEach(function (x, k) { trPut(x, l, out[k]); });
+      } catch (e) { if (e && e.code === 'quota') quota = true; }
+      i += g.length; if (prog) prog(Math.min(i, n), n);
+    }
+  };
+  await Promise.all([1, 2, 3, 4, 5, 6].map(worker));
+  return { quota: quota };
+}
 async function trOne(text, lang) {
   var ac = new AbortController(), tm = setTimeout(function () { ac.abort(); }, 12000);
   try {
     var r = await fetch('https://api.mymemory.translated.net/get?q=' + encodeURIComponent(text) + '&langpair=ja|' + (MM_CODE[lang] || lang), { signal: ac.signal });
-    var j = await r.json();
+    var j = await r.json().catch(function () { return null; });
     var out = j && j.responseData && j.responseData.translatedText;
+    if (r.status === 429 || String(j && j.responseStatus) === '429' || /MYMEMORY WARNING|USED ALL AVAILABLE|QUOTA/i.test(String(out || '') + String(j && j.responseDetails || ''))) { var qe = new Error('quota'); qe.code = 'quota'; throw qe; } // 1日の無料の上限
     if (!r.ok || !out || String(j.responseStatus) !== '200' || /MYMEMORY WARNING|INVALID/i.test(out)) throw new Error('bad');
     return decodeEnt(out).trim();
   } finally { clearTimeout(tm); }
@@ -9178,22 +9227,22 @@ $('tplTrAuto').onclick = async function () {
   if (TRL.some(function (l) { return $('tplTr_' + l).value.trim(); }) && !confirm(t('tp_tr_over'))) return;
   var btn = this, res = {}, n = lines.length * TRL.length, i = 0;
   TRL.forEach(function (l) { res[l] = []; });
-  btn.disabled = true;
+  btn.disabled = true; QUOTA_HIT = false; await trLoad();
   try {
     // 6本ずつ同時に翻訳する（1本ずつ順番だと、言語が多いと時間がかかるため）。1つでも失敗したら、全部やめて何も書きかえない
     var jobs = [], bad = false; TRL.forEach(function (l) { lines.forEach(function (x, k) { jobs.push([l, k]); res[l][k] = ''; }); });
     var worker = async function () {
       while (jobs.length && !bad) {
         var jb = jobs.shift(); msg.textContent = t('tp_tr_busy', { i: Math.min(++i, n), n: n });
-        try { res[jb[0]][jb[1]] = await trOne(lines[jb[1]], jb[0]); } catch (e2) { bad = true; throw e2; }
+        try { var hit = trGet(lines[jb[1]], jb[0]); if (hit == null) { hit = await trOne(lines[jb[1]], jb[0]); trPut(lines[jb[1]], jb[0], hit); } res[jb[0]][jb[1]] = hit; } catch (e2) { bad = true; if (e2 && e2.code === 'quota') QUOTA_HIT = true; throw e2; }
       }
     };
     await Promise.all([1, 2, 3, 4, 5, 6].map(worker));
     TRL.forEach(function (l) { $('tplTr_' + l).value = res[l].join('\n'); });
     msg.innerHTML = '<span style="color:var(--ok);font-weight:900">' + esc(t('tp_tr_ok')) + '</span>';
   } catch (e) {
-    msg.innerHTML = '<span style="color:var(--ng);font-weight:800">⚠ ' + esc(t('tp_tr_fail')) + '</span>'; // 途中で失敗したら何も書きかえない
-  } finally { btn.disabled = false; }
+    msg.innerHTML = '<span style="color:var(--ng);font-weight:800">⚠ ' + esc(QUOTA_HIT ? t('tr_quota') : t('tp_tr_fail')) + '</span>'; // 途中で失敗したら何も書きかえない
+  } finally { btn.disabled = false; trSave(); }
 };
 tplDraw();
 
