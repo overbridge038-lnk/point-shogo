@@ -203,7 +203,7 @@ input[type=text],input[type=date],input[type=url],.f input[type=password],input[
 label.f{display:flex;flex-direction:column;gap:6px;font-size:14px;font-weight:800}
 /* ---- 登録済み一覧（中身が見えるカード） ---- */
 .pgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px}
-.pcard{background:var(--card);border:var(--line);border-radius:16px;box-shadow:var(--pop-s);overflow:hidden;display:flex;flex-direction:column}
+.pcard{position:relative;background:var(--card);border:var(--line);border-radius:16px;box-shadow:var(--pop-s);overflow:hidden;display:flex;flex-direction:column}
 .pthumb{height:170px;background:var(--paper);border:0;border-bottom:var(--line);display:grid;place-items:center;cursor:zoom-in;padding:8px;width:100%;overflow:hidden}
 .pthumb img{max-width:100%;max-height:154px;object-fit:contain;display:block;box-shadow:0 0 0 1px #d8cff5}
 .pthumb span{font-size:12px;font-weight:700;color:var(--sub)}
@@ -253,6 +253,11 @@ label.f{display:flex;flex-direction:column;gap:6px;font-size:14px;font-weight:80
 #gdView .kb{background:#4c2a9e;color:#fff;border-radius:6px;padding:0 6px;font-weight:700}
 @media (max-width:900px){.gdSteps{grid-template-columns:1fr}}
 #vidEl{width:100%;max-height:70vh;background:#000;border-radius:10px}
+#selBar{position:sticky;top:0;z-index:5;background:var(--card);border:var(--line);border-radius:14px;padding:10px;margin-bottom:10px}
+.selmode .pcard{cursor:pointer}.selmode .pacts{display:none}
+.pcard.picked{outline:5px solid #e11d48;outline-offset:-3px}
+.selmode .pcard::after{content:'';position:absolute;left:8px;top:8px;width:30px;height:30px;border-radius:8px;border:3px solid #241A4A;background:#fff;z-index:3}
+.selmode .pcard.picked::after{content:'✓';background:#e11d48;color:#fff;border-color:#fff;font:900 22px/26px sans-serif;text-align:center}
 #vidBtn,#pbBtn{min-height:34px;padding:2px 12px;font-size:14px}
 #pbView,#pbSel{position:fixed;inset:0;z-index:68;display:none;flex-direction:column;background:#140e28}
 #pbView.on,#pbSel.on{display:flex}
@@ -489,8 +494,13 @@ html[lang=my],html[lang=ne],html[lang=bn],html[lang=si]{line-height:1.5} /* ミ�
   <div class="card">
     <div class="btnrow" style="align-items:center;margin-bottom:8px">
       <h3 style="margin:0;flex:1"><span data-i18n="r_list">登録済み</span> <span id="pdfTotal"></span></h3>
+      <button class="btn dng" id="selMode" data-i18n="sel_mode">☑ 選んで削除</button>
       <button class="btn" id="dlAll" data-i18n="r_dlall">⬇ すべて保存（1件ずつ）</button>
       <input type="text" id="pdfSearch" data-i18n-ph="r_search_ph" placeholder="品番で検索" autocomplete="off">
+    </div>
+    <div id="selBar" hidden>
+      <p class="note" style="margin:0 0 6px" data-i18n="sel_hint">削除したい表をタップして選びます</p>
+      <div class="btnrow"><button class="btn" id="selAll" data-i18n="sel_all">すべて選ぶ</button><button class="btn" id="selNone" data-i18n="sel_none_btn">選びをはずす</button><button class="btn dng" id="selDel" disabled></button><button class="btn" id="selCancel" data-i18n="sel_cancel">やめる</button></div>
     </div>
     <div class="pgrid" id="pdfList"></div>
   </div>
@@ -1112,6 +1122,16 @@ var I18N = {
     xo_skip: "（取り込んだPDF・Excel資料 {s}件は、中身が絵のため対象外）",
     xo_fail: "Excelに書き出せませんでした",
     xo_none: "Excelに書き出せる表（「つくる」で作った表）がありません",
+    sel_mode: "☑ 選んで削除",
+    sel_hint: "削除したい表をタップして選びます（もう一度タップで外れます）。検索で絞って「すべて選ぶ」もできます。",
+    sel_all: "すべて選ぶ",
+    sel_none_btn: "選びをはずす",
+    sel_del: "🗑 選んだ{n}件を削除",
+    sel_cancel: "やめる",
+    sel_confirm: "選んだ{n}件のポイント表を削除しますか？\n\n{list}\n\n削除すると、これらの品番のかんばんはNG（ポイント表なし）になります。\n※元に戻せません。必要なら先に「⬇ 保存」してください。",
+    sel_more: "ほか{n}件",
+    sel_done: "{n}件を削除しました",
+    sel_none: "削除する表を選んでください",
     pb_btn: "🔍 写真を拡大",
     pb_hint: "写真の部分を、指でなぞって四角く囲んでください（最初の1回だけ）",
     pb_ok: "決定",
@@ -1545,6 +1565,16 @@ var I18N = {
     xo_skip: "({s} PDF/dokumen Excel impor tidak termasuk karena berupa gambar)",
     xo_fail: "Gagal mengekspor ke Excel",
     xo_none: "Tidak ada tabel yang bisa diekspor ke Excel (tabel buatan \"Buat\")",
+    sel_mode: "☑ Pilih lalu hapus",
+    sel_hint: "Ketuk tabel yang ingin dihapus (ketuk lagi untuk membatalkan). Bisa juga mencari lalu \"Pilih semua\".",
+    sel_all: "Pilih semua",
+    sel_none_btn: "Batalkan pilihan",
+    sel_del: "🗑 Hapus {n} yang dipilih",
+    sel_cancel: "Batal",
+    sel_confirm: "Hapus {n} tabel poin yang dipilih?\n\n{list}\n\nSetelah dihapus, kanban nomor part ini akan NG (tidak ada tabel poin).\n* Tidak bisa dikembalikan. Jika perlu, \"⬇ Simpan\" dulu.",
+    sel_more: "dan {n} lainnya",
+    sel_done: "{n} tabel dihapus",
+    sel_none: "Pilih tabel yang akan dihapus",
     pb_btn: "🔍 Perbesar foto",
     pb_hint: "Lingkari bagian foto dengan jari hingga berbentuk kotak (cukup sekali)",
     pb_ok: "Tetapkan",
@@ -1978,6 +2008,16 @@ var I18N = {
     xo_skip: "({s} na na-import na PDF/dokumentong Excel ay hindi kasama dahil larawan ang laman)",
     xo_fail: "Hindi na-export sa Excel",
     xo_none: "Walang table na maaaring i-export sa Excel (mga ginawa gamit ang \"Gumawa\")",
+    sel_mode: "☑ Pumili at burahin",
+    sel_hint: "I-tap ang mga table na buburahin (i-tap muli para alisin). Puwede ring maghanap at \"Piliin lahat\".",
+    sel_all: "Piliin lahat",
+    sel_none_btn: "Alisin ang pagpili",
+    sel_del: "🗑 Burahin ang {n} napili",
+    sel_cancel: "Itigil",
+    sel_confirm: "Burahin ang {n} napiling point table?\n\n{list}\n\nPagkatapos, magiging NG ang mga kanban ng mga part number na ito (walang point table).\n* Hindi na maibabalik. Kung kailangan, \"⬇ I-save\" muna.",
+    sel_more: "at {n} pa",
+    sel_done: "Nabura ang {n} table",
+    sel_none: "Pumili ng buburahing table",
     pb_btn: "🔍 Palakihin ang litrato",
     pb_hint: "Bilugan ng daliri ang bahagi ng litrato bilang kahon (isang beses lang)",
     pb_ok: "Itakda",
@@ -2411,6 +2451,16 @@ var I18N = {
     xo_skip: "({s} imported PDF/Excel documents are left out because they are pictures)",
     xo_fail: "Could not export to Excel",
     xo_none: "No tables can be exported to Excel (tables made with \"Make\")",
+    sel_mode: "☑ Select and delete",
+    sel_hint: "Tap the tables you want to delete (tap again to unselect). You can also search and use \"Select all\".",
+    sel_all: "Select all",
+    sel_none_btn: "Unselect all",
+    sel_del: "🗑 Delete {n} selected",
+    sel_cancel: "Cancel",
+    sel_confirm: "Delete the {n} selected point tables?\n\n{list}\n\nAfter deleting, kanbans for these part numbers will be NG (no point table).\n* This cannot be undone. If needed, \"⬇ Save\" first.",
+    sel_more: "and {n} more",
+    sel_done: "Deleted {n} tables",
+    sel_none: "Select the tables to delete",
     pb_btn: "🔍 Enlarge photo",
     pb_hint: "Draw a box around the photo area with your finger (only the first time)",
     pb_ok: "Set",
@@ -2844,6 +2894,16 @@ var I18N = {
     xo_skip: "({s} PDF/tài liệu Excel đã nhập bị loại vì nội dung là hình ảnh)",
     xo_fail: "Không xuất được ra Excel",
     xo_none: "Không có bảng nào xuất được ra Excel (bảng tạo bằng \"Tạo\")",
+    sel_mode: "☑ Chọn rồi xóa",
+    sel_hint: "Chạm vào các bảng muốn xóa (chạm lại để bỏ chọn). Cũng có thể tìm kiếm rồi bấm \"Chọn tất cả\".",
+    sel_all: "Chọn tất cả",
+    sel_none_btn: "Bỏ chọn",
+    sel_del: "🗑 Xóa {n} bảng đã chọn",
+    sel_cancel: "Hủy",
+    sel_confirm: "Xóa {n} bảng điểm đã chọn?\n\n{list}\n\nSau khi xóa, kanban của các mã hàng này sẽ NG (không có bảng điểm).\n* Không thể khôi phục. Nếu cần, hãy \"⬇ Lưu\" trước.",
+    sel_more: "và {n} bảng khác",
+    sel_done: "Đã xóa {n} bảng",
+    sel_none: "Hãy chọn bảng cần xóa",
     pb_btn: "🔍 Phóng to ảnh",
     pb_hint: "Dùng ngón tay khoanh vùng ảnh thành hình chữ nhật (chỉ lần đầu)",
     pb_ok: "Chọn",
@@ -3277,6 +3337,16 @@ var I18N = {
     xo_skip: "(သွင်းထားသော PDF/Excel စာရွက်စာတမ်း {s} ခုသည် ပုံများဖြစ်၍ မပါဝင်ပါ)",
     xo_fail: "Excel သို့ မထုတ်နိုင်ပါ",
     xo_none: "Excel သို့ ထုတ်နိုင်သော ဇယား မရှိပါ",
+    sel_mode: "☑ ရွေးပြီး ဖျက်ရန်",
+    sel_hint: "ဖျက်လိုသော ဇယားများကို နှိပ်၍ ရွေးပါ (ထပ်နှိပ်လျှင် ပယ်ဖျက်မည်)။ ရှာဖွေ၍ \"အားလုံးရွေးရန်\" လည်း သုံးနိုင်သည်။",
+    sel_all: "အားလုံးရွေးရန်",
+    sel_none_btn: "ရွေးချယ်မှု ဖယ်ရန်",
+    sel_del: "🗑 ရွေးထားသော {n} ခု ဖျက်ရန်",
+    sel_cancel: "မလုပ်တော့ပါ",
+    sel_confirm: "ရွေးထားသော ပွိုင့်ဇယား {n} ခုကို ဖျက်မလား?\n\n{list}\n\nဖျက်ပြီးလျှင် ဤပစ္စည်းနံပါတ်များ၏ ကန်ဘန်သည် NG ဖြစ်မည် (ပွိုင့်ဇယားမရှိ)။\n※ ပြန်မရနိုင်ပါ။ လိုပါက အရင် \"⬇ သိမ်းရန်\" လုပ်ပါ။",
+    sel_more: "နောက်ထပ် {n} ခု",
+    sel_done: "ဇယား {n} ခု ဖျက်ပြီးပါပြီ",
+    sel_none: "ဖျက်မည့်ဇယားများကို ရွေးပါ",
     pb_btn: "🔍 ဓာတ်ပုံ ချဲ့ကြည့်ရန်",
     pb_hint: "ဓာတ်ပုံနေရာကို လက်ချောင်းဖြင့် လေးထောင့်ပုံ ဝိုင်းပါ (ပထမတစ်ကြိမ်သာ)",
     pb_ok: "သတ်မှတ်",
@@ -3710,6 +3780,16 @@ var I18N = {
     xo_skip: "(आयात गरिएका {s} PDF/Excel कागजात तस्बिर भएकाले समावेश छैनन्)",
     xo_fail: "Excel मा निकाल्न सकिएन",
     xo_none: "Excel मा निकाल्न मिल्ने तालिका छैन",
+    sel_mode: "☑ छानेर मेट्ने",
+    sel_hint: "मेट्न चाहेका तालिका थिच्नुहोस् (फेरि थिचे हट्छ)। खोजेर \"सबै छान्ने\" पनि गर्न सकिन्छ।",
+    sel_all: "सबै छान्ने",
+    sel_none_btn: "छनोट हटाउने",
+    sel_del: "🗑 छानिएका {n} मेट्ने",
+    sel_cancel: "रद्द",
+    sel_confirm: "छानिएका {n} पोइन्ट तालिका मेट्ने?\n\n{list}\n\nमेटेपछि यी पार्ट नम्बरका कानबान NG हुनेछन् (पोइन्ट तालिका छैन)।\n※ फिर्ता गर्न सकिँदैन। चाहिएमा पहिले \"⬇ सेभ\" गर्नुहोस्।",
+    sel_more: "अरू {n}",
+    sel_done: "{n} तालिका मेटियो",
+    sel_none: "मेट्ने तालिका छान्नुहोस्",
     pb_btn: "🔍 फोटो ठूलो पार्नुहोस्",
     pb_hint: "फोटोको भागलाई औँलाले चतुर्भुज आकारमा घेर्नुहोस् (पहिलो पटक मात्र)",
     pb_ok: "तोक्नुहोस्",
@@ -4143,6 +4223,16 @@ var I18N = {
     xo_skip: "(ইমপোর্ট করা {s}টি PDF/Excel নথি ছবি হওয়ায় বাদ)",
     xo_fail: "Excel-এ বের করা গেল না",
     xo_none: "Excel-এ বের করার মতো টেবিল নেই",
+    sel_mode: "☑ বেছে মুছুন",
+    sel_hint: "যে টেবিল মুছতে চান সেগুলোতে ট্যাপ করুন (আবার ট্যাপ করলে বাদ যাবে)। খুঁজে \"সব বাছুন\"-ও করা যায়।",
+    sel_all: "সব বাছুন",
+    sel_none_btn: "বাছাই বাদ দিন",
+    sel_del: "🗑 বাছাই করা {n}টি মুছুন",
+    sel_cancel: "বাতিল",
+    sel_confirm: "বাছাই করা {n}টি পয়েন্ট টেবিল মুছবেন?\n\n{list}\n\nমুছলে এই পার্ট নম্বরের কানবান NG হবে (পয়েন্ট টেবিল নেই)।\n※ ফেরানো যাবে না। দরকার হলে আগে \"⬇ সেভ\" করুন।",
+    sel_more: "আরও {n}টি",
+    sel_done: "{n}টি টেবিল মোছা হয়েছে",
+    sel_none: "মোছার টেবিল বাছুন",
     pb_btn: "🔍 ছবি বড় করুন",
     pb_hint: "আঙুল দিয়ে ছবির অংশটি চৌকো করে ঘিরুন (শুধু প্রথমবার)",
     pb_ok: "ঠিক করুন",
@@ -4576,6 +4666,16 @@ var I18N = {
     xo_skip: "(Оруулсан {s} PDF/Excel баримт зураг тул хасагдсан)",
     xo_fail: "Excel рүү гаргаж чадсангүй",
     xo_none: "Excel рүү гаргах хүснэгт алга",
+    sel_mode: "☑ Сонгоод устгах",
+    sel_hint: "Устгах хүснэгтээ товш (дахин товшвол болино). Хайгаад \"Бүгдийг сонгох\"-ыг ч ашиглаж болно.",
+    sel_all: "Бүгдийг сонгох",
+    sel_none_btn: "Сонголтыг болиулах",
+    sel_del: "🗑 Сонгосон {n}-ийг устгах",
+    sel_cancel: "Болих",
+    sel_confirm: "Сонгосон {n} цэгийн хүснэгтийг устгах уу?\n\n{list}\n\nУстгасны дараа эдгээр эдийн дугаарын канбан NG болно (цэгийн хүснэгтгүй).\n※ Буцаах боломжгүй. Шаардлагатай бол эхлээд \"⬇ Хадгалах\".",
+    sel_more: "өөр {n}",
+    sel_done: "{n} хүснэгт устгагдлаа",
+    sel_none: "Устгах хүснэгтээ сонгоно уу",
     pb_btn: "🔍 Зургийг томруулах",
     pb_hint: "Зургийн хэсгийг хуруугаараа дөрвөлжин хэлбэрээр тойруул (зөвхөн эхний удаа)",
     pb_ok: "Тогтоох",
@@ -5009,6 +5109,16 @@ var I18N = {
     xo_skip: "({s} PDF/documentos Excel importados ficam de fora por serem imagens)",
     xo_fail: "Não foi possível exportar para o Excel",
     xo_none: "Nenhuma tabela pode ser exportada para o Excel",
+    sel_mode: "☑ Selecionar e excluir",
+    sel_hint: "Toque nas tabelas que quer excluir (toque de novo para desmarcar). Também dá para buscar e usar \"Selecionar tudo\".",
+    sel_all: "Selecionar tudo",
+    sel_none_btn: "Desmarcar tudo",
+    sel_del: "🗑 Excluir {n} selecionadas",
+    sel_cancel: "Cancelar",
+    sel_confirm: "Excluir as {n} tabelas de pontos selecionadas?\n\n{list}\n\nDepois de excluir, os kanbans desses códigos ficam NG (sem tabela de pontos).\n* Não dá para desfazer. Se precisar, \"⬇ Salvar\" antes.",
+    sel_more: "e mais {n}",
+    sel_done: "{n} tabelas excluídas",
+    sel_none: "Selecione as tabelas a excluir",
     pb_btn: "🔍 Ampliar foto",
     pb_hint: "Contorne a área da foto com o dedo, formando um retângulo (só na primeira vez)",
     pb_ok: "Definir",
@@ -5442,6 +5552,16 @@ var I18N = {
     xo_skip: "(ආනයනය කළ PDF/Excel ලේඛන {s} පින්තූර නිසා ඇතුළත් නැත)",
     xo_fail: "Excel වෙත නිකුත් කළ නොහැකි විය",
     xo_none: "Excel වෙත නිකුත් කළ හැකි වගු නැත",
+    sel_mode: "☑ තෝරා මකන්න",
+    sel_hint: "මැකීමට අවශ්‍ය වගු තට්ටු කරන්න (නැවත තට්ටු කළ විට ඉවත් වේ). සොයා \"සියල්ල තෝරන්න\" ද භාවිත කළ හැක.",
+    sel_all: "සියල්ල තෝරන්න",
+    sel_none_btn: "තේරීම ඉවත් කරන්න",
+    sel_del: "🗑 තෝරාගත් {n} මකන්න",
+    sel_cancel: "අවලංගු",
+    sel_confirm: "තෝරාගත් ලකුණු වගු {n} මකන්නද?\n\n{list}\n\nමැකුවාට පසු මෙම කොටස් අංකවල කන්බන් NG වේ (ලකුණු වගුවක් නැත).\n※ ආපසු ගත නොහැක. අවශ්‍ය නම් මුලින් \"⬇ සුරකින්න\".",
+    sel_more: "තවත් {n}",
+    sel_done: "වගු {n} මකා ඇත",
+    sel_none: "මැකීමට වගු තෝරන්න",
     pb_btn: "🔍 ඡායාරූපය විශාල කරන්න",
     pb_hint: "ඡායාරූප කොටස ඇඟිල්ලෙන් සිව්කොන් ලෙස වටකරන්න (පළමු වතාවට පමණි)",
     pb_ok: "නියම කරන්න",
@@ -6228,11 +6348,11 @@ async function importFiles(files, note) {
 var THUMBS = {}, thumbObs = null;
 function showPdfList() {
   var q = norm($('pdfSearch').value), keys = Object.keys(PDF_INDEX).sort();
-  $('pdfTotal').textContent = t('r_total', { n: keys.length });
+  $('pdfTotal').textContent = t('r_total', { n: keys.length }); if (typeof selUpdate === 'function') setTimeout(selUpdate, 0);
   var list = keys.filter(function (k) { return !q || k.indexOf(q) >= 0; });
   $('pdfList').innerHTML = list.map(function (k) {
     var v = PDF_INDEX[k];
-    return '<div class="pcard"><button class="pthumb" data-view="' + esc(k) + '" data-thumb="' + esc(k) + '" aria-label="' + esc(v.name) + '"><span>' + esc(t('r_making')) + '</span></button>' +
+    return '<div class="pcard' + (SEL.set[k] ? ' picked' : '') + '" data-key="' + esc(k) + '"><button class="pthumb" data-view="' + esc(k) + '" data-thumb="' + esc(k) + '" aria-label="' + esc(v.name) + '"><span>' + esc(t('r_making')) + '</span></button>' +
       '<div class="pinfo"><b class="mono">' + esc(v.name.replace(/\.(pdf|xlsx|xlsm)$/i, '')) + '</b>' + (v.m ? ' <span class="tag mst">' + esc(t('ms_tag')) + '</span>' : (CF.mver ? ' <span class="tag loc">' + esc(t('ms_tag_local')) + '</span>' : '')) + '<div class="note">' + esc(t('r_key')) + ' ' + esc(k) + '</div><div class="note">' + Math.round(v.size / 1024) + ' KB・' + esc(v.at) + '</div></div>' +
       '<div class="pacts"><button class="btn" data-view="' + esc(k) + '">' + esc(t('r_view')) + '</button><button class="btn" data-dl="' + esc(k) + '">' + esc(t('r_save')) + '</button>' + ((v.kind === 'xlsx' || v.xl) ? '' : '<button class="btn" data-edit="' + esc(k) + '">' + esc(t('r_edit')) + '</button>') + (VID_INDEX[k] ? '<button class="btn" data-vidplay="' + esc(k) + '">' + esc(t('vid_play')) + '</button><button class="btn" data-vid="' + esc(k) + '">' + esc(t('vid_replace')) + '</button><button class="btn dng" data-viddel="' + esc(k) + '">' + esc(t('vid_del')) + '</button>' : '<button class="btn" data-vid="' + esc(k) + '">' + esc(t('vid_add')) + '</button>') + '<button class="btn dng" data-del="' + esc(k) + '">' + esc(t('r_del')) + '</button></div></div>';
   }).join('') || '<div class="pempty">' + (keys.length ? esc(t('r_nomatch', { q: $('pdfSearch').value })) : esc(t('r_none'))) + '</div>';
@@ -7057,6 +7177,38 @@ $('pdfList').addEventListener('click', async function (e) {
   await deletePdf(db.getAttribute('data-del'));
   showPdfList();
 });
+// ---------- 登録済みの表を、まとめて選んで削除する ----------
+// 「☑ 選んで削除」→ 消したい表をタップして選ぶ（検索で絞って「すべて選ぶ」も可）→「🗑 選んだ○件を削除」。確認には件数と品番を出す。元に戻せない。
+var SEL = { on: false, set: {} };
+function selCount() { return Object.keys(SEL.set).length; }
+function selUpdate() {
+  $('pdfList').classList.toggle('selmode', SEL.on); $('selBar').hidden = !SEL.on;
+  var n = selCount(); $('selDel').textContent = t('sel_del', { n: n }); $('selDel').disabled = !n;
+  $('selMode').hidden = SEL.on;
+  $('pdfList').querySelectorAll('.pcard').forEach(function (c) { c.classList.toggle('picked', !!SEL.set[c.getAttribute('data-key')]); });
+}
+function selOff() { SEL.on = false; SEL.set = {}; selUpdate(); }
+$('selMode').onclick = function () { SEL.on = true; SEL.set = {}; selUpdate(); };
+$('selCancel').onclick = selOff;
+$('selNone').onclick = function () { SEL.set = {}; selUpdate(); };
+$('selAll').onclick = function () {
+  var q = norm($('pdfSearch').value); Object.keys(PDF_INDEX).forEach(function (k) { if (!q || k.indexOf(q) >= 0) SEL.set[k] = 1; }); selUpdate();
+};
+$('pdfList').addEventListener('click', function (e) { // 選ぶモード中は、カードのどこをタップしても「選ぶ／外す」（見る・編集などのボタンは動かさない）
+  if (!SEL.on) return; var c = e.target.closest('.pcard'); if (!c) return;
+  e.stopPropagation(); e.preventDefault(); var k = c.getAttribute('data-key'); if (SEL.set[k]) delete SEL.set[k]; else SEL.set[k] = 1; selUpdate();
+}, true);
+$('selDel').onclick = async function () {
+  var keys = Object.keys(SEL.set).filter(function (k) { return PDF_INDEX[k]; }); if (!keys.length) return toast(t('sel_none'), 3000);
+  keys.sort(); var names = keys.map(function (k) { return PDF_INDEX[k].name.replace(/\.(pdf|xlsx|xlsm)$/i, ''); });
+  var list = names.slice(0, 10).join('\n') + (names.length > 10 ? '\n' + t('sel_more', { n: names.length - 10 }) : '');
+  var warn = keys.some(function (k) { return PDF_INDEX[k].m; }) && msUrl() ? '\n\n' + t('ms_del_warn') : '';
+  if (!confirm(t('sel_confirm', { n: keys.length, list: list }) + warn)) return;
+  await tx('pdfs', 'readwrite', function (s) { keys.forEach(function (k) { s.delete(k); }); });
+  var vk = keys.filter(function (k) { return VID_INDEX[k]; }); if (vk.length) await tx('kv', 'readwrite', function (s) { vk.forEach(function (k) { s.delete('vid:' + k); }); });
+  await loadPdfIndex(); updateHeader(); selOff(); showPdfList();
+  toast(t('sel_done', { n: keys.length }), 4000);
+};
 $('clearPdf').onclick = async function () {
   if (!confirm(t('r_clear_confirm'))) return;
   await tx('pdfs', 'readwrite', function (s) { s.clear(); });
