@@ -22,7 +22,7 @@ const { chromium } = require('playwright'); const S = process.argv[2];
   // 全部入っているとき
   await p.click('#xlTrAuto'); console.log('もう空がない:', (await p.locator('#xlMsg').innerText()));
   // 行数がずれる翻訳サービス → 1行ずつにやり直す
-  mode = 'collapse'; calls = 0; await load(); await p.click('#xlTrAuto'); await p.waitForFunction(() => /翻訳を入れました/.test(document.getElementById('xlMsg').textContent), null, { timeout: 30000 });
+  mode = 'collapse'; calls = 0; await p.evaluate(() => { TR_CACHE = {}; }); await load(); await p.click('#xlTrAuto'); await p.waitForFunction(() => /翻訳を入れました/.test(document.getElementById('xlMsg').textContent), null, { timeout: 30000 });
   console.log('1行ずつ:', await state(), '| 通信', calls, '| 行数', JSON.stringify(await p.evaluate(() => XL.rows.filter(r => !r.err)[0].tr.en.split('\n').length + '行 / ポイント' + XL.rows.filter(r => !r.err)[0].pts.length + '行')));
   // 登録すると翻訳が保存される
   await p.click('#xlGo'); await p.waitForFunction(() => Object.keys(PDF_INDEX).length >= 1, null, { timeout: 60000 }); await p.waitForTimeout(500);
