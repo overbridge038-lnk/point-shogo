@@ -407,11 +407,11 @@ html[lang=my],html[lang=ne],html[lang=bn],html[lang=si]{line-height:1.5} /* ミ�
     <button class="btn langBtn" data-lang="si"><span class="flag">🇱🇰</span>සිංහල</button>
   </div>
   <p id="startNote" style="font-size:13px">準備中…</p>
-  <p class="ver" style="font-size:12px;opacity:.85">ver.2026.11.19 10:35 (#122)</p>
+  <p class="ver" style="font-size:12px;opacity:.85">ver.2026.11.19 10:43 (#124)</p>
 </div>
 
 <header>
-  <h1><i class="logo" data-mascot="ok"></i><span>ポイント照合ツール</span><small class="ver" title="版（ビルドした日時）">ver.2026.11.19 10:35 (#122)</small></h1>
+  <h1><i class="logo" data-mascot="ok"></i><span>ポイント照合ツール</span><small class="ver" title="版（ビルドした日時）">ver.2026.11.19 10:43 (#124)</small></h1>
   <div class="tabs">
     <button class="tab on" data-v="check" data-i18n="tab_check">照合</button>
     <button class="tab" data-v="pdf" data-i18n="tab_pdf">ポイント表の登録</button>
@@ -645,6 +645,8 @@ html[lang=my],html[lang=ne],html[lang=bn],html[lang=si]{line-height:1.5} /* ミ�
           <label class="f"><span data-i18n="ms_skey">送信の合言葉</span><input type="password" id="msSendKey" autocomplete="off"></label>
           <label class="chk"><input type="checkbox" id="msVid"> <span data-i18n="ms_vid">🎬 動画も送る（時間がかかります）</span></label>
           <div class="btnrow"><button class="btn pri" id="msSend" data-i18n="ms_send">📤 この端末の表を親機の表として送る</button></div>
+          <p class="note" style="margin:6px 0 0" data-i18n="ms_clr_note"></p>
+          <div class="btnrow"><button class="btn dng" id="msClear" data-i18n="ms_clr">🗑 子機の親機の表をすべて消す</button></div>
         </div>
       </details>
       <p class="note" id="msMsg" style="margin:0"></p>
@@ -2339,6 +2341,11 @@ var I18N = {
     ms_tag_local: "端末だけ",
     ms_del_warn: "これは親機の表です。この端末から消しても、親機の表が新しくなったときに、また入ります。",
     ms_saved: "保存しました",
+    ms_clr: "🗑 子機の親機の表をすべて消す",
+    ms_clr_note: "全部の子機から、親機の表をすべて消します（子機で入れた「端末だけの表」は残ります）。この端末の表は消えず、「端末だけの表」に戻ります。",
+    ms_clr_conf: "全部の子機から、親機の表をすべて消します。子機は次にネットにつながったときに消えます。よろしいですか？",
+    ms_clr_conf2: "もう一度確認します。消すと、その品番のかんばんは子機でNG（ポイント表なし）になります。元に戻すには、もう一度「送る」を押します。本当に消しますか？",
+    ms_clr_done: "子機の親機の表を消す版（第{v}版）を送りました。子機はネットにつながると親機の表を消します",
     cl_none_day: "{d} の記録はありません",
     cl_conf_day: "{d} の照合記録 {n}件を削除します。元に戻せません。よろしいですか？",
     cl_done_day: "{d} の記録を削除しました（{n}件）",
@@ -2782,6 +2789,11 @@ var I18N = {
     ms_tag_local: "Lokal",
     ms_del_warn: "Ini tabel induk. Meski dihapus di sini, akan kembali saat tabel induk diperbarui.",
     ms_saved: "Tersimpan",
+    ms_clr: "🗑 Hapus semua tabel induk di tablet lain",
+    ms_clr_note: "Menghapus semua tabel induk dari semua tablet (tabel lokal di tiap tablet tetap ada). Tabel di tablet ini tidak dihapus, menjadi tabel lokal.",
+    ms_clr_conf: "Hapus semua tabel induk dari semua tablet? Akan terhapus saat tiap tablet online berikutnya. Lanjut?",
+    ms_clr_conf2: "Konfirmasi sekali lagi. Setelah dihapus, nomor part itu menjadi NG (tidak ada tabel poin) di tablet. Untuk memulihkan, tekan \"Kirim\" lagi. Yakin hapus?",
+    ms_clr_done: "Versi penghapus tabel induk telah dikirim (versi {v}). Tablet akan menghapus saat online",
     cl_none_day: "Tidak ada catatan pada {d}",
     cl_conf_day: "Hapus {n} catatan tanggal {d}? Tidak bisa dikembalikan.",
     cl_done_day: "Catatan {d} dihapus ({n})",
@@ -3225,6 +3237,11 @@ var I18N = {
     ms_tag_local: "Lokal",
     ms_del_warn: "Ito ay master na talaan. Kahit burahin dito, babalik ito kapag na-update ang master.",
     ms_saved: "Na-save",
+    ms_clr: "🗑 Burahin ang lahat ng master na talaan sa ibang tablet",
+    ms_clr_note: "Buburahin ang lahat ng master na talaan sa lahat ng tablet (mananatili ang lokal na talaan ng bawat tablet). Hindi mabubura ang talaan sa tablet na ito; magiging lokal ito.",
+    ms_clr_conf: "Burahin ang lahat ng master na talaan sa lahat ng tablet? Mabubura ito kapag nag-online ang bawat tablet. Sige?",
+    ms_clr_conf2: "Kumpirmahin ulit. Pagkabura, magiging NG (walang point table) ang mga part number na iyon sa mga tablet. Para ibalik, pindutin ulit ang \"Ipadala\". Talagang burahin?",
+    ms_clr_done: "Naipadala ang bersyong nagbubura ng master (bersyon {v}). Buburahin ito ng mga tablet kapag online",
     cl_none_day: "Walang talaan sa {d}",
     cl_conf_day: "Burahin ang {n} talaan ng {d}? Hindi na maibabalik.",
     cl_done_day: "Nabura ang talaan ng {d} ({n})",
@@ -3668,6 +3685,11 @@ var I18N = {
     ms_tag_local: "Local",
     ms_del_warn: "This is a master table. Even if you delete it here, it comes back when the master tables are updated.",
     ms_saved: "Saved",
+    ms_clr: "🗑 Delete all master tables on other tablets",
+    ms_clr_note: "Deletes all master tables from every tablet (local tables added on each tablet stay). Tables on this tablet are not deleted; they become local tables.",
+    ms_clr_conf: "Delete all master tables from every tablet? They are deleted when each tablet next goes online. OK?",
+    ms_clr_conf2: "Please confirm again. After deleting, those part numbers become NG (no point table) on the tablets. To restore, press \"Send\" again. Really delete?",
+    ms_clr_done: "Sent the version that deletes master tables (version {v}). Tablets delete them when online",
     cl_none_day: "No records on {d}",
     cl_conf_day: "Delete {n} records from {d}? This cannot be undone.",
     cl_done_day: "Deleted records from {d} ({n})",
@@ -4111,6 +4133,11 @@ var I18N = {
     ms_tag_local: "Riêng",
     ms_del_warn: "Đây là bảng chính. Dù xóa ở đây, nó sẽ quay lại khi bảng chính được cập nhật.",
     ms_saved: "Đã lưu",
+    ms_clr: "🗑 Xóa tất cả bảng chính trên các máy",
+    ms_clr_note: "Xóa tất cả bảng chính trên mọi máy (bảng riêng nhập trên từng máy vẫn giữ). Bảng trên máy này không bị xóa mà trở thành bảng riêng.",
+    ms_clr_conf: "Xóa tất cả bảng chính trên mọi máy? Các máy sẽ xóa khi có mạng lần tới. Được chứ?",
+    ms_clr_conf2: "Xác nhận lại. Sau khi xóa, các mã hàng đó sẽ thành NG (không có bảng điểm) trên các máy. Muốn khôi phục, hãy bấm \"Gửi\" lại. Thật sự xóa?",
+    ms_clr_done: "Đã gửi phiên bản xóa bảng chính (phiên bản {v}). Các máy sẽ xóa khi có mạng",
     cl_none_day: "Không có lịch sử ngày {d}",
     cl_conf_day: "Xóa {n} bản ghi của ngày {d}? Không thể hoàn tác.",
     cl_done_day: "Đã xóa lịch sử ngày {d} ({n})",
@@ -4554,6 +4581,11 @@ var I18N = {
     ms_tag_local: "ဒေသတွင်း",
     ms_del_warn: "ဤသည် မာစတာဇယား ဖြစ်သည်။ ဤနေရာတွင် ဖျက်လည်း မာစတာဇယား အပ်ဒိတ်ဖြစ်သောအခါ ပြန်ဝင်လာမည်။",
     ms_saved: "သိမ်းပြီး",
+    ms_clr: "🗑 အခြားတက်ဘလက်ရှိ မာစတာဇယားအားလုံး ဖျက်မည်",
+    ms_clr_note: "တက်ဘလက်အားလုံးမှ မာစတာဇယားအားလုံးကို ဖျက်မည် (တက်ဘလက်တစ်ခုချင်းတွင် ထည့်ထားသော ဒေသတွင်းဇယား ကျန်မည်)။ ဤတက်ဘလက်ရှိ ဇယားများ မပျက်ဘဲ ဒေသတွင်းဇယား ဖြစ်သွားမည်။",
+    ms_clr_conf: "တက်ဘလက်အားလုံးမှ မာစတာဇယားအားလုံး ဖျက်မလား? နောက်တစ်ကြိမ် အွန်လိုင်းဖြစ်သောအခါ ဖျက်မည်။",
+    ms_clr_conf2: "ထပ်မံအတည်ပြုပါ။ ဖျက်ပြီးနောက် ထိုပစ္စည်းနံပါတ်များ တက်ဘလက်တွင် NG ဖြစ်မည်။ ပြန်ယူရန် \"ပို့\" ကို ထပ်နှိပ်ပါ။ တကယ်ဖျက်မလား?",
+    ms_clr_done: "မာစတာဇယား ဖျက်မည့် ဗားရှင်း ({v}) ပို့ပြီး။ တက်ဘလက်များ အွန်လိုင်းဖြစ်လျှင် ဖျက်မည်",
     cl_none_day: "{d} တွင် မှတ်တမ်းမရှိပါ",
     cl_conf_day: "{d} ၏ မှတ်တမ်း {n} ခုကို ဖျက်မလား? ပြန်မရနိုင်ပါ။",
     cl_done_day: "{d} ၏ မှတ်တမ်းများကို ဖျက်ပြီးပါပြီ ({n})",
@@ -4997,6 +5029,11 @@ var I18N = {
     ms_tag_local: "स्थानीय",
     ms_del_warn: "यो मास्टर तालिका हो। यहाँ हटाए पनि मास्टर तालिका अद्यावधिक हुँदा फेरि आउँछ।",
     ms_saved: "सुरक्षित भयो",
+    ms_clr: "🗑 अरू ट्याब्लेटका सबै मास्टर तालिका हटाउने",
+    ms_clr_note: "सबै ट्याब्लेटबाट सबै मास्टर तालिका हटाउँछ (हरेक ट्याब्लेटमा राखेका स्थानीय तालिका रहन्छन्)। यो ट्याब्लेटका तालिका हट्दैनन्, स्थानीय तालिका बन्छन्।",
+    ms_clr_conf: "सबै ट्याब्लेटबाट सबै मास्टर तालिका हटाउने? अर्को पटक अनलाइन हुँदा हटिन्छन्। ठीक छ?",
+    ms_clr_conf2: "फेरि पुष्टि गर्नुहोस्। हटाएपछि ती पार्ट नम्बर ट्याब्लेटमा NG हुन्छन्। फर्काउन \"पठाउने\" फेरि थिच्नुहोस्। साँच्चै हटाउने?",
+    ms_clr_done: "मास्टर तालिका हटाउने संस्करण ({v}) पठाइयो। अनलाइन हुँदा ट्याब्लेटले हटाउँछन्",
     cl_none_day: "{d} को अभिलेख छैन",
     cl_conf_day: "{d} का {n} अभिलेख मेट्ने? यो फिर्ता गर्न सकिँदैन।",
     cl_done_day: "{d} का अभिलेख मेटिए ({n})",
@@ -5440,6 +5477,11 @@ var I18N = {
     ms_tag_local: "লোকাল",
     ms_del_warn: "এটি মাস্টার টেবিল। এখানে মুছলেও মাস্টার আপডেট হলে আবার আসবে।",
     ms_saved: "সংরক্ষিত",
+    ms_clr: "🗑 অন্য ট্যাবলেটের সব মাস্টার টেবিল মুছুন",
+    ms_clr_note: "সব ট্যাবলেট থেকে সব মাস্টার টেবিল মুছবে (প্রতিটি ট্যাবলেটে রাখা লোকাল টেবিল থাকবে)। এই ট্যাবলেটের টেবিল মুছবে না, লোকাল টেবিল হয়ে যাবে।",
+    ms_clr_conf: "সব ট্যাবলেট থেকে সব মাস্টার টেবিল মুছবেন? পরের বার অনলাইন হলে মুছবে। ঠিক আছে?",
+    ms_clr_conf2: "আবার নিশ্চিত করুন। মুছলে ওই পার্ট নম্বরগুলো ট্যাবলেটে NG হবে। ফেরাতে আবার \"পাঠান\" চাপুন। সত্যিই মুছবেন?",
+    ms_clr_done: "মাস্টার টেবিল মোছার সংস্করণ ({v}) পাঠানো হয়েছে। অনলাইন হলে ট্যাবলেট মুছে ফেলবে",
     cl_none_day: "{d}-এর কোনো রেকর্ড নেই",
     cl_conf_day: "{d}-এর {n}টি রেকর্ড মুছবেন? এটি ফেরানো যায় না।",
     cl_done_day: "{d}-এর রেকর্ড মোছা হয়েছে ({n})",
@@ -5883,6 +5925,11 @@ var I18N = {
     ms_tag_local: "Дотоод",
     ms_del_warn: "Энэ бол үндсэн хүснэгт. Энд устгасан ч үндсэн хүснэгт шинэчлэгдэхэд буцаж орно.",
     ms_saved: "Хадгалсан",
+    ms_clr: "🗑 Бусад таблетын үндсэн хүснэгтийг бүгдийг устгах",
+    ms_clr_note: "Бүх таблетаас үндсэн хүснэгтийг бүгдийг устгана (таблет бүрт оруулсан дотоод хүснэгт үлдэнэ). Энэ таблетын хүснэгт устахгүй, дотоод хүснэгт болно.",
+    ms_clr_conf: "Бүх таблетаас үндсэн хүснэгтийг устгах уу? Дараагийн удаа онлайн болоход устна. Зөв үү?",
+    ms_clr_conf2: "Дахин баталгаажуулна уу. Устгасны дараа тэдгээр дугаар таблетад NG болно. Сэргээхийн тулд \"Илгээх\"-г дахин дарна. Үнэхээр устгах уу?",
+    ms_clr_done: "Үндсэн хүснэгтийг устгах хувилбар ({v}) илгээлээ. Таблетууд онлайн болоход устгана",
     cl_none_day: "{d}-нд бүртгэл алга",
     cl_conf_day: "{d}-ний {n} бүртгэлийг устгах уу? Буцаах боломжгүй.",
     cl_done_day: "{d}-ний бүртгэлийг устгалаа ({n})",
@@ -6326,6 +6373,11 @@ var I18N = {
     ms_tag_local: "Local",
     ms_del_warn: "Esta é uma tabela mestre. Mesmo excluindo aqui, ela volta quando as tabelas mestre forem atualizadas.",
     ms_saved: "Salvo",
+    ms_clr: "🗑 Excluir todas as tabelas mestre dos outros tablets",
+    ms_clr_note: "Exclui todas as tabelas mestre de todos os tablets (as tabelas locais de cada tablet continuam). As tabelas deste tablet não são excluídas; viram tabelas locais.",
+    ms_clr_conf: "Excluir todas as tabelas mestre de todos os tablets? Serão excluídas quando cada tablet ficar online. OK?",
+    ms_clr_conf2: "Confirme de novo. Depois de excluir, esses códigos ficam NG (sem tabela de pontos) nos tablets. Para restaurar, pressione \"Enviar\" de novo. Excluir mesmo?",
+    ms_clr_done: "Enviada a versão que exclui as tabelas mestre (versão {v}). Os tablets excluem quando ficarem online",
     cl_none_day: "Não há registros em {d}",
     cl_conf_day: "Apagar {n} registros de {d}? Não é possível desfazer.",
     cl_done_day: "Registros de {d} apagados ({n})",
@@ -6769,6 +6821,11 @@ var I18N = {
     ms_tag_local: "දේශීය",
     ms_del_warn: "මෙය ප්‍රධාන වගුවකි. මෙහි මැකුවද ප්‍රධාන වගු යාවත්කාලීන වූ විට නැවත එයි.",
     ms_saved: "සුරැකිණි",
+    ms_clr: "🗑 අනෙක් ටැබ්ලටවල ප්‍රධාන වගු සියල්ල මකන්න",
+    ms_clr_note: "සියලු ටැබ්ලටවලින් ප්‍රධාන වගු සියල්ල මකයි (එක් එක් ටැබ්ලටයේ දැමූ දේශීය වගු පවතී). මෙම ටැබ්ලටයේ වගු මැකෙන්නේ නැත, දේශීය වගු බවට පත් වේ.",
+    ms_clr_conf: "සියලු ටැබ්ලටවලින් ප්‍රධාන වගු සියල්ල මකන්නද? ඊළඟ වර අන්තර්ජාලයට සම්බන්ධ වූ විට මැකේ. හරිද?",
+    ms_clr_conf2: "නැවත තහවුරු කරන්න. මැකූ පසු එම කොටස් අංක ටැබ්ලටවල NG වේ. ආපසු ගැනීමට \"යවන්න\" නැවත ඔබන්න. ඇත්තටම මකන්නද?",
+    ms_clr_done: "ප්‍රධාන වගු මකන අනුවාදය ({v}) යැව්වා. අන්තර්ජාලයට සම්බන්ධ වූ විට ටැබ්ලට මකයි",
     cl_none_day: "{d} දිනයට වාර්තා නැත",
     cl_conf_day: "{d} දිනයේ වාර්තා {n}ක් මකන්නද? මෙය ආපසු හැරවිය නොහැක.",
     cl_done_day: "{d} දිනයේ වාර්තා මැකුවා ({n})",
@@ -7808,19 +7865,19 @@ async function msReceive(auto) {
 }
 $('msGet').onclick = function () { msReceive(false); };
 /** 管理者：この端末の表すべてを、親機の表として送る（版が1つ上がり、子機が受け取る） */
-$('msSend').onclick = async function () {
+/** 親機の表として送る（共通）：keys の表を一式にして3MBずつ送り、版を1つ上げる。keys が空なら「親機の表なし」の版になる（子機の親機の表がすべて消える） */
+async function msUpload(btn, keys, withVid, conf, done) {
   if (MS_BUSY) return;
   if (!msUrl()) return msMsg(t('ms_e_nourl'), true);
   var key = $('msSendKey').value.trim(); if (!key) return msMsg(t('ms_e_nosend'), true);
-  var keys = Object.keys(PDF_INDEX).sort(); if (!keys.length) return msMsg(t('pk_none'), true);
   if (!navigator.onLine) return msMsg(t('ms_e_offline'), true);
-  if (!confirm(t('ms_send_conf', { n: keys.length }))) return;
-  MS_BUSY = true; var btn = this; btn.disabled = true;
+  for (var c = 0; c < conf.length; c++) if (!confirm(conf[c])) return;
+  MS_BUSY = true; btn.disabled = true;
   try {
     var info = await msCall({ action: 'info', key: key });
     if (!info.send) { var e0 = new Error('key'); e0.code = 'key'; throw e0; }
     msMsg(t('ms_packing'));
-    var pk = await pkBuild(keys, $('msVid').checked, false), size = pk.blob.size, n = Math.max(1, Math.ceil(size / MS_CHUNK));
+    var pk = await pkBuild(keys, withVid, false), size = pk.blob.size, n = Math.max(1, Math.ceil(size / MS_CHUNK));
     var id = Date.now().toString(36) + Math.random().toString(36).slice(2, 10);
     await msRetry(function () { return msCall({ action: 'begin', key: key, id: id }); });
     for (var i = 0; i < n; i++) {
@@ -7829,13 +7886,28 @@ $('msSend').onclick = async function () {
       await msRetry(function () { return msCall({ action: 'up', key: key, id: id, n: i, data: d }); });
     }
     var j = await msRetry(function () { return msCall({ action: 'commit', key: key, id: id, parts: n, size: size, count: pk.items.length, at: today() + ' ' + nowTime(), term: CF.term }); });
-    // 送った表は、この端末でも「親機の表」になる
-    await tx('pdfs', 'readwrite', function (st) { keys.forEach(function (k) { var g = st.get(k); g.onsuccess = function () { var v = g.result; if (v && !v.m) { v.m = 1; st.put(v); } }; }); });
+    await done(j, pk);
     CF.mver = j.m.ver; CF.mat = j.m.at; CF.mchk = today() + ' ' + nowTime(); CF.merr = ''; await saveCfStore();
     await loadPdfIndex(); showPdfList(); updateHeader();
-    var txt = t('ms_sent', { v: j.m.ver, n: pk.items.length }); msMsg(txt); toast(txt, 5000);
   } catch (e) { msMsg(msErr(e), true); }
   finally { MS_BUSY = false; btn.disabled = false; msStatus(); }
+}
+/** 管理者：この端末の表すべてを、親機の表として送る（版が1つ上がり、子機が受け取る） */
+$('msSend').onclick = function () {
+  var keys = Object.keys(PDF_INDEX).sort(); if (!keys.length) return msMsg(t('pk_none'), true);
+  msUpload(this, keys, $('msVid').checked, [t('ms_send_conf', { n: keys.length })], async function (j, pk) {
+    // 送った表は、この端末でも「親機の表」になる
+    await tx('pdfs', 'readwrite', function (st) { keys.forEach(function (k) { var g = st.get(k); g.onsuccess = function () { var v = g.result; if (v && !v.m) { v.m = 1; st.put(v); } }; }); });
+    var txt = t('ms_sent', { v: j.m.ver, n: pk.items.length }); msMsg(txt); toast(txt, 5000);
+  });
+};
+/** 管理者：子機に入っている「親機の表」をすべて消す（中身が空の版を送る）。子機で入れた端末だけの表は残る。
+ *  この端末の表は消さず、「端末だけの表」に戻す（次に「送る」を押せば、また親機の表になる） */
+$('msClear').onclick = function () {
+  msUpload(this, [], false, [t('ms_clr_conf'), t('ms_clr_conf2')], async function (j) {
+    await tx('pdfs', 'readwrite', function (st) { Object.keys(PDF_INDEX).forEach(function (k) { if (!PDF_INDEX[k].m) return; var g = st.get(k); g.onsuccess = function () { var v = g.result; if (v) { delete v.m; st.put(v); } }; }); });
+    var txt = t('ms_clr_done', { v: j.m.ver }); msMsg(txt); toast(txt, 6000);
+  });
 };
 /** 起動したとき・ネットにつながったとき・10分ごとに、自動で確かめる */
 function msStart() {
