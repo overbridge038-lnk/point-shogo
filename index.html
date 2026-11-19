@@ -407,11 +407,11 @@ html[lang=my],html[lang=ne],html[lang=bn],html[lang=si]{line-height:1.5} /* ミ�
     <button class="btn langBtn" data-lang="si"><span class="flag">🇱🇰</span>සිංහල</button>
   </div>
   <p id="startNote" style="font-size:13px">準備中…</p>
-  <p class="ver" style="font-size:12px;opacity:.85">ver.2026.11.19 10:14 (#118)</p>
+  <p class="ver" style="font-size:12px;opacity:.85">ver.2026.11.19 10:35 (#122)</p>
 </div>
 
 <header>
-  <h1><i class="logo" data-mascot="ok"></i><span>ポイント照合ツール</span><small class="ver" title="版（ビルドした日時）">ver.2026.11.19 10:14 (#118)</small></h1>
+  <h1><i class="logo" data-mascot="ok"></i><span>ポイント照合ツール</span><small class="ver" title="版（ビルドした日時）">ver.2026.11.19 10:35 (#122)</small></h1>
   <div class="tabs">
     <button class="tab on" data-v="check" data-i18n="tab_check">照合</button>
     <button class="tab" data-v="pdf" data-i18n="tab_pdf">ポイント表の登録</button>
@@ -724,7 +724,13 @@ html[lang=my],html[lang=ne],html[lang=bn],html[lang=si]{line-height:1.5} /* ミ�
 <div id="plist" role="dialog" aria-modal="true">
   <div class="pvbox">
     <div class="pvhead"><b data-i18n="pl_title">登録済みのポイント表</b><span class="note" id="plCount" style="margin:0"></span><span style="flex:1"></span><button class="btn" id="plClose" data-i18n="c_close">✕ 閉じる</button></div>
-    <div style="padding:10px 16px 0"><input type="text" id="plSearch" autocomplete="off" style="width:100%"></div>
+    <div style="padding:10px 16px 0;display:grid;gap:8px">
+      <div class="btnrow" style="align-items:center"><input type="text" id="plSearch" autocomplete="off" style="flex:1;min-width:180px"><button class="btn dng" id="plSelMode" data-i18n="sel_mode">☑ 選んで削除</button><button class="btn dng" id="plClear" data-i18n="r_clear">全部削除</button></div>
+      <div id="plSelBar" hidden>
+        <p class="note" style="margin:0 0 6px" data-i18n="sel_hint">削除したい表をタップして選びます</p>
+        <div class="btnrow"><button class="btn" id="plSelAll" data-i18n="sel_all">すべて選ぶ</button><button class="btn" id="plSelNone" data-i18n="sel_none_btn">選びをはずす</button><button class="btn dng" id="plSelDel" disabled></button><button class="btn" id="plSelCancel" data-i18n="sel_cancel">やめる</button></div>
+      </div>
+    </div>
     <div class="pvbody" style="text-align:left"><div class="pgrid" id="plGrid"></div></div>
   </div>
 </div>
@@ -7559,10 +7565,11 @@ function renderPlist() {
   $('plCount').textContent = t('pl_cnt', { n: list.length });
   $('plGrid').innerHTML = list.map(function (k) {
     var v = PDF_INDEX[k];
-    return '<div class="pcard"><button class="pthumb" data-view="' + esc(k) + '" data-thumb="' + esc(k) + '" aria-label="' + esc(v.name) + '"><span>…</span></button>' +
+    return '<div class="pcard' + (PLSEL.set[k] ? ' picked' : '') + '" data-key="' + esc(k) + '"><button class="pthumb" data-view="' + esc(k) + '" data-thumb="' + esc(k) + '" aria-label="' + esc(v.name) + '"><span>…</span></button>' +
       '<div class="pinfo"><b class="mono">' + esc(v.name.replace(/\.(pdf|xlsx|xlsm)$/i, '')) + '</b><div class="note">' + esc(v.at) + '</div></div>' +
       '<div class="pacts"><button class="btn" data-view="' + esc(k) + '">🔍</button>' + ((v.kind === 'xlsx' || v.xl) ? '' : '<button class="btn" data-pledit="' + esc(k) + '">✏</button>') + '<button class="btn dng" data-pldel="' + esc(k) + '">🗑 ' + esc(t('pl_del')) + '</button></div></div>';
   }).join('') || '<div class="pempty">' + esc(t(keys.length ? 'pl_none' : 'pl_empty')) + '</div>';
+  plSelUpdate();
   if (plObs) plObs.disconnect();
   var els = $('plGrid').querySelectorAll('[data-thumb]');
   if ('IntersectionObserver' in window) {
@@ -7572,7 +7579,7 @@ function renderPlist() {
 }
 function openPlist() {
   if (S.state === 'ng') return;
-  plUnlocked = false;
+  plUnlocked = false; PLSEL = { on: false, set: {} };
   $('plSearch').value = ''; $('plist').classList.add('on'); renderPlist();
 }
 function closePlist() { $('plist').classList.remove('on'); $('plGrid').innerHTML = ''; setTimeout(focusScan, 50); }
@@ -8339,16 +8346,47 @@ $('pdfList').addEventListener('click', function (e) { // 選ぶモード中は�
   if (!SEL.on) return; var c = e.target.closest('.pcard'); if (!c) return;
   e.stopPropagation(); e.preventDefault(); var k = c.getAttribute('data-key'); if (SEL.set[k]) delete SEL.set[k]; else SEL.set[k] = 1; selUpdate();
 }, true);
-$('selDel').onclick = async function () {
-  var keys = Object.keys(SEL.set).filter(function (k) { return PDF_INDEX[k]; }); if (!keys.length) return toast(t('sel_none'), 3000);
+/** まとめて削除（確認に件数と品番を出す。動画も消す）。消したら true */
+async function delKeys(keys) {
+  keys = keys.filter(function (k) { return PDF_INDEX[k]; }); if (!keys.length) { toast(t('sel_none'), 3000); return false; }
   keys.sort(); var names = keys.map(function (k) { return PDF_INDEX[k].name.replace(/\.(pdf|xlsx|xlsm)$/i, ''); });
   var list = names.slice(0, 10).join('\n') + (names.length > 10 ? '\n' + t('sel_more', { n: names.length - 10 }) : '');
   var warn = keys.some(function (k) { return PDF_INDEX[k].m; }) && msUrl() ? '\n\n' + t('ms_del_warn') : '';
-  if (!confirm(t('sel_confirm', { n: keys.length, list: list }) + warn)) return;
+  if (!confirm(t('sel_confirm', { n: keys.length, list: list }) + warn)) return false;
   await tx('pdfs', 'readwrite', function (s) { keys.forEach(function (k) { s.delete(k); }); });
   var vk = keys.filter(function (k) { return VID_INDEX[k]; }); if (vk.length) await tx('kv', 'readwrite', function (s) { vk.forEach(function (k) { s.delete('vid:' + k); }); });
-  await loadPdfIndex(); updateHeader(); selOff(); showPdfList();
-  toast(t('sel_done', { n: keys.length }), 4000);
+  await loadPdfIndex(); updateHeader(); showPdfList();
+  toast(t('sel_done', { n: keys.length }), 4000); return true;
+}
+// ---- 上の「ポイント表 ◯件」から開く一覧でも、選んで削除・全部削除（設定パスワードを1回確かめる） ----
+var PLSEL = { on: false, set: {} };
+function plSelUpdate() {
+  $('plGrid').classList.toggle('selmode', PLSEL.on); $('plSelBar').hidden = !PLSEL.on; $('plSelMode').hidden = PLSEL.on; $('plClear').hidden = PLSEL.on;
+  var n = Object.keys(PLSEL.set).length; $('plSelDel').textContent = t('sel_del', { n: n }); $('plSelDel').disabled = !n;
+  $('plGrid').querySelectorAll('.pcard').forEach(function (c) { c.classList.toggle('picked', !!PLSEL.set[c.getAttribute('data-key')]); });
+}
+async function plUnlock() {
+  if (plUnlocked) return true;
+  var pw = await askPin(t('pin_set')); if (pw === null) return false;
+  if (pw !== pinNorm(CF.setpw)) { toast(t('t_setpw')); soundNg(); return false; }
+  plUnlocked = true; return true;
+}
+$('plSelMode').onclick = async function () { if (!(await plUnlock())) return; PLSEL = { on: true, set: {} }; plSelUpdate(); };
+$('plSelCancel').onclick = function () { PLSEL = { on: false, set: {} }; plSelUpdate(); };
+$('plSelNone').onclick = function () { PLSEL.set = {}; plSelUpdate(); };
+$('plSelAll').onclick = function () { var q = norm($('plSearch').value); Object.keys(PDF_INDEX).forEach(function (k) { if (!q || k.indexOf(q) >= 0) PLSEL.set[k] = 1; }); plSelUpdate(); };
+$('plGrid').addEventListener('click', function (e) { // 選ぶモード中は、カードのどこをタップしても「選ぶ／外す」
+  if (!PLSEL.on) return; var c = e.target.closest('.pcard'); if (!c) return;
+  e.stopPropagation(); e.preventDefault(); var k = c.getAttribute('data-key'); if (PLSEL.set[k]) delete PLSEL.set[k]; else PLSEL.set[k] = 1; plSelUpdate();
+}, true);
+$('plSelDel').onclick = async function () { if (await delKeys(Object.keys(PLSEL.set))) { PLSEL = { on: false, set: {} }; renderPlist(); } };
+$('plClear').onclick = async function () {
+  var keys = Object.keys(PDF_INDEX); if (!keys.length) return toast(t('pl_empty'), 3000);
+  if (!(await plUnlock())) return;
+  if (await delKeys(keys)) renderPlist();
+};
+$('selDel').onclick = async function () {
+  if (await delKeys(Object.keys(SEL.set))) { selOff(); showPdfList(); }
 };
 $('clearPdf').onclick = async function () {
   if (!confirm(t('r_clear_confirm'))) return;
