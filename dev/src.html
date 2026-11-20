@@ -556,6 +556,8 @@ html[lang=my],html[lang=ne],html[lang=bn],html[lang=si]{line-height:1.5} /* ミ�
           <input type="url" id="tplPn" inputmode="url" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" data-i18n-ph="tp_pn_ph" placeholder="例：12345-67890"></label>
         <label class="f tplItem"><span class="tplLbl"><b>3</b><span data-i18n="tp_qty">収容数</span> <span class="req" data-i18n="req">必須</span></span>
           <span class="tplQty"><input type="number" id="tplQty" inputmode="numeric" min="1" step="1" data-i18n-ph="tp_qty_ph" placeholder="例：20"><span data-i18n="tp_pcs">個</span></span></label>
+        <label class="f tplItem"><span class="tplLbl"><span data-i18n="tp_pr">工程</span> <span class="opt" data-i18n="tp_opt">任意</span></span>
+          <select id="tplPr"><option value="">（工程なし）</option></select></label>
         <label class="f tplItem"><span class="tplLbl"><span data-i18n="tp_hg">ハンガー種類</span> <span class="opt" data-i18n="tp_opt">任意</span></span>
           <input type="text" id="tplHg" autocomplete="off" spellcheck="false" data-i18n-ph="tp_hg_ph" placeholder="例：A型"></label>
         <label class="f tplItem"><span class="tplLbl"><span data-i18n="tp_hk">掛け数</span> <span class="opt" data-i18n="tp_opt">任意</span></span>
@@ -624,6 +626,13 @@ html[lang=my],html[lang=ne],html[lang=bn],html[lang=si]{line-height:1.5} /* ミ�
       <div class="btnrow"><button class="btn pri" id="appSave" data-i18n="app_btn">💾 このツールをファイルとして保存</button></div>
       <p class="note" style="margin:0" data-i18n="man_note">使用要領書（手順書）はインターネットにつながる時に開けます。</p>
       <div class="btnrow"><a class="btn" id="manPdf" data-i18n="man_btn" href="manual.pdf" target="_blank" rel="noopener" style="text-decoration:none;display:inline-flex;align-items:center">📖 手順書を開く</a></div>
+    </div>
+  </div>
+  <div class="card" id="prCard">
+    <h3 data-i18n="pr_h">工程の一覧</h3>
+    <div style="display:grid;gap:10px;max-width:560px">
+      <p class="note" style="margin:0" data-i18n-html="pr_note"></p>
+      <textarea id="cfProcs" rows="4" spellcheck="false"></textarea>
     </div>
   </div>
   <div class="card" id="msCard">
@@ -796,7 +805,7 @@ html[lang=my],html[lang=ne],html[lang=bn],html[lang=si]{line-height:1.5} /* ミ�
    ========================================================================= */
 
 // ---------- 設定（localStorage） ----------
-var CF = { term: '01', mode: 'auto', sound: '1', code: '1234', setpw: '0000', lang: 'ja' };
+var CF = { term: '01', mode: 'auto', sound: '1', code: '1234', setpw: '0000', lang: 'ja', procs: ['掛け置き', '検査'] };
 function loadCf() { try { var s = JSON.parse(localStorage.getItem('ptShogoCf') || '{}'); for (var k in s) CF[k] = s[k]; } catch (e) {} }
 function saveCfStore() {
   try { localStorage.setItem('ptShogoCf', JSON.stringify(CF)); } catch (e) {}
@@ -1200,6 +1209,11 @@ var I18N = {
     ms_tag_local: "端末だけ",
     ms_del_warn: "これは親機の表です。この端末から消しても、親機の表が新しくなったときに、また入ります。",
     ms_saved: "保存しました",
+    tp_pr: "工程",
+    tp_pr_none: "（工程なし）",
+    pr_h: "工程の一覧",
+    pr_note: "「ポイント表をつくる」で選べる工程の名前です。<b>1行に1つ</b>書きます（例：掛け置き、検査）。<br>同じ品番でも工程がちがえば別の表になり、かんばんを読んだときに、どの工程の表を使うか選ぶ画面が出ます。",
+    xl_e_pr: "工程が「工程の一覧」にありません（設定タブで足してください）",
     ms_clr: "🗑 子機の親機の表をすべて消す",
     ms_clr_note: "全部の子機から、親機の表をすべて消します（子機で入れた「端末だけの表」は残ります）。この端末の表は消えず、「端末だけの表」に戻ります。",
     ms_clr_conf: "全部の子機から、親機の表をすべて消します。子機は次にネットにつながったときに消えます。よろしいですか？",
@@ -1648,6 +1662,11 @@ var I18N = {
     ms_tag_local: "Lokal",
     ms_del_warn: "Ini tabel induk. Meski dihapus di sini, akan kembali saat tabel induk diperbarui.",
     ms_saved: "Tersimpan",
+    tp_pr: "Proses",
+    tp_pr_none: "(tanpa proses)",
+    pr_h: "Daftar proses",
+    pr_note: "Nama proses yang bisa dipilih di \"Buat tabel poin\". Tulis <b>satu per baris</b> (contoh: gantung, inspeksi).<br>Nomor part sama dengan proses berbeda menjadi tabel terpisah; saat kanban dipindai, muncul layar untuk memilih tabel proses mana.",
+    xl_e_pr: "Proses tidak ada di \"Daftar proses\" (tambahkan di tab Pengaturan)",
     ms_clr: "🗑 Hapus semua tabel induk di tablet lain",
     ms_clr_note: "Menghapus semua tabel induk dari semua tablet (tabel lokal di tiap tablet tetap ada). Tabel di tablet ini tidak dihapus, menjadi tabel lokal.",
     ms_clr_conf: "Hapus semua tabel induk dari semua tablet? Akan terhapus saat tiap tablet online berikutnya. Lanjut?",
@@ -2096,6 +2115,11 @@ var I18N = {
     ms_tag_local: "Lokal",
     ms_del_warn: "Ito ay master na talaan. Kahit burahin dito, babalik ito kapag na-update ang master.",
     ms_saved: "Na-save",
+    tp_pr: "Proseso",
+    tp_pr_none: "(walang proseso)",
+    pr_h: "Listahan ng proseso",
+    pr_note: "Mga pangalan ng proseso na mapipili sa \"Gumawa ng point table\". Isulat ang <b>isa bawat linya</b> (hal. pagsabit, inspeksyon).<br>Ang parehong part number na iba ang proseso ay hiwalay na talaan; kapag na-scan ang kanban, may screen para pumili kung aling proseso.",
+    xl_e_pr: "Wala ang proseso sa \"Listahan ng proseso\" (idagdag sa Settings)",
     ms_clr: "🗑 Burahin ang lahat ng master na talaan sa ibang tablet",
     ms_clr_note: "Buburahin ang lahat ng master na talaan sa lahat ng tablet (mananatili ang lokal na talaan ng bawat tablet). Hindi mabubura ang talaan sa tablet na ito; magiging lokal ito.",
     ms_clr_conf: "Burahin ang lahat ng master na talaan sa lahat ng tablet? Mabubura ito kapag nag-online ang bawat tablet. Sige?",
@@ -2544,6 +2568,11 @@ var I18N = {
     ms_tag_local: "Local",
     ms_del_warn: "This is a master table. Even if you delete it here, it comes back when the master tables are updated.",
     ms_saved: "Saved",
+    tp_pr: "Process",
+    tp_pr_none: "(no process)",
+    pr_h: "Process list",
+    pr_note: "Process names you can choose in \"Make a point table\". Write <b>one per line</b> (e.g. hanging, inspection).<br>The same part number with a different process becomes a separate table; when a kanban is scanned, a screen asks which process table to use.",
+    xl_e_pr: "The process is not in the \"Process list\" (add it in Settings)",
     ms_clr: "🗑 Delete all master tables on other tablets",
     ms_clr_note: "Deletes all master tables from every tablet (local tables added on each tablet stay). Tables on this tablet are not deleted; they become local tables.",
     ms_clr_conf: "Delete all master tables from every tablet? They are deleted when each tablet next goes online. OK?",
@@ -2992,6 +3021,11 @@ var I18N = {
     ms_tag_local: "Riêng",
     ms_del_warn: "Đây là bảng chính. Dù xóa ở đây, nó sẽ quay lại khi bảng chính được cập nhật.",
     ms_saved: "Đã lưu",
+    tp_pr: "Công đoạn",
+    tp_pr_none: "(không có công đoạn)",
+    pr_h: "Danh sách công đoạn",
+    pr_note: "Tên công đoạn có thể chọn trong \"Tạo bảng điểm\". Viết <b>mỗi dòng một tên</b> (ví dụ: treo hàng, kiểm tra).<br>Cùng mã hàng nhưng khác công đoạn sẽ là bảng riêng; khi quét kanban sẽ hiện màn hình chọn bảng của công đoạn nào.",
+    xl_e_pr: "Công đoạn không có trong \"Danh sách công đoạn\" (hãy thêm ở tab Cài đặt)",
     ms_clr: "🗑 Xóa tất cả bảng chính trên các máy",
     ms_clr_note: "Xóa tất cả bảng chính trên mọi máy (bảng riêng nhập trên từng máy vẫn giữ). Bảng trên máy này không bị xóa mà trở thành bảng riêng.",
     ms_clr_conf: "Xóa tất cả bảng chính trên mọi máy? Các máy sẽ xóa khi có mạng lần tới. Được chứ?",
@@ -3440,6 +3474,11 @@ var I18N = {
     ms_tag_local: "ဒေသတွင်း",
     ms_del_warn: "ဤသည် မာစတာဇယား ဖြစ်သည်။ ဤနေရာတွင် ဖျက်လည်း မာစတာဇယား အပ်ဒိတ်ဖြစ်သောအခါ ပြန်ဝင်လာမည်။",
     ms_saved: "သိမ်းပြီး",
+    tp_pr: "လုပ်ငန်းစဉ်",
+    tp_pr_none: "(လုပ်ငန်းစဉ် မရှိ)",
+    pr_h: "လုပ်ငန်းစဉ် စာရင်း",
+    pr_note: "\"ပွိုင့်ဇယား ပြုလုပ်ရန်\" တွင် ရွေးနိုင်သော လုပ်ငန်းစဉ်အမည်များ။ <b>တစ်ကြောင်းလျှင် တစ်ခု</b> ရေးပါ (ဥပမာ - ချိတ်ဆွဲ၊ စစ်ဆေး)။<br>ပစ္စည်းနံပါတ်တူသော်လည်း လုပ်ငန်းစဉ်ကွဲလျှင် ဇယားသီးခြားဖြစ်ပြီး ကန်ဘန်ဖတ်သောအခါ မည်သည့်လုပ်ငန်းစဉ်ဇယားကို သုံးမည်ကို ရွေးရမည်။",
+    xl_e_pr: "လုပ်ငန်းစဉ်သည် \"လုပ်ငန်းစဉ် စာရင်း\" တွင် မရှိပါ (ဆက်တင်တွင် ထည့်ပါ)",
     ms_clr: "🗑 အခြားတက်ဘလက်ရှိ မာစတာဇယားအားလုံး ဖျက်မည်",
     ms_clr_note: "တက်ဘလက်အားလုံးမှ မာစတာဇယားအားလုံးကို ဖျက်မည် (တက်ဘလက်တစ်ခုချင်းတွင် ထည့်ထားသော ဒေသတွင်းဇယား ကျန်မည်)။ ဤတက်ဘလက်ရှိ ဇယားများ မပျက်ဘဲ ဒေသတွင်းဇယား ဖြစ်သွားမည်။",
     ms_clr_conf: "တက်ဘလက်အားလုံးမှ မာစတာဇယားအားလုံး ဖျက်မလား? နောက်တစ်ကြိမ် အွန်လိုင်းဖြစ်သောအခါ ဖျက်မည်။",
@@ -3888,6 +3927,11 @@ var I18N = {
     ms_tag_local: "स्थानीय",
     ms_del_warn: "यो मास्टर तालिका हो। यहाँ हटाए पनि मास्टर तालिका अद्यावधिक हुँदा फेरि आउँछ।",
     ms_saved: "सुरक्षित भयो",
+    tp_pr: "प्रक्रिया",
+    tp_pr_none: "(प्रक्रिया छैन)",
+    pr_h: "प्रक्रिया सूची",
+    pr_note: "\"पोइन्ट तालिका बनाउने\" मा छान्न मिल्ने प्रक्रियाका नाम। <b>एक लाइनमा एउटा</b> लेख्नुहोस् (जस्तै: झुण्ड्याउने, जाँच)।<br>एउटै पार्ट नम्बर भए पनि प्रक्रिया फरक भए छुट्टै तालिका हुन्छ; कानबान पढ्दा कुन प्रक्रियाको तालिका प्रयोग गर्ने छान्ने स्क्रिन आउँछ।",
+    xl_e_pr: "प्रक्रिया \"प्रक्रिया सूची\" मा छैन (सेटिङमा थप्नुहोस्)",
     ms_clr: "🗑 अरू ट्याब्लेटका सबै मास्टर तालिका हटाउने",
     ms_clr_note: "सबै ट्याब्लेटबाट सबै मास्टर तालिका हटाउँछ (हरेक ट्याब्लेटमा राखेका स्थानीय तालिका रहन्छन्)। यो ट्याब्लेटका तालिका हट्दैनन्, स्थानीय तालिका बन्छन्।",
     ms_clr_conf: "सबै ट्याब्लेटबाट सबै मास्टर तालिका हटाउने? अर्को पटक अनलाइन हुँदा हटिन्छन्। ठीक छ?",
@@ -4336,6 +4380,11 @@ var I18N = {
     ms_tag_local: "লোকাল",
     ms_del_warn: "এটি মাস্টার টেবিল। এখানে মুছলেও মাস্টার আপডেট হলে আবার আসবে।",
     ms_saved: "সংরক্ষিত",
+    tp_pr: "প্রক্রিয়া",
+    tp_pr_none: "(প্রক্রিয়া নেই)",
+    pr_h: "প্রক্রিয়ার তালিকা",
+    pr_note: "\"পয়েন্ট টেবিল তৈরি\"-তে বেছে নেওয়ার মতো প্রক্রিয়ার নাম। <b>প্রতি লাইনে একটি</b> লিখুন (যেমন: ঝোলানো, পরিদর্শন)।<br>একই পার্ট নম্বর কিন্তু ভিন্ন প্রক্রিয়া হলে আলাদা টেবিল হবে; কানবান পড়লে কোন প্রক্রিয়ার টেবিল তা বেছে নেওয়ার স্ক্রিন আসবে।",
+    xl_e_pr: "প্রক্রিয়াটি \"প্রক্রিয়ার তালিকা\"-য় নেই (সেটিংসে যোগ করুন)",
     ms_clr: "🗑 অন্য ট্যাবলেটের সব মাস্টার টেবিল মুছুন",
     ms_clr_note: "সব ট্যাবলেট থেকে সব মাস্টার টেবিল মুছবে (প্রতিটি ট্যাবলেটে রাখা লোকাল টেবিল থাকবে)। এই ট্যাবলেটের টেবিল মুছবে না, লোকাল টেবিল হয়ে যাবে।",
     ms_clr_conf: "সব ট্যাবলেট থেকে সব মাস্টার টেবিল মুছবেন? পরের বার অনলাইন হলে মুছবে। ঠিক আছে?",
@@ -4784,6 +4833,11 @@ var I18N = {
     ms_tag_local: "Дотоод",
     ms_del_warn: "Энэ бол үндсэн хүснэгт. Энд устгасан ч үндсэн хүснэгт шинэчлэгдэхэд буцаж орно.",
     ms_saved: "Хадгалсан",
+    tp_pr: "Процесс",
+    tp_pr_none: "(процессгүй)",
+    pr_h: "Процессын жагсаалт",
+    pr_note: "\"Цэгийн хүснэгт хийх\"-д сонгох процессын нэрс. <b>Мөр бүрт нэг</b> бичнэ (жишээ: өлгөх, шалгах).<br>Ижил дугаар боловч процесс өөр бол тусдаа хүснэгт болно; канбан уншихад аль процессын хүснэгтийг ашиглахаа сонгох дэлгэц гарна.",
+    xl_e_pr: "Процесс \"Процессын жагсаалт\"-д алга (Тохиргоонд нэмнэ үү)",
     ms_clr: "🗑 Бусад таблетын үндсэн хүснэгтийг бүгдийг устгах",
     ms_clr_note: "Бүх таблетаас үндсэн хүснэгтийг бүгдийг устгана (таблет бүрт оруулсан дотоод хүснэгт үлдэнэ). Энэ таблетын хүснэгт устахгүй, дотоод хүснэгт болно.",
     ms_clr_conf: "Бүх таблетаас үндсэн хүснэгтийг устгах уу? Дараагийн удаа онлайн болоход устна. Зөв үү?",
@@ -5232,6 +5286,11 @@ var I18N = {
     ms_tag_local: "Local",
     ms_del_warn: "Esta é uma tabela mestre. Mesmo excluindo aqui, ela volta quando as tabelas mestre forem atualizadas.",
     ms_saved: "Salvo",
+    tp_pr: "Processo",
+    tp_pr_none: "(sem processo)",
+    pr_h: "Lista de processos",
+    pr_note: "Nomes de processo que podem ser escolhidos em \"Criar tabela de pontos\". Escreva <b>um por linha</b> (ex.: pendurar, inspeção).<br>O mesmo código com processo diferente vira outra tabela; ao ler o kanban, aparece uma tela para escolher de qual processo.",
+    xl_e_pr: "O processo não está na \"Lista de processos\" (adicione em Configurações)",
     ms_clr: "🗑 Excluir todas as tabelas mestre dos outros tablets",
     ms_clr_note: "Exclui todas as tabelas mestre de todos os tablets (as tabelas locais de cada tablet continuam). As tabelas deste tablet não são excluídas; viram tabelas locais.",
     ms_clr_conf: "Excluir todas as tabelas mestre de todos os tablets? Serão excluídas quando cada tablet ficar online. OK?",
@@ -5680,6 +5739,11 @@ var I18N = {
     ms_tag_local: "දේශීය",
     ms_del_warn: "මෙය ප්‍රධාන වගුවකි. මෙහි මැකුවද ප්‍රධාන වගු යාවත්කාලීන වූ විට නැවත එයි.",
     ms_saved: "සුරැකිණි",
+    tp_pr: "ක්‍රියාවලිය",
+    tp_pr_none: "(ක්‍රියාවලියක් නැත)",
+    pr_h: "ක්‍රියාවලි ලැයිස්තුව",
+    pr_note: "\"ලක්ෂ්‍ය වගුව සාදන්න\" හි තෝරාගත හැකි ක්‍රියාවලි නම්. <b>පේළියකට එකක්</b> ලියන්න (උදා: එල්ලීම, පරීක්ෂාව).<br>එකම කොටස් අංකය වුවත් ක්‍රියාවලිය වෙනස් නම් වෙනම වගුවක් වේ; කන්බන් කියවන විට කුමන ක්‍රියාවලියේ වගුවද යන්න තෝරන තිරය පෙන්වයි.",
+    xl_e_pr: "ක්‍රියාවලිය \"ක්‍රියාවලි ලැයිස්තුව\" හි නැත (සැකසුම්වල එක් කරන්න)",
     ms_clr: "🗑 අනෙක් ටැබ්ලටවල ප්‍රධාන වගු සියල්ල මකන්න",
     ms_clr_note: "සියලු ටැබ්ලටවලින් ප්‍රධාන වගු සියල්ල මකයි (එක් එක් ටැබ්ලටයේ දැමූ දේශීය වගු පවතී). මෙම ටැබ්ලටයේ වගු මැකෙන්නේ නැත, දේශීය වගු බවට පත් වේ.",
     ms_clr_conf: "සියලු ටැබ්ලටවලින් ප්‍රධාන වගු සියල්ල මකන්නද? ඊළඟ වර අන්තර්ජාලයට සම්බන්ධ වූ විට මැකේ. හරිද?",
@@ -5833,6 +5897,18 @@ function sameFamily(a, b) {
   if (stripCopy(a) === stripCopy(b)) return true;
   var s = a.length <= b.length ? a : b, l = a.length <= b.length ? b : a;
   return l.length > s.length && l.indexOf(s) === 0 && !/^[0-9A-Z,]/.test(l.charAt(s.length));
+}
+/** 工程つきの名前（品番【工程】）から工程を外す。norm() 済みのキーにも、ファイル名にも使える */
+function prBase(k) { return String(k).replace(/【[^】]*】$/, ''); }
+/** 品番と工程から、表の名前（ファイル名）を作る */
+function prName(pn, pr) { return String(pn).replace(/[\\/:*?"<>|]/g, '_') + (pr ? '【' + String(pr).replace(/[\\/:*?"<>|【】]/g, '_') + '】' : '') + '.pdf'; }
+function procList() { return (CF.procs || []).map(function (x) { return String(x).normalize('NFKC').trim(); }).filter(Boolean); }
+/** 「つくる」の工程の選択肢を作り直す（今の値が一覧にないときも残す） */
+function prFill(cur) {
+  var el = $('tplPr'); if (!el) return; cur = cur == null ? el.value : cur;
+  var ls = procList(); if (cur && ls.indexOf(cur) < 0) ls = ls.concat([cur]);
+  el.innerHTML = '<option value="">' + esc(t('tp_pr_none')) + '</option>' + ls.map(function (x) { return '<option value="' + esc(x) + '">' + esc(x) + '</option>'; }).join('');
+  el.value = cur || '';
 }
 function keyParts(k) { return String(k).split(/[,、，\/／+＋&＆]+/).filter(Boolean); }
 /** QRの中身を区切り（カンマ・タブ・空白など）で分けた候補一覧 */
@@ -6030,7 +6106,11 @@ async function startKanban(raw) {
   // ⓪' 品番と背番号などを「,」で並べて登録したポイント表（例：74043-60020,A0U0）
   //     → 並べた項目が「全部」QRの中にあれば一致（品番が同じでも背番号が違えば別のかんばんとして扱う）
   //     一番くわしい（項目が多い・長い）ものを優先。同じくわしさで2つ以上ならNGで止める
-  var combo = Object.keys(PDF_INDEX).map(function (k) {
+  // 工程つきの表（例：16611-10040,4078【掛け置き】）は、工程を外した品番（IDX）で探す。同じ品番に工程が2つ以上あれば、最後に作業者が選ぶ
+  var IDX = {}, PRS = {}, chosen = null;
+  Object.keys(PDF_INDEX).forEach(function (k0) { var b0 = prBase(k0); (PRS[b0] = PRS[b0] || []).push(k0); if (!IDX[b0]) IDX[b0] = { key: b0, name: prBase(PDF_INDEX[k0].name.replace(/\.(pdf|xlsx|xlsm)$/i, '')) + '.pdf' }; });
+  var pickX = async function (ks) { var all = [].concat.apply([], ks.map(function (k1) { return (PRS[k1] || [k1]).slice().sort(); })); var c1 = await pickDoc(all); if (!c1) return null; chosen = c1; return prBase(c1); };
+  var combo = Object.keys(IDX).map(function (k) {
     var parts = keyParts(k); if (parts.length < 2) return null;
     var len = parts.join('').length;
     if (len < 5 || !parts.every(function (q) { return whole0.indexOf(q) >= 0; })) return null;
@@ -6040,34 +6120,34 @@ async function startKanban(raw) {
     var best = combo.filter(function (c) { return c.n === combo[0].n && c.len === combo[0].len; });
     if (best.length > 1) { // 同じくわしさで複数当たった → どれを使うか選ばせる（選ばなければNGで止める）
       CARD.kPn = picked[0] || raw; renderCards(); setSteps(2);
-      var ck = await pickDoc(best.map(function (c) { return c.k; }));
-      if (!ck) return ng('ng_multi', { t: 'multi', k: picked[0] || raw, list: best.map(function (c) { return PDF_INDEX[c.k].name.replace(/\.(pdf|xlsx|xlsm)$/i, ''); }).join('、') }, { kRaw: raw, part: best.map(function (c) { return c.k; }).join('/') });
+      var ck = await pickX(best.map(function (c) { return c.k; }));
+      if (!ck) return ng('ng_multi', { t: 'multi', k: picked[0] || raw, list: best.map(function (c) { return IDX[c.k].name.replace(/\.(pdf|xlsx|xlsm)$/i, ''); }).join('、') }, { kRaw: raw, part: best.map(function (c) { return c.k; }).join('/') });
       PICKED = true; key = ck;
     } else key = combo[0].k;
-    shown = PDF_INDEX[key].name.replace(/\.(pdf|xlsx|xlsm)$/i, '');
+    shown = IDX[key].name.replace(/\.(pdf|xlsx|xlsm)$/i, '');
   }
   // ① 抜き取った品番、または区切り（カンマ・空白など）で分けた項目が、そのまま品番と一致
-  if (!key) for (var i = 0; i < cand.length; i++) { var k = norm(cand[i]); if (k && PDF_INDEX[k]) { key = k; shown = cand[i]; break; } }
+  if (!key) for (var i = 0; i < cand.length; i++) { var k = norm(cand[i]); if (k && IDX[k]) { key = k; shown = cand[i]; break; } }
   // ①' 品番と背番号などを「,」で並べて登録したポイント表は、並べた項目の「どれか1つ」を読んだだけでも一致（各項目3文字以上）
   //     読んだ文字の中から区切りで分けた項目が、ぴったり同じ時だけ。長いQRの中に含まれているだけでは一致にしない（誤品防止）
   //     2つ以上の表に当たる時（例：同じ品番で背番号ちがいを品番だけ読んだ）は、決められないのでNGで止める
   if (!key) {
     var toks = fields(raw).map(norm).filter(Boolean);
-    var phit = Object.keys(PDF_INDEX).filter(function (k) {
+    var phit = Object.keys(IDX).filter(function (k) {
       var ps = keyParts(k); return ps.length >= 2 && ps.some(function (q) { return q.length >= 3 && toks.indexOf(q) >= 0; });
     });
-    if (phit.length === 1) { key = phit[0]; shown = PDF_INDEX[key].name.replace(/\.(pdf|xlsx|xlsm)$/i, ''); }
+    if (phit.length === 1) { key = phit[0]; shown = IDX[key].name.replace(/\.(pdf|xlsx|xlsm)$/i, ''); }
     else if (phit.length > 1) {
       CARD.kPn = raw; renderCards(); setSteps(2);
-      var ck2 = await pickDoc(phit);
-      if (!ck2) return ng('ng_multi', { t: 'multi', k: raw, list: phit.map(function (k) { return PDF_INDEX[k].name.replace(/\.(pdf|xlsx|xlsm)$/i, ''); }).join('、') }, { kRaw: raw, part: phit.join('/') });
-      PICKED = true; key = ck2; shown = PDF_INDEX[key].name.replace(/\.(pdf|xlsx|xlsm)$/i, '');
+      var ck2 = await pickX(phit);
+      if (!ck2) return ng('ng_multi', { t: 'multi', k: raw, list: phit.map(function (k) { return IDX[k].name.replace(/\.(pdf|xlsx|xlsm)$/i, ''); }).join('、') }, { kRaw: raw, part: phit.join('/') });
+      PICKED = true; key = ck2; shown = IDX[key].name.replace(/\.(pdf|xlsx|xlsm)$/i, '');
     }
   }
   // ② 区切りのないQR（固定長など）：QRの中に登録済みの品番が含まれていれば一致とする
   //    短すぎる品番は別の数字に偶然含まれるので5文字以上だけ。複数含まれる時は一番長い品番を採用
   if (!key) {
-    var whole = whole0, hits = Object.keys(PDF_INDEX).filter(function (k) { return keyParts(k).length < 2 && k.length >= 5 && whole.indexOf(k) >= 0; });
+    var whole = whole0, hits = Object.keys(IDX).filter(function (k) { return keyParts(k).length < 2 && k.length >= 5 && whole.indexOf(k) >= 0; });
     if (hits.length) {
       hits.sort(function (a, b) { return b.length - a.length; });
       var top = hits.filter(function (k) { return k.length === hits[0].length; });
@@ -6076,21 +6156,33 @@ async function startKanban(raw) {
       if (pref.length === 1) top = pref;
       if (top.length > 1) { // 同じ長さで別の品番が2つ以上 → どちらか決められないので止める
         CARD.kPn = raw; renderCards(); setSteps(2);
-        var ck3 = await pickDoc(top);
-        if (!ck3) return ng('ng_multi', { t: 'multi', k: raw, list: top.map(function (k) { return PDF_INDEX[k].name.replace(/\.(pdf|xlsx|xlsm)$/i, ''); }).join('、') }, { kRaw: raw, part: top.join('/') });
+        var ck3 = await pickX(top);
+        if (!ck3) return ng('ng_multi', { t: 'multi', k: raw, list: top.map(function (k) { return IDX[k].name.replace(/\.(pdf|xlsx|xlsm)$/i, ''); }).join('、') }, { kRaw: raw, part: top.join('/') });
         PICKED = true; top = [ck3];
       }
-      key = top[0]; shown = PDF_INDEX[key].name.replace(/\.(pdf|xlsx|xlsm)$/i, '');
+      key = top[0]; shown = IDX[key].name.replace(/\.(pdf|xlsx|xlsm)$/i, '');
     }
   }
   // ③ 一致した表に「コピー」がある時（名前の最後が「 - コピー」「(1)」「 - Copy」など）は、同じ表が複数あるので、どれを使うか選ばせる
   if (key && !PICKED) {
-    var dups = Object.keys(PDF_INDEX).filter(function (k2) { return k2 !== key && sameFamily(key, k2); });
+    var dups = Object.keys(IDX).filter(function (k2) { return k2 !== key && sameFamily(key, k2); });
     if (dups.length) {
       CARD.kPn = shown || picked[0] || raw; renderCards(); setSteps(2);
-      var all = [key].concat(dups).sort(), ck4 = await pickDoc(all);
-      if (!ck4) return ng('ng_multi', { t: 'multi', k: shown || raw, list: all.map(function (k) { return PDF_INDEX[k].name.replace(/\.(pdf|xlsx|xlsm)$/i, ''); }).join('、') }, { kRaw: raw, part: all.join('/') });
-      PICKED = true; key = ck4; shown = PDF_INDEX[key].name.replace(/\.(pdf|xlsx|xlsm)$/i, '');
+      var all = [key].concat(dups).sort(), ck4 = await pickX(all);
+      if (!ck4) return ng('ng_multi', { t: 'multi', k: shown || raw, list: all.map(function (k) { return IDX[k].name.replace(/\.(pdf|xlsx|xlsm)$/i, ''); }).join('、') }, { kRaw: raw, part: all.join('/') });
+      PICKED = true; key = ck4; shown = IDX[key].name.replace(/\.(pdf|xlsx|xlsm)$/i, '');
+    }
+  }
+  // 工程：選んだ表があればそれ、1つならそれ、2つ以上なら作業者が選ぶ（選ばなければNGで止める）
+  if (key) {
+    var real = (PRS[key] || [key]).slice().sort();
+    if (chosen && real.indexOf(chosen) >= 0) key = chosen;
+    else if (real.length === 1) key = real[0];
+    else {
+      CARD.kPn = shown || picked[0] || raw; renderCards(); setSteps(2);
+      var ck5 = await pickDoc(real);
+      if (!ck5) return ng('ng_multi', { t: 'multi', k: shown || raw, list: real.map(function (k) { return PDF_INDEX[k].name.replace(/\.(pdf|xlsx|xlsm)$/i, ''); }).join('、') }, { kRaw: raw, part: real.join('/') });
+      PICKED = true; key = ck5;
     }
   }
   if (!shown) shown = picked[0] || raw; // 一致しない時も、抜き取れた品番があればそれを見せる
@@ -6668,6 +6760,7 @@ function msStatus() {
   $('msStat').innerHTML = esc(CF.mver ? t('ms_stat', { v: CF.mver, at: CF.mat || '', n: nm }) : t('ms_stat_none')) + '<br><span style="font-weight:600">' + esc(t('ms_stat_local', { n: nl })) + '</span>' +
     (CF.mchk ? '<br><span class="note">' + esc(t('ms_chk', { at: CF.mchk })) + (CF.merr ? ' <span style="color:var(--ng)">⚠ ' + esc(CF.merr) + '</span>' : '') + '</span>' : '');
 }
+$('cfProcs').onchange = function () { CF.procs = this.value.split(/\r?\n/).map(function (x) { return x.normalize('NFKC').trim(); }).filter(function (x, i, a) { return x && a.indexOf(x) === i; }); this.value = CF.procs.join('\n'); saveCfStore(); prFill(); toast(t('ms_saved')); };
 $('msUrl').onchange = function () { CF.msUrl = this.value.trim(); CF.merr = ''; saveCfStore(); msStatus(); toast(t('ms_saved')); };
 $('msKey').onchange = function () { CF.msKey = this.value.trim(); CF.merr = ''; saveCfStore(); toast(t('ms_saved')); };
 $('msAuto').onchange = function () { CF.msAuto = this.checked ? '1' : '0'; saveCfStore(); };
@@ -6799,6 +6892,7 @@ function xlKind(h) {
   if (/^(品番|部品番号|partnumber|part|pn)$/.test(h)) return 'pn';
   if (/^(収容数|入数|入り数|qty|quantity)$/.test(h)) return 'qty';
   if (/^(ハンガー種類|ハンガー|ハンガ|ハンガータイプ|hanger|hangertype)$/.test(h)) return 'hg';
+  if (/^(工程|工程名|process)$/.test(h)) return 'pr';
   if (/^(掛け数|掛数|かけ数|掛け本数|掛本数|hooks?|hookcount)$/.test(h)) return 'hk';
   if (/^(ポイント|points?)\d*$/.test(h)) return 'pts';
   if (/^(英語|english|en)\d*$/.test(h)) return 'en';
@@ -6852,10 +6946,12 @@ async function xlRead(buf) {
     var pts = xlLines(sh.cells, r2, cols.pts || [], true);
     var urls = sh.images.filter(function (im) { return im.from.r + 1 === r2; }).sort(function (a, b) { return a.from.c - b.from.c; }).slice(0, TPL_MAX);
     if (!pn && !qty && !pts.length && !urls.length) continue; // 空の行は飛ばす
-    var row = { line: r2, pn: pn, qty: qty, hg: hg, hk: hk, pts: pts, urls: urls, tr: {}, err: '', warn: '' };
+    var pr = (xlLines(sh.cells, r2, cols.pr || [])[0] || '').normalize('NFKC').trim();
+    var row = { line: r2, pn: pn, qty: qty, hg: hg, hk: hk, pr: pr, pts: pts, urls: urls, tr: {}, err: '', warn: '' };
     TRL.forEach(function (l) { row.tr[l] = xlLines(sh.cells, r2, cols[l] || [], true).join('\n'); });
-    var key = norm(pn.replace(/[\\/:*?"<>|]/g, '_') + '.pdf');
+    var key = norm(prName(pn, pr));
     if (!pn || !key) row.err = 'xl_e_pn';
+    else if (pr && procList().indexOf(pr) < 0) row.err = 'xl_e_pr';
     else if (!/^[1-9][0-9]*$/.test(qty)) row.err = 'xl_e_qty';
     else if (!pts.length) row.err = 'xl_e_pts';
     else if (seen[key]) row.err = 'xl_e_dup';
@@ -6871,7 +6967,7 @@ function xlShow() {
   $('xlTbl').innerHTML = '<tr><th>' + esc(t('xl_c_row')) + '</th><th>' + esc(t('tp_pn')) + '</th><th>' + esc(t('tp_qty')) + '</th><th>' + esc(t('tp_pts')) + '</th><th>' + esc(t('xl_c_photo')) + '</th><th>' + esc(t('xl_c_tr')) + '</th><th>' + esc(t('xl_c_state')) + '</th></tr>' +
     rows.map(function (r) {
       var st = r.err ? '<span style="color:var(--red);font-weight:900">✕ ' + esc(t(r.err)) + '</span>' : (r.over ? esc(t('xl_s_over')) : esc(t('xl_s_new'))) + (r.warn ? ' <span style="color:var(--red)">⚠ ' + esc(t(r.warn)) + '</span>' : '') + (r.warn2 ? ' <span style="color:var(--red)">⚠ ' + esc(t(r.warn2)) + '</span>' : '');
-      return '<tr><td>' + r.line + '</td><td class="mono">' + esc(r.pn) + '</td><td>' + esc(r.qty) + '</td><td>' + r.pts.length + '</td><td>' + r.urls.length + '</td><td>' + TRL.filter(function (l) { return String(r.tr[l] || '').trim(); }).length + ' / ' + TRL.length + '</td><td>' + st + '</td></tr>';
+      return '<tr><td>' + r.line + '</td><td class="mono">' + esc(r.pn) + (r.pr ? '【' + esc(r.pr) + '】' : '') + '</td><td>' + esc(r.qty) + '</td><td>' + r.pts.length + '</td><td>' + r.urls.length + '</td><td>' + TRL.filter(function (l) { return String(r.tr[l] || '').trim(); }).length + ' / ' + TRL.length + '</td><td>' + st + '</td></tr>';
     }).join('');
   $('xlGo').disabled = a + u === 0;
   $('xlBox').style.display = 'grid';
@@ -6949,8 +7045,8 @@ var XO_LANG = ['英語', 'ベトナム語', 'インドネシア語', 'ミャン�
 /** list: [{pn, qty, pts:[…], tr:{en:'…'}, photos:[dataURL…]}] → Blob(.xlsx) */
 async function xlExport(list) {
   var NP = 8; list.forEach(function (r) { NP = Math.max(NP, r.pts.length); });
-  var PH0 = 4, P0 = 8, L0 = P0 + NP, NC = L0 + TRL.length, enc = new TextEncoder();
-  var heads = ['品番', '収容数', 'ハンガー種類', '掛け数'].concat(['①', '②', '③', '④'].map(function (x) { return '📷 写真' + x; }), Array.apply(null, Array(NP)).map(function (_, i) { return 'ポイント' + (i + 1); }), XO_LANG);
+  var PH0 = 4, P0 = 8, L0 = P0 + NP, PRC = L0 + TRL.length, NC = PRC + 1, enc = new TextEncoder();
+  var heads = ['品番', '収容数', 'ハンガー種類', '掛け数'].concat(['①', '②', '③', '④'].map(function (x) { return '📷 写真' + x; }), Array.apply(null, Array(NP)).map(function (_, i) { return 'ポイント' + (i + 1); }), XO_LANG, ['工程']);
   function cs(r, c, v, st) { return '<c r="' + colL(c) + r + '" s="' + st + '" t="inlineStr"><is><t xml:space="preserve">' + xmlEsc(v) + '</t></is></c>'; }
   var rows = ['<row r="1" ht="26" customHeight="1">' + heads.map(function (h, c) { return cs(1, c, h, c >= PH0 && c < P0 ? 6 : 1); }).join('') + '</row>'];
   var pics = [], media = [], dr = [];
@@ -6962,6 +7058,7 @@ async function xlExport(list) {
     for (var c = PH0; c < P0; c++) cells.push('<c r="' + colL(c) + R + '" s="5"/>');
     for (var k = 0; k < NP; k++) cells.push(r.pts[k] ? cs(R, P0 + k, r.pts[k], 3) : '<c r="' + colL(P0 + k) + R + '" s="3"/>');
     TRL.forEach(function (l, j) { cells.push(cs(R, L0 + j, r.tr && r.tr[l] || '', 4)); });
+    cells.push(cs(R, PRC, r.pr || '', 2));
     rows.push('<row r="' + R + '" ht="96" customHeight="1">' + cells.join('') + '</row>');
     for (var q = 0; q < Math.min(4, (r.photos || []).length); q++) {
       var url = r.photos[q], m = /^data:image\/(jpeg|png);base64,(.*)$/.exec(url || ''); if (!m) continue;
@@ -6971,7 +7068,7 @@ async function xlExport(list) {
       dr.push('<xdr:oneCellAnchor><xdr:from><xdr:col>' + (PH0 + q) + '</xdr:col><xdr:colOff>38100</xdr:colOff><xdr:row>' + (R - 1) + '</xdr:row><xdr:rowOff>38100</xdr:rowOff></xdr:from><xdr:ext cx="' + w * 9525 + '" cy="' + h * 9525 + '"/><xdr:pic><xdr:nvPicPr><xdr:cNvPr id="' + (n + 1) + '" name="Picture ' + n + '"/><xdr:cNvPicPr><a:picLocks noChangeAspect="1"/></xdr:cNvPicPr></xdr:nvPicPr><xdr:blipFill><a:blip r:embed="rId' + n + '"/><a:stretch><a:fillRect/></a:stretch></xdr:blipFill><xdr:spPr><a:xfrm><a:off x="0" y="0"/><a:ext cx="' + w * 9525 + '" cy="' + h * 9525 + '"/></a:xfrm><a:prstGeom prst="rect"><a:avLst/></a:prstGeom></xdr:spPr></xdr:pic><xdr:clientData/></xdr:oneCellAnchor>');
     }
   }
-  var cols = []; for (var cc = 0; cc < NC; cc++) cols.push('<col min="' + (cc + 1) + '" max="' + (cc + 1) + '" width="' + (cc === 0 ? 18 : cc === 1 ? 9 : cc === 2 ? 16 : cc === 3 ? 9 : cc < P0 ? 17 : cc < L0 ? 24 : 30) + '" customWidth="1"/>');
+  var cols = []; for (var cc = 0; cc < NC; cc++) cols.push('<col min="' + (cc + 1) + '" max="' + (cc + 1) + '" width="' + (cc === 0 ? 18 : cc === 1 ? 9 : cc === 2 ? 16 : cc === 3 ? 9 : cc < P0 ? 17 : cc < L0 ? 24 : cc === PRC ? 14 : 30) + '" customWidth="1"/>');
   var NS = 'xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"', H = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n';
   var sheet = H + '<worksheet ' + NS + '><sheetViews><sheetView workbookViewId="0"><pane xSplit="1" ySplit="1" topLeftCell="B2" activePane="bottomRight" state="frozen"/></sheetView></sheetViews><cols>' + cols.join('') + '</cols><sheetData>' + rows.join('') + '</sheetData>' + (dr.length ? '<drawing r:id="rId1"/>' : '') + '</worksheet>';
   var styles = H + '<styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><fonts count="2"><font><sz val="11"/><name val="Meiryo"/></font><font><b/><sz val="11"/><color rgb="FFFFFFFF"/><name val="Meiryo"/></font></fonts>' +
@@ -7005,7 +7102,7 @@ function xoRows(recs) { // src を持つものだけ（取り込んだPDF・Exce
   var rows = [], skip = 0;
   recs.forEach(function (rec) {
     var s = rec && rec.src; if (!s || !s.pn) { skip++; return; }
-    rows.push({ pn: s.pn, qty: String(s.qty || ''), hg: s.hg || '', hk: s.hk || '', pts: String(s.pts || '').split(/\r?\n/).filter(Boolean), tr: s.tr || {}, photos: s.photos || [] });
+    rows.push({ pn: s.pn, qty: String(s.qty || ''), hg: s.hg || '', hk: s.hk || '', pr: s.pr || '', pts: String(s.pts || '').split(/\r?\n/).filter(Boolean), tr: s.tr || {}, photos: s.photos || [] });
   });
   rows.sort(function (a, b) { return a.pn < b.pn ? -1 : a.pn > b.pn ? 1 : 0; });
   return { rows: rows, skip: skip };
@@ -7033,7 +7130,7 @@ $('xlSaveXl').onclick = async function () {
     var rows = [];
     for (var i = 0; i < ok.length; i++) {
       var r = ok[i], ims = (await Promise.all(r.urls.map(xlLoadOriented))).filter(Boolean);
-      rows.push({ pn: r.pn, qty: r.qty, hg: r.hg || '', hk: r.hk || '', pts: r.pts, tr: r.tr, photos: ims.map(imgToDataUrl) });
+      rows.push({ pn: r.pn, qty: r.qty, hg: r.hg || '', hk: r.hk || '', pr: r.pr || '', pts: r.pts, tr: r.tr, photos: ims.map(imgToDataUrl) });
     }
     var blob = await xlExport(rows), a = document.createElement('a');
     a.href = URL.createObjectURL(blob); a.download = 'ポイント表一覧_翻訳つき_T' + CF.term + '_' + today().replace(/-/g, '') + '.xlsx';
@@ -7071,11 +7168,11 @@ $('xlGo').onclick = async function () {
       var r = todo[i]; msg.textContent = t('xl_busy', { i: i + 1, n: todo.length });
       var ims = (await Promise.all(r.urls.map(xlLoadOriented))).filter(Boolean);
       var cv = document.createElement('canvas'); cv.width = 1684; cv.height = 1191;
-      tplPaint(cv, { pn: r.pn, qty: r.qty, hg: r.hg, hk: r.hk, pts: r.pts }, ims);
+      tplPaint(cv, { pn: r.pn, qty: r.qty, hg: r.hg, hk: r.hk, pr: r.pr, pts: r.pts }, ims);
       var blob = await new Promise(function (res) { cv.toBlob(res, 'image/jpeg', 0.88); });
-      var pdf = jpegToPdf(new Uint8Array(await blob.arrayBuffer()), cv.width, cv.height), name = r.pn.replace(/[\\/:*?"<>|]/g, '_') + '.pdf';
+      var pdf = jpegToPdf(new Uint8Array(await blob.arrayBuffer()), cv.width, cv.height), name = prName(r.pn, r.pr);
       var rec = { key: norm(name), name: name, size: pdf.length, at: today() + ' ' + nowTime(), data: pdf.buffer.slice(0),
-        src: { pn: r.pn, qty: r.qty, hg: r.hg || '', hk: r.hk || '', pts: r.pts.join('\n'), tr: r.tr, photos: ims.map(imgToDataUrl) } };
+        src: { pn: r.pn, qty: r.qty, hg: r.hg || '', hk: r.hk || '', pr: r.pr || '', pts: r.pts.join('\n'), tr: r.tr, photos: ims.map(imgToDataUrl) } };
       await tx('pdfs', 'readwrite', function (st) { st.put(rec); });
       if (r.over) u++; else a++;
     }
@@ -7708,7 +7805,7 @@ function gotoView(v) {
   if (v === 'check') setTimeout(focusScan, 50);
   if (v === 'pdf') showPdfList();
   if (v === 'log') showLogs();
-  if (v === 'set') { msFill(); $('cfTerm').value = CF.term; $('cfSound').value = CF.sound; $('cfManual').value = CF.manual === '0' ? '0' : '1'; if (!$('clrDate').value) $('clrDate').value = today(); showClrCount(); }
+  if (v === 'set') { $('cfProcs').value = procList().join('\n'); prFill(); msFill(); $('cfTerm').value = CF.term; $('cfSound').value = CF.sound; $('cfManual').value = CF.manual === '0' ? '0' : '1'; if (!$('clrDate').value) $('clrDate').value = today(); showClrCount(); }
 }
 document.querySelectorAll('.tab').forEach(function (b) {
   b.onclick = async function () {
@@ -7779,7 +7876,7 @@ function tplVal() {
   return {
     pn: toHalf($('tplPn').value).normalize('NFKC').trim(),
     qty: toHalf($('tplQty').value).normalize('NFKC').trim(),
-    hg: $('tplHg').value.normalize('NFKC').trim(), hk: toHalf($('tplHk').value).normalize('NFKC').trim(),
+    hg: $('tplHg').value.normalize('NFKC').trim(), hk: toHalf($('tplHk').value).normalize('NFKC').trim(), pr: $('tplPr').value,
     pts: $('tplPts').value.split(/\r?\n/).map(function (x) { return x.trim(); }).filter(Boolean)
   };
 }
@@ -7984,7 +8081,7 @@ $('shotDo').onclick = function () {
 $('shotClose').onclick = shotStop;
 $('tplShotIn').onchange = function () { var fs = Array.prototype.slice.call(this.files || []); this.value = ''; if (fs.length && !tplAddFiles(fs)) tplPhotoMsg(esc(t('tp_pick_bad'))); };
 $('tplPhotoIn').onchange = function () { var fs = Array.prototype.slice.call(this.files || []); this.value = ''; var had = fs.length; fs = tplTakeVideo(fs); if (had && !fs.length) return; if (fs.length && !tplAddFiles(fs)) tplPhotoMsg(esc(t('tp_pick_bad'))); };
-['tplPn', 'tplQty', 'tplHg', 'tplHk', 'tplPts'].forEach(function (id) { $(id).addEventListener('input', function () { tplDraw(); if (!tplMark(true).length) $('tplMsg').textContent = ''; }); });
+['tplPn', 'tplQty', 'tplHg', 'tplHk', 'tplPr', 'tplPts'].forEach(function (id) { $(id).addEventListener(id === 'tplPr' ? 'change' : 'input', function () { tplDraw(); if (!tplMark(true).length) $('tplMsg').textContent = ''; }); });
 
 /** 日本語は単語の区切りがないので、1文字ずつ幅を測って折り返す */
 function wrapText(cx, text, maxW) {
@@ -8023,11 +8120,11 @@ function tplPaint(cv, v, ims) {
   cx.fillText('ポイント表', M + 30, M + 55);
   cx.textAlign = 'right'; cx.font = '700 30px ' + F; cx.fillText('作成日 ' + today(), W - M - 30, M + 55); cx.textAlign = 'left';
   // 品番・ハンガー種類・掛け数・収容数（ハンガー種類・掛け数は、入れていなければ「―」）
-  var y0 = M + 140, IW = W - 2 * M, XS = [0, 640, 1040, 1260, IW], LB = ['品番', 'ハンガー種類', '掛け数', '収容数'], VL = [v.pn || '―', v.hg || '―', v.hk || '―', v.qty ? v.qty + ' 個' : '―'];
+  var y0 = M + 140, IW = W - 2 * M, XS = [0, 560, 860, 1160, 1340, IW], LB = ['品番', '工程', 'ハンガー種類', '掛け数', '収容数'], VL = [v.pn || '―', v.pr || '―', v.hg || '―', v.hk || '―', v.qty ? v.qty + ' 個' : '―'];
   cx.strokeStyle = '#241A4A'; cx.lineWidth = 4;
   cx.strokeRect(M, y0, IW, 120);
-  for (var hi = 1; hi < 4; hi++) { cx.beginPath(); cx.moveTo(M + XS[hi], y0); cx.lineTo(M + XS[hi], y0 + 120); cx.stroke(); }
-  for (var hj = 0; hj < 4; hj++) {
+  for (var hi = 1; hi < LB.length; hi++) { cx.beginPath(); cx.moveTo(M + XS[hi], y0); cx.lineTo(M + XS[hi], y0 + 120); cx.stroke(); }
+  for (var hj = 0; hj < LB.length; hj++) {
     var cw0 = XS[hj + 1] - XS[hj] - 40, fz = 64;
     cx.fillStyle = '#6A5F8F'; cx.font = '700 28px ' + F; cx.fillText(LB[hj], M + XS[hj] + 24, y0 + 32);
     do { cx.font = '900 ' + fz + 'px ' + F; fz -= 2; } while (cx.measureText(VL[hj]).width > cw0 && fz >= 26); // 長い文字は、枠に入るまで小さくする
@@ -8169,7 +8266,7 @@ async function tplBuild() {
   var cv = $('tplCanvas');
   var blob = await new Promise(function (res) { cv.toBlob(res, 'image/jpeg', 0.88); });
   var jpeg = new Uint8Array(await blob.arrayBuffer());
-  var name = v.pn.replace(/[\\/:*?"<>|]/g, '_') + '.pdf';
+  var name = prName(v.pn, v.pr);
   return { name: name, key: norm(name), pdf: jpegToPdf(jpeg, cv.width, cv.height) };
 }
 /** 写真を長辺1600pxまでに縮めて、保存用の文字列（JPEG）にする */
@@ -8183,14 +8280,14 @@ function imgToDataUrl(im) {
 function tplSource() {
   var v = tplVal();
   return {
-    pn: v.pn, qty: v.qty, hg: v.hg, hk: v.hk, pts: $('tplPts').value,
+    pn: v.pn, qty: v.qty, hg: v.hg, hk: v.hk, pr: v.pr, pts: $('tplPts').value,
     tr: (function () { var o = {}; TRL.forEach(function (l) { o[l] = $('tplTr_' + l).value; }); return o; })(),
     photos: TPL.imgs.map(function (p) { return imgToDataUrl(p.im); })
   };
 }
 // ---- 作りかけ（入力の途中）を1つのファイルに保存して、別のタブレットで開いて続ける ----
 $('drSave').onclick = function () {
-  var d = { magic: 'PTDRAFT1', at: today() + ' ' + nowTime(), term: CF.term, pn: $('tplPn').value, qty: $('tplQty').value, hg: $('tplHg').value, hk: $('tplHk').value, pts: $('tplPts').value,
+  var d = { magic: 'PTDRAFT1', at: today() + ' ' + nowTime(), term: CF.term, pn: $('tplPn').value, qty: $('tplQty').value, hg: $('tplHg').value, hk: $('tplHk').value, pr: $('tplPr').value, pts: $('tplPts').value,
     tr: (function () { var o = {}; TRL.forEach(function (l) { o[l] = $('tplTr_' + l).value; }); return o; })(), photos: TPL.imgs.map(function (p) { return imgToDataUrl(p.im); }) };
   if (!d.pn && !d.qty && !d.pts && !d.photos.length) return toast(t('dr_empty'));
   var name = '作りかけ_' + (d.pn.trim().replace(/[\\/:*?"<>|]/g, '_') || today()) + '.ptdraft';
@@ -8204,7 +8301,7 @@ $('drIn').onchange = async function () {
   var d; try { d = JSON.parse(new TextDecoder().decode(await readBuf(f))); if (d.magic !== 'PTDRAFT1') throw 0; } catch (e) { return toast(t('dr_bad'), 4000); }
   if (($('tplPn').value || $('tplPts').value || TPL.imgs.length) && !confirm(t('dr_confirm'))) return;
   tplEditEnd(); tplReset();
-  $('tplPn').value = d.pn || ''; $('tplQty').value = d.qty || ''; $('tplHg').value = d.hg || ''; $('tplHk').value = d.hk || ''; $('tplPts').value = d.pts || '';
+  $('tplPn').value = d.pn || ''; $('tplQty').value = d.qty || ''; $('tplHg').value = d.hg || ''; $('tplHk').value = d.hk || ''; prFill(d.pr || ''); $('tplPts').value = d.pts || '';
   TRL.forEach(function (l) { $('tplTr_' + l).value = (d.tr && d.tr[l]) || ''; });
   if (TRL.some(function (l) { return d.tr && d.tr[l]; })) $('tplTrBox').open = true;
   for (var i = 0; i < (d.photos || []).length && i < TPL_MAX; i++) {
@@ -8217,9 +8314,9 @@ $('tplSave').onclick = async function () {
   if (!r.key) return toast(t('tp_pn_check'));
   var ek = TPL.editKey;
   if (ek && r.key !== ek) {
-    if (!confirm(t('tp_rename_confirm', { a: PDF_INDEX[ek].name.replace(/\.(pdf|xlsx|xlsm)$/i, ''), b: tplVal().pn }))) return;
+    if (!confirm(t('tp_rename_confirm', { a: PDF_INDEX[ek].name.replace(/\.(pdf|xlsx|xlsm)$/i, ''), b: prName(tplVal().pn, tplVal().pr).replace(/\.pdf$/, '') }))) return;
   }
-  if (PDF_INDEX[r.key] && r.key !== ek && !confirm(t('tp_exists_confirm', { pn: tplVal().pn, name: PDF_INDEX[r.key].name }))) return;
+  if (PDF_INDEX[r.key] && r.key !== ek && !confirm(t('tp_exists_confirm', { pn: r.name.replace(/\.pdf$/, ''), name: PDF_INDEX[r.key].name }))) return;
   var rec = { key: r.key, name: r.name, size: r.pdf.length, at: today() + ' ' + nowTime(), data: r.pdf.buffer.slice(0), src: tplSource() };
   await tx('pdfs', 'readwrite', function (st) { if (ek && ek !== r.key) st.delete(ek); st.put(rec); });
   try {
@@ -8237,7 +8334,7 @@ $('tplSave').onclick = async function () {
 function tplReset() {
   TPL.imgs.forEach(function (p) { try { URL.revokeObjectURL(p.url); } catch (x) {} }); TPL.imgs = []; tplRenderPhotos(); TPL.video = null; tplVidShow();
   tplPhotoMsg('');
-  $('tplPn').value = ''; $('tplQty').value = ''; $('tplHg').value = ''; $('tplHk').value = ''; $('tplPts').value = ''; $('tplMsg').textContent = '';
+  $('tplPn').value = ''; $('tplQty').value = ''; $('tplHg').value = ''; $('tplHk').value = ''; prFill(''); $('tplPts').value = ''; $('tplMsg').textContent = '';
   TRL.forEach(function (l) { $('tplTr_' + l).value = ''; }); $('tplTrMsg').textContent = '';
   document.querySelectorAll('.tplItem.bad').forEach(function (el) { el.classList.remove('bad'); });
   tplDraw();
@@ -8250,7 +8347,7 @@ async function editPdf(k) {
   tplReset();
   TPL.editKey = k; tplVidShow(); $('editName').textContent = rec.name.replace(/\.(pdf|xlsx|xlsm)$/i, ''); $('editBar').hidden = false; $('tplSave').textContent = t('tp_overwrite');
   if (rec.src) { // このアプリで作ったもの：入力した内容をそのまま戻す
-    $('tplPn').value = rec.src.pn || ''; $('tplQty').value = rec.src.qty || ''; $('tplHg').value = rec.src.hg || ''; $('tplHk').value = rec.src.hk || ''; $('tplPts').value = rec.src.pts || '';
+    $('tplPn').value = rec.src.pn || ''; $('tplQty').value = rec.src.qty || ''; $('tplHg').value = rec.src.hg || ''; $('tplHk').value = rec.src.hk || ''; prFill(rec.src.pr || ''); $('tplPts').value = rec.src.pts || '';
     var rtr = rec.src.tr || {}; TRL.forEach(function (l) { $('tplTr_' + l).value = rtr[l] || ''; });
     if (TRL.some(function (l) { return rtr[l]; })) $('tplTrBox').open = true;
     tplTrCheck();
